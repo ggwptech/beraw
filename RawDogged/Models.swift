@@ -31,13 +31,13 @@ struct RawChallenge: Identifiable, Codable {
     let id: UUID
     let title: String
     let durationMinutes: Int
-    var isCompleted: Bool
+    var completedCount: Int
     
-    init(id: UUID = UUID(), title: String, durationMinutes: Int, isCompleted: Bool = false) {
+    init(id: UUID = UUID(), title: String, durationMinutes: Int, completedCount: Int = 0) {
         self.id = id
         self.title = title
         self.durationMinutes = durationMinutes
-        self.isCompleted = isCompleted
+        self.completedCount = completedCount
     }
 }
 
@@ -120,11 +120,11 @@ class AppStateManager: ObservableObject {
         )
         
         self.challenges = [
-            RawChallenge(title: "15 Min: Stare at the Wall", durationMinutes: 15, isCompleted: true),
-            RawChallenge(title: "45 Min: Silent Walk", durationMinutes: 45, isCompleted: false),
-            RawChallenge(title: "3 Hour: No Phone Dinner", durationMinutes: 180, isCompleted: false),
-            RawChallenge(title: "30 Min: Deep Thought", durationMinutes: 30, isCompleted: true),
-            RawChallenge(title: "2 Hour: Complete Disconnect", durationMinutes: 120, isCompleted: false)
+            RawChallenge(title: "Stare at the Wall", durationMinutes: 15, completedCount: 3),
+            RawChallenge(title: "Silent Walk", durationMinutes: 45, completedCount: 0),
+            RawChallenge(title: "No Phone Dinner", durationMinutes: 180, completedCount: 0),
+            RawChallenge(title: "Deep Thought", durationMinutes: 30, completedCount: 2),
+            RawChallenge(title: "Complete Disconnect", durationMinutes: 120, completedCount: 0)
         ]
         
         self.currentUser = "You"
@@ -205,9 +205,14 @@ class AppStateManager: ObservableObject {
     }
     
     // MARK: - Challenge Management
-    func toggleChallenge(_ challenge: RawChallenge) {
+    func startChallenge(_ challenge: RawChallenge) {
+        currentSession = RawSession()
+        startTimer()
+    }
+    
+    func completeChallenge(_ challenge: RawChallenge) {
         if let index = challenges.firstIndex(where: { $0.id == challenge.id }) {
-            challenges[index].isCompleted.toggle()
+            challenges[index].completedCount += 1
         }
     }
     

@@ -7,7 +7,6 @@ import SwiftUI
 
 struct LeaderboardView: View {
     @EnvironmentObject var appState: AppStateManager
-    @State private var selectedPeriod: LeaderboardPeriod = .allTime
     
     private let accentBlue = Color(red: 47/255, green: 0, blue: 1) // #2f00ff
     
@@ -27,29 +26,13 @@ struct LeaderboardView: View {
                         }
                         
                         Spacer()
+                        
+                        Text("All-Time")
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(.gray)
                     }
                     .padding(.horizontal, 20)
                     .padding(.top, 10)
-                    
-                    // Period Selector Card
-                    HStack(spacing: 0) {
-                        ForEach(LeaderboardPeriod.allCases, id: \.self) { period in
-                            Button(action: {
-                                selectedPeriod = period
-                            }) {
-                                Text(period.rawValue)
-                                    .font(.system(size: 14, weight: .semibold))
-                                    .foregroundColor(selectedPeriod == period ? .white : accentBlue)
-                                    .frame(maxWidth: .infinity)
-                                    .padding(.vertical, 12)
-                                    .background(selectedPeriod == period ? accentBlue : Color.white)
-                            }
-                        }
-                    }
-                    .background(Color.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                    .shadow(color: accentBlue.opacity(0.08), radius: 12, x: 0, y: 4)
-                    .padding(.horizontal, 20)
                     
                     // Your Rank Card
                     if let yourEntry = appState.leaderboard.first(where: { $0.nickname == appState.currentUser }) {
@@ -112,12 +95,6 @@ struct LeaderboardView: View {
         }
         .accentColor(accentBlue)
     }
-}
-
-enum LeaderboardPeriod: String, CaseIterable {
-    case daily = "Daily"
-    case weekly = "Weekly"
-    case allTime = "All-Time"
 }
 
 struct LeaderboardRow: View {

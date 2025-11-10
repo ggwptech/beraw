@@ -8,6 +8,8 @@ import SwiftUI
 struct ChallengeView: View {
     @EnvironmentObject var appState: AppStateManager
     @State private var showAddChallenge = false
+    @State private var selectedChallenge: RawChallenge?
+    @State private var showChallengeTimer = false
     
     private let accentBlue = Color(red: 47/255, green: 0, blue: 1) // #2f00ff
     
@@ -93,6 +95,11 @@ struct ChallengeView: View {
                         ForEach(appState.challenges) { challenge in
                             ChallengeCard(challenge: challenge)
                                 .environmentObject(appState)
+                                .onTapGesture {
+                                    selectedChallenge = challenge
+                                    appState.startChallenge(challenge)
+                                    showChallengeTimer = true
+                                }
                         }
                     }
                     .padding(.horizontal, 20)
@@ -105,12 +112,21 @@ struct ChallengeView: View {
                 AddChallengeView()
                     .environmentObject(appState)
             }
+            .fullScreenCover(isPresented: $showChallengeTimer) {
+                if let challenge = selectedChallenge {
+                    ChallengeTimerView(
+                        challenge: challenge,
+                        targetDuration: TimeInterval(challenge.durationMinutes * 60)
+                    )
+                    .environmentObject(appState)
+                }
+            }
         }
         .accentColor(accentBlue)
     }
     
     private var completedCount: Int {
-        appState.challenges.filter { $0.isCompleted }.count
+        appState.challenges.reduce(0) { $0 + $1.completedCount }
     }
 }
 
@@ -121,62 +137,59 @@ struct ChallengeCard: View {
     private let accentBlue = Color(red: 47/255, green: 0, blue: 1) // #2f00ff
     
     var body: some View {
-        Button(action: {
-            appState.toggleChallenge(challenge)
-        }) {
-            HStack(spacing: 16) {
-                // Status Indicator
-                ZStack {
-                    if challenge.isCompleted {
-                        ZStack {
-                            Circle()
-                                .fill(accentBlue)
-                                .frame(width: 32, height: 32)
-                            
-                            Image(systemName: "checkmark")
-                                .font(.system(size: 14, weight: .bold))
-                                .foregroundColor(.white)
+        HStack(spacing: 16) {
+            // Play Icon
+            ZStack {
+                Circle()
+                    .fill(accentBlue)
+                    .frame(width: 48, height: 48)
+                
+                Image(systemName: "play.fill")
+                    .font(.system(size: 18, weight: .bold))
+                    .foregroundColor(.white)
+            }
+            
+            // Challenge Info
+            VStack(alignment: .leading, spacing: 6) {
+                Text(challenge.title)
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(.black)
+                    .multilineTextAlignment(.leading)
+                
+                HStack(spacing: 12) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "clock.fill")
+                            .font(.system(size: 10))
+                        Text("\(challenge.durationMinutes) min")
+                    }
+                    .font(.system(size: 12, weight: .regular))
+                    .foregroundColor(.gray)
+                    
+                    if challenge.completedCount > 0 {
+                        HStack(spacing: 4) {
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.system(size: 10))
+                            Text("\(challenge.completedCount)×")
                         }
-                    } else {
-                        Circle()
-                            .stroke(accentBlue.opacity(0.3), lineWidth: 2)
-                            .frame(width: 32, height: 32)
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(accentBlue)
                     }
                 }
-                
-                // Challenge Info
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(challenge.title)
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(.black)
-                        .multilineTextAlignment(.leading)
-                    
-                    Text("\(challenge.durationMinutes) minutes")
-                        .font(.system(size: 12, weight: .regular))
-                        .foregroundColor(.gray)
-                }
-                
-                Spacer()
-                
-                // Duration Badge
-                Text("\(challenge.durationMinutes)m")
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(challenge.isCompleted ? .white : accentBlue)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 6)
-                    .background(
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(challenge.isCompleted ? accentBlue : accentBlue.opacity(0.1))
-                    )
             }
-            .padding(16)
-            .background(
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color.white)
-                    .shadow(color: accentBlue.opacity(0.08), radius: 12, x: 0, y: 4)
-            )
+            
+            Spacer()
+            
+            // Arrow
+            Image(systemName: "chevron.right")
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundColor(.gray.opacity(0.5))
         }
-        .buttonStyle(PlainButtonStyle())
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.white)
+                .shadow(color: accentBlue.opacity(0.08), radius: 12, x: 0, y: 4)
+        )
     }
 }
 
