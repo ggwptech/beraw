@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# Script to add Swift files to Xcode project
+# This helps ensure all files are properly recognized by Xcode
+
+echo "To add the Swift files to your Xcode project:"
+echo ""
+echo "1. Open RawDogged.xcodeproj in Xcode"
+echo ""
+echo "2. In the Project Navigator (left sidebar), right-click on the 'RawDogged' folder (blue icon)"
+echo ""
+echo "3. Select 'Add Files to RawDogged...'"
+echo ""
+echo "4. Navigate to the RawDogged folder and select these files:"
+echo "   - Models.swift"
+echo "   - HomeView.swift"
+echo "   - ChallengeView.swift"
+echo "   - LeaderboardView.swift"
+echo "   - ProfileView.swift"
+echo ""
+echo "5. Make sure 'Copy items if needed' is UNCHECKED (files are already in place)"
+echo ""
+echo "6. Make sure 'RawDogged' is checked under 'Add to targets'"
+echo ""
+echo "7. Click 'Add'"
+echo ""
+echo "8. Build the project (⌘+B)"
+echo ""
+echo "Alternatively, you can drag and drop the files directly into the Project Navigator."
+echo ""

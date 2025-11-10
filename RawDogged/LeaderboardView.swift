@@ -1,0 +1,203 @@
+//
+//  LeaderboardView.swift
+//  RawDogged
+//
+
+import SwiftUI
+
+struct LeaderboardView: View {
+    @EnvironmentObject var appState: AppStateManager
+    @State private var selectedPeriod: LeaderboardPeriod = .allTime
+    
+    private let accentBlue = Color(red: 47/255, green: 0, blue: 1) // #2f00ff
+    
+    var body: some View {
+        NavigationView {
+            ScrollView {
+                VStack(spacing: 20) {
+                    // Header
+                    HStack {
+                        HStack(spacing: 8) {
+                            Image(systemName: "trophy.fill")
+                                .font(.system(size: 24, weight: .bold))
+                                .foregroundColor(accentBlue)
+                            Text("Top Dogs")
+                                .font(.system(size: 28, weight: .bold))
+                                .foregroundColor(.black)
+                        }
+                        
+                        Spacer()
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.top, 10)
+                    
+                    // Period Selector Card
+                    HStack(spacing: 0) {
+                        ForEach(LeaderboardPeriod.allCases, id: \.self) { period in
+                            Button(action: {
+                                selectedPeriod = period
+                            }) {
+                                Text(period.rawValue)
+                                    .font(.system(size: 14, weight: .semibold))
+                                    .foregroundColor(selectedPeriod == period ? .white : accentBlue)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 12)
+                                    .background(selectedPeriod == period ? accentBlue : Color.white)
+                            }
+                        }
+                    }
+                    .background(Color.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .shadow(color: accentBlue.opacity(0.08), radius: 12, x: 0, y: 4)
+                    .padding(.horizontal, 20)
+                    
+                    // Your Rank Card
+                    if let yourEntry = appState.leaderboard.first(where: { $0.nickname == appState.currentUser }) {
+                        VStack(spacing: 12) {
+                            HStack {
+                                HStack(spacing: 6) {
+                                    Image(systemName: "chart.bar.fill")
+                                        .font(.system(size: 12, weight: .medium))
+                                    Text("Your Rank")
+                                }
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(.gray)
+                                Spacer()
+                            }
+                            
+                            HStack(spacing: 20) {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("#\(yourEntry.rank)")
+                                        .font(.system(size: 32, weight: .bold))
+                                        .foregroundColor(.black)
+                                    Text("Position")
+                                        .font(.system(size: 12, weight: .regular))
+                                        .foregroundColor(.gray)
+                                }
+                                
+                                Spacer()
+                                
+                                VStack(alignment: .trailing, spacing: 4) {
+                                    Text(appState.formatTotalTime(yourEntry.totalRawTime))
+                                        .font(.system(size: 28, weight: .bold))
+                                        .foregroundColor(.black)
+                                    Text("Total Time")
+                                        .font(.system(size: 12, weight: .regular))
+                                        .foregroundColor(.gray)
+                                }
+                            }
+                        }
+                        .padding(20)
+                        .background(
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(Color.white)
+                                .shadow(color: accentBlue.opacity(0.08), radius: 12, x: 0, y: 4)
+                        )
+                        .padding(.horizontal, 20)
+                    }
+                    
+                    // Leaderboard List
+                    VStack(spacing: 8) {
+                        ForEach(appState.leaderboard) { entry in
+                            LeaderboardRow(entry: entry, isCurrentUser: entry.nickname == appState.currentUser)
+                                .environmentObject(appState)
+                        }
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 20)
+                }
+            }
+            .background(Color(red: 0.97, green: 0.97, blue: 0.97))
+            .navigationBarHidden(true)
+        }
+        .accentColor(accentBlue)
+    }
+}
+
+enum LeaderboardPeriod: String, CaseIterable {
+    case daily = "Daily"
+    case weekly = "Weekly"
+    case allTime = "All-Time"
+}
+
+struct LeaderboardRow: View {
+    let entry: LeaderboardEntry
+    let isCurrentUser: Bool
+    @EnvironmentObject var appState: AppStateManager
+    
+    private let accentBlue = Color(red: 47/255, green: 0, blue: 1) // #2f00ff
+    
+    var body: some View {
+        HStack(spacing: 16) {
+            // Rank Badge
+            ZStack {
+                if entry.rank <= 3 {
+                    Circle()
+                        .fill(rankColor)
+                        .frame(width: 40, height: 40)
+                    
+                    Text("\(entry.rank)")
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundColor(.white)
+                } else {
+                    Circle()
+                        .stroke(accentBlue.opacity(0.3), lineWidth: 2)
+                        .frame(width: 40, height: 40)
+                    
+                    Text("\(entry.rank)")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(.black)
+                }
+            }
+            
+            // User Info
+            VStack(alignment: .leading, spacing: 4) {
+                Text(entry.nickname)
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(.black)
+                
+                Text(appState.formatTotalTime(entry.totalRawTime))
+                    .font(.system(size: 12, weight: .regular))
+                    .foregroundColor(.gray)
+            }
+            
+            Spacer()
+            
+            // Star for top 3
+            if entry.rank <= 3 {
+                Image(systemName: "star.fill")
+                    .font(.system(size: 18))
+                    .foregroundColor(rankStarColor)
+            }
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(isCurrentUser ? accentBlue.opacity(0.1) : Color.white)
+                .shadow(color: accentBlue.opacity(0.08), radius: 12, x: 0, y: 4)
+        )
+    }
+    
+    private var rankColor: Color {
+        switch entry.rank {
+        case 1: return Color(red: 47/255, green: 0, blue: 1) // Purple for first
+        case 2: return accentBlue.opacity(0.7)
+        case 3: return accentBlue.opacity(0.5)
+        default: return accentBlue.opacity(0.3)
+        }
+    }
+    
+    private var rankStarColor: Color {
+        switch entry.rank {
+        case 1: return Color(red: 1, green: 0.84, blue: 0) // Gold
+        case 2: return Color(red: 0.75, green: 0.75, blue: 0.75) // Silver
+        case 3: return Color(red: 0.8, green: 0.5, blue: 0.2) // Bronze
+        default: return accentBlue
+        }
+    }
+}
+
+#Preview {
+    LeaderboardView()
+        .environmentObject(AppStateManager())
+}
