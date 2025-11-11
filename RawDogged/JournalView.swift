@@ -9,7 +9,7 @@ struct JournalView: View {
     @EnvironmentObject var appState: AppStateManager
     @State private var selectedEntry: JournalEntry?
     
-    private let accentBlue = Color(red: 47/255, green: 0, blue: 1)
+    private let accentBlack = Color.black
     
     var body: some View {
         NavigationView {
@@ -20,7 +20,7 @@ struct JournalView: View {
                         HStack(spacing: 8) {
                             Image(systemName: "book.fill")
                                 .font(.system(size: 24, weight: .bold))
-                                .foregroundColor(accentBlue)
+                                .foregroundColor(accentBlack)
                             Text("Journal")
                                 .font(.system(size: 28, weight: .bold))
                                 .foregroundColor(.black)
@@ -70,7 +70,7 @@ struct JournalView: View {
                     .background(
                         RoundedRectangle(cornerRadius: 16)
                             .fill(Color.white)
-                            .shadow(color: accentBlue.opacity(0.08), radius: 12, x: 0, y: 4)
+                            .shadow(color: accentBlack.opacity(0.08), radius: 12, x: 0, y: 4)
                     )
                     .padding(.horizontal, 20)
                     
@@ -112,7 +112,7 @@ struct JournalView: View {
                     .environmentObject(appState)
             }
         }
-        .accentColor(accentBlue)
+        .accentColor(accentBlack)
     }
     
     private var totalSessionsTime: String {
@@ -123,7 +123,7 @@ struct JournalView: View {
 
 struct JournalEntryCard: View {
     let entry: JournalEntry
-    private let accentBlue = Color(red: 47/255, green: 0, blue: 1)
+    private let accentBlack = Color.black
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -131,7 +131,7 @@ struct JournalEntryCard: View {
                 HStack(spacing: 8) {
                     Image(systemName: "clock.fill")
                         .font(.system(size: 12))
-                        .foregroundColor(accentBlue)
+                        .foregroundColor(accentBlack)
                     
                     Text(formattedDate)
                         .font(.system(size: 14, weight: .semibold))
@@ -147,7 +147,7 @@ struct JournalEntryCard: View {
                     .padding(.vertical, 6)
                     .background(
                         RoundedRectangle(cornerRadius: 8)
-                            .fill(accentBlue)
+                            .fill(accentBlack)
                     )
             }
             
@@ -160,7 +160,7 @@ struct JournalEntryCard: View {
         .background(
             RoundedRectangle(cornerRadius: 16)
                 .fill(Color.white)
-                .shadow(color: accentBlue.opacity(0.08), radius: 12, x: 0, y: 4)
+                .shadow(color: accentBlack.opacity(0.08), radius: 12, x: 0, y: 4)
         )
     }
     
@@ -188,7 +188,7 @@ struct JournalDetailView: View {
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var appState: AppStateManager
     
-    private let accentBlue = Color(red: 47/255, green: 0, blue: 1)
+    private let accentBlack = Color.black
     
     var body: some View {
         NavigationView {
@@ -198,7 +198,7 @@ struct JournalDetailView: View {
                     VStack(spacing: 16) {
                         Image(systemName: "book.fill")
                             .font(.system(size: 50))
-                            .foregroundColor(accentBlue)
+                            .foregroundColor(accentBlack)
                         
                         Text(formattedDate)
                             .font(.system(size: 18, weight: .semibold))
@@ -206,14 +206,14 @@ struct JournalDetailView: View {
                         
                         Text(formattedDuration)
                             .font(.system(size: 28, weight: .bold))
-                            .foregroundColor(accentBlue)
+                            .foregroundColor(accentBlack)
                     }
                     .frame(maxWidth: .infinity)
                     .padding(30)
                     .background(
                         RoundedRectangle(cornerRadius: 16)
                             .fill(Color.white)
-                            .shadow(color: accentBlue.opacity(0.08), radius: 12, x: 0, y: 4)
+                            .shadow(color: accentBlack.opacity(0.08), radius: 12, x: 0, y: 4)
                     )
                     .padding(.horizontal, 20)
                     .padding(.top, 20)
@@ -237,7 +237,7 @@ struct JournalDetailView: View {
                     .background(
                         RoundedRectangle(cornerRadius: 16)
                             .fill(Color.white)
-                            .shadow(color: accentBlue.opacity(0.08), radius: 12, x: 0, y: 4)
+                            .shadow(color: accentBlack.opacity(0.08), radius: 12, x: 0, y: 4)
                     )
                     .padding(.horizontal, 20)
                 }
@@ -251,7 +251,7 @@ struct JournalDetailView: View {
                     Button("Done") {
                         dismiss()
                     }
-                    .foregroundColor(accentBlue)
+                    .foregroundColor(accentBlack)
                 }
             }
         }

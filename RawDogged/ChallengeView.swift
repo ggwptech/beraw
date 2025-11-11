@@ -11,7 +11,7 @@ struct ChallengeView: View {
     @State private var selectedChallenge: RawChallenge?
     @State private var showChallengeTimer = false
     
-    private let accentBlue = Color(red: 47/255, green: 0, blue: 1) // #2f00ff
+    private let accentBlack = Color.black // #2f00ff
     
     var body: some View {
         NavigationView {
@@ -22,7 +22,7 @@ struct ChallengeView: View {
                         HStack(spacing: 8) {
                             Image(systemName: "target")
                                 .font(.system(size: 24, weight: .bold))
-                                .foregroundColor(accentBlue)
+                                .foregroundColor(accentBlack)
                             Text("Raw Challenges")
                                 .font(.system(size: 28, weight: .bold))
                                 .foregroundColor(.black)
@@ -35,7 +35,7 @@ struct ChallengeView: View {
                         }) {
                             ZStack {
                                 Circle()
-                                    .fill(accentBlue)
+                                    .fill(accentBlack)
                                     .frame(width: 36, height: 36)
                                 
                                 Image(systemName: "plus")
@@ -47,13 +47,13 @@ struct ChallengeView: View {
                     .padding(.horizontal, 20)
                     .padding(.top, 10)
                     
-                    // Progress Summary Card
+                    // Statistics Card
                     VStack(spacing: 12) {
                         HStack {
                             HStack(spacing: 6) {
-                                Image(systemName: "chart.line.uptrend.xyaxis")
+                                Image(systemName: "chart.bar.fill")
                                     .font(.system(size: 12, weight: .medium))
-                                Text("Progress")
+                                Text("Statistics")
                             }
                             .font(.system(size: 14, weight: .medium))
                             .foregroundColor(.gray)
@@ -62,9 +62,9 @@ struct ChallengeView: View {
                         
                         HStack(spacing: 20) {
                             VStack(alignment: .leading, spacing: 4) {
-                                Text("\(completedCount)")
+                                Text("\(completedChallengesCount)")
                                     .font(.system(size: 32, weight: .bold))
-                                    .foregroundColor(.black)
+                                    .foregroundColor(.green)
                                 Text("Completed")
                                     .font(.system(size: 12, weight: .regular))
                                     .foregroundColor(.gray)
@@ -73,10 +73,10 @@ struct ChallengeView: View {
                             Spacer()
                             
                             VStack(alignment: .trailing, spacing: 4) {
-                                Text("\(appState.challenges.count)")
+                                Text("\(activeChallengesCount)")
                                     .font(.system(size: 32, weight: .bold))
-                                    .foregroundColor(.gray)
-                                Text("Total")
+                                    .foregroundColor(.black)
+                                Text("Active")
                                     .font(.system(size: 12, weight: .regular))
                                     .foregroundColor(.gray)
                             }
@@ -86,7 +86,7 @@ struct ChallengeView: View {
                     .background(
                         RoundedRectangle(cornerRadius: 16)
                             .fill(Color.white)
-                            .shadow(color: accentBlue.opacity(0.08), radius: 12, x: 0, y: 4)
+                            .shadow(color: accentBlack.opacity(0.08), radius: 12, x: 0, y: 4)
                     )
                     .padding(.horizontal, 20)
                     
@@ -96,9 +96,11 @@ struct ChallengeView: View {
                             ChallengeCard(challenge: challenge)
                                 .environmentObject(appState)
                                 .onTapGesture {
-                                    selectedChallenge = challenge
-                                    appState.startChallenge(challenge)
-                                    showChallengeTimer = true
+                                    if !challenge.isCompleted {
+                                        selectedChallenge = challenge
+                                        appState.startChallenge(challenge)
+                                        showChallengeTimer = true
+                                    }
                                 }
                         }
                     }
@@ -122,11 +124,15 @@ struct ChallengeView: View {
                 }
             }
         }
-        .accentColor(accentBlue)
+        .accentColor(accentBlack)
     }
     
-    private var completedCount: Int {
-        appState.challenges.reduce(0) { $0 + $1.completedCount }
+    private var completedChallengesCount: Int {
+        appState.challenges.filter { $0.isCompleted }.count
+    }
+    
+    private var activeChallengesCount: Int {
+        appState.challenges.filter { !$0.isCompleted }.count
     }
 }
 
@@ -134,26 +140,27 @@ struct ChallengeCard: View {
     let challenge: RawChallenge
     @EnvironmentObject var appState: AppStateManager
     
-    private let accentBlue = Color(red: 47/255, green: 0, blue: 1) // #2f00ff
+    private let accentBlack = Color.black // #2f00ff
     
     var body: some View {
         HStack(spacing: 16) {
-            // Play Icon
+            // Target Icon
             ZStack {
                 Circle()
-                    .fill(accentBlue)
+                    .fill(challenge.isCompleted ? Color.gray.opacity(0.3) : accentBlack)
                     .frame(width: 48, height: 48)
                 
-                Image(systemName: "play.fill")
-                    .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(.white)
+                Image(systemName: challenge.isCompleted ? "checkmark" : "target")
+                    .font(.system(size: 20, weight: .semibold))
+                    .foregroundColor(challenge.isCompleted ? .gray : .white)
             }
             
             // Challenge Info
             VStack(alignment: .leading, spacing: 6) {
                 Text(challenge.title)
                     .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(.black)
+                    .foregroundColor(challenge.isCompleted ? .gray : .black)
+                    .strikethrough(challenge.isCompleted, color: .gray)
                     .multilineTextAlignment(.leading)
                 
                 HStack(spacing: 12) {
@@ -172,24 +179,31 @@ struct ChallengeCard: View {
                             Text("\(challenge.completedCount)×")
                         }
                         .font(.system(size: 12, weight: .medium))
-                        .foregroundColor(accentBlue)
+                        .foregroundColor(challenge.isCompleted ? .gray : accentBlack)
                     }
                 }
             }
             
             Spacer()
             
-            // Arrow
-            Image(systemName: "chevron.right")
-                .font(.system(size: 14, weight: .semibold))
-                .foregroundColor(.gray.opacity(0.5))
+            // Arrow or Completed
+            if challenge.isCompleted {
+                Text("Done")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundColor(.green)
+            } else {
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundColor(.gray.opacity(0.5))
+            }
         }
         .padding(16)
         .background(
             RoundedRectangle(cornerRadius: 16)
                 .fill(Color.white)
-                .shadow(color: accentBlue.opacity(0.08), radius: 12, x: 0, y: 4)
+                .shadow(color: accentBlack.opacity(0.08), radius: 12, x: 0, y: 4)
         )
+        .opacity(challenge.isCompleted ? 0.6 : 1.0)
     }
 }
 
@@ -200,7 +214,7 @@ struct AddChallengeView: View {
     @State private var title = ""
     @State private var duration = ""
     
-    private let accentBlue = Color(red: 47/255, green: 0, blue: 1) // #2f00ff
+    private let accentBlack = Color.black // #2f00ff
     
     var body: some View {
         NavigationView {
@@ -228,7 +242,7 @@ struct AddChallengeView: View {
                     .background(
                         RoundedRectangle(cornerRadius: 16)
                             .fill(Color.white)
-                            .shadow(color: accentBlue.opacity(0.08), radius: 12, x: 0, y: 4)
+                            .shadow(color: accentBlack.opacity(0.08), radius: 12, x: 0, y: 4)
                     )
                     .padding(.horizontal, 20)
                     
@@ -252,7 +266,7 @@ struct AddChallengeView: View {
                     .background(
                         RoundedRectangle(cornerRadius: 16)
                             .fill(Color.white)
-                            .shadow(color: accentBlue.opacity(0.08), radius: 12, x: 0, y: 4)
+                            .shadow(color: accentBlack.opacity(0.08), radius: 12, x: 0, y: 4)
                     )
                     .padding(.horizontal, 20)
                     
@@ -272,7 +286,7 @@ struct AddChallengeView: View {
                             .padding(16)
                             .background(
                                 RoundedRectangle(cornerRadius: 12)
-                                    .fill(accentBlue)
+                                    .fill(accentBlack)
                             )
                     }
                     .disabled(title.isEmpty || duration.isEmpty)
@@ -289,11 +303,11 @@ struct AddChallengeView: View {
                     Button("Cancel") {
                         dismiss()
                     }
-                    .foregroundColor(accentBlue)
+                    .foregroundColor(accentBlack)
                 }
             }
         }
-        .accentColor(accentBlue)
+        .accentColor(accentBlack)
     }
 }
 

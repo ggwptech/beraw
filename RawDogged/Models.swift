@@ -32,12 +32,14 @@ struct RawChallenge: Identifiable, Codable {
     let title: String
     let durationMinutes: Int
     var completedCount: Int
+    var isCompleted: Bool
     
-    init(id: UUID = UUID(), title: String, durationMinutes: Int, completedCount: Int = 0) {
+    init(id: UUID = UUID(), title: String, durationMinutes: Int, completedCount: Int = 0, isCompleted: Bool = false) {
         self.id = id
         self.title = title
         self.durationMinutes = durationMinutes
         self.completedCount = completedCount
+        self.isCompleted = isCompleted
     }
 }
 
@@ -213,6 +215,18 @@ class AppStateManager: ObservableObject {
     func completeChallenge(_ challenge: RawChallenge) {
         if let index = challenges.firstIndex(where: { $0.id == challenge.id }) {
             challenges[index].completedCount += 1
+        }
+    }
+    
+    func toggleChallengeCompletion(_ challenge: RawChallenge) {
+        if let index = challenges.firstIndex(where: { $0.id == challenge.id }) {
+            challenges[index].isCompleted.toggle()
+        }
+    }
+    
+    func markChallengeAsCompleted(_ challenge: RawChallenge) {
+        if let index = challenges.firstIndex(where: { $0.id == challenge.id }) {
+            challenges[index].isCompleted = true
         }
     }
     

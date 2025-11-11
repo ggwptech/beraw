@@ -8,7 +8,7 @@ import SwiftUI
 struct LeaderboardView: View {
     @EnvironmentObject var appState: AppStateManager
     
-    private let accentBlue = Color(red: 47/255, green: 0, blue: 1) // #2f00ff
+    private let accentBlack = Color.black // #2f00ff
     
     var body: some View {
         NavigationView {
@@ -19,7 +19,7 @@ struct LeaderboardView: View {
                         HStack(spacing: 8) {
                             Image(systemName: "trophy.fill")
                                 .font(.system(size: 24, weight: .bold))
-                                .foregroundColor(accentBlue)
+                                .foregroundColor(accentBlack)
                             Text("Top Dogs")
                                 .font(.system(size: 28, weight: .bold))
                                 .foregroundColor(.black)
@@ -74,7 +74,7 @@ struct LeaderboardView: View {
                         .background(
                             RoundedRectangle(cornerRadius: 16)
                                 .fill(Color.white)
-                                .shadow(color: accentBlue.opacity(0.08), radius: 12, x: 0, y: 4)
+                                .shadow(color: accentBlack.opacity(0.08), radius: 12, x: 0, y: 4)
                         )
                         .padding(.horizontal, 20)
                     }
@@ -93,7 +93,7 @@ struct LeaderboardView: View {
             .background(Color(red: 0.97, green: 0.97, blue: 0.97))
             .navigationBarHidden(true)
         }
-        .accentColor(accentBlue)
+        .accentColor(accentBlack)
     }
 }
 
@@ -102,7 +102,7 @@ struct LeaderboardRow: View {
     let isCurrentUser: Bool
     @EnvironmentObject var appState: AppStateManager
     
-    private let accentBlue = Color(red: 47/255, green: 0, blue: 1) // #2f00ff
+    private let accentBlack = Color.black // #2f00ff
     
     var body: some View {
         HStack(spacing: 16) {
@@ -118,7 +118,7 @@ struct LeaderboardRow: View {
                         .foregroundColor(.white)
                 } else {
                     Circle()
-                        .stroke(accentBlue.opacity(0.3), lineWidth: 2)
+                        .stroke(accentBlack.opacity(0.3), lineWidth: 2)
                         .frame(width: 40, height: 40)
                     
                     Text("\(entry.rank)")
@@ -150,17 +150,17 @@ struct LeaderboardRow: View {
         .padding(16)
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(isCurrentUser ? accentBlue.opacity(0.1) : Color.white)
-                .shadow(color: accentBlue.opacity(0.08), radius: 12, x: 0, y: 4)
+                .fill(isCurrentUser ? accentBlack.opacity(0.1) : Color.white)
+                .shadow(color: accentBlack.opacity(0.08), radius: 12, x: 0, y: 4)
         )
     }
     
     private var rankColor: Color {
         switch entry.rank {
-        case 1: return Color(red: 47/255, green: 0, blue: 1) // Purple for first
-        case 2: return accentBlue.opacity(0.7)
-        case 3: return accentBlue.opacity(0.5)
-        default: return accentBlue.opacity(0.3)
+        case 1: return Color.black // Purple for first
+        case 2: return accentBlack.opacity(0.7)
+        case 3: return accentBlack.opacity(0.5)
+        default: return accentBlack.opacity(0.3)
         }
     }
     
@@ -169,7 +169,7 @@ struct LeaderboardRow: View {
         case 1: return Color(red: 1, green: 0.84, blue: 0) // Gold
         case 2: return Color(red: 0.75, green: 0.75, blue: 0.75) // Silver
         case 3: return Color(red: 0.8, green: 0.5, blue: 0.2) // Bronze
-        default: return accentBlue
+        default: return accentBlack
         }
     }
 }

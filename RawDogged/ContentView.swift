@@ -10,7 +10,7 @@ import SwiftUI
 struct ContentView: View {
     @StateObject private var appState = AppStateManager()
     
-    private let accentBlue = Color(red: 47/255, green: 0, blue: 1) // #2f00ff
+    private let accentBlack = Color.black // #2f00ff
     
     var body: some View {
         TabView {
@@ -49,7 +49,7 @@ struct ContentView: View {
                 }
                 .environmentObject(appState)
         }
-        .accentColor(accentBlue)
+        .accentColor(accentBlack)
     }
 }
 

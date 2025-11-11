@@ -12,7 +12,7 @@ struct JournalEntryView: View {
     @State private var thoughts = ""
     @FocusState private var isTextFieldFocused: Bool
     
-    private let accentBlue = Color(red: 47/255, green: 0, blue: 1)
+    private let accentBlack = Color.black
     
     var body: some View {
         NavigationView {
@@ -25,7 +25,7 @@ struct JournalEntryView: View {
                     VStack(spacing: 16) {
                         Image(systemName: "checkmark.circle.fill")
                             .font(.system(size: 60))
-                            .foregroundColor(accentBlue)
+                            .foregroundColor(accentBlack)
                         
                         Text("Session Complete!")
                             .font(.system(size: 24, weight: .bold))
@@ -34,7 +34,7 @@ struct JournalEntryView: View {
                         if let duration = appState.completedSessionDuration {
                             Text(appState.formatTime(duration))
                                 .font(.system(size: 32, weight: .semibold))
-                                .foregroundColor(accentBlue)
+                                .foregroundColor(accentBlack)
                                 .monospacedDigit()
                         }
                         
@@ -46,7 +46,7 @@ struct JournalEntryView: View {
                     .background(
                         RoundedRectangle(cornerRadius: 16)
                             .fill(Color.white)
-                            .shadow(color: accentBlue.opacity(0.08), radius: 12, x: 0, y: 4)
+                            .shadow(color: accentBlack.opacity(0.08), radius: 12, x: 0, y: 4)
                     )
                     .padding(.horizontal, 20)
                     .padding(.top, 20)
@@ -71,14 +71,14 @@ struct JournalEntryView: View {
                             .focused($isTextFieldFocused)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 8)
-                                    .stroke(isTextFieldFocused ? accentBlue : Color.clear, lineWidth: 2)
+                                    .stroke(isTextFieldFocused ? accentBlack : Color.clear, lineWidth: 2)
                             )
                     }
                     .padding(20)
                     .background(
                         RoundedRectangle(cornerRadius: 16)
                             .fill(Color.white)
-                            .shadow(color: accentBlue.opacity(0.08), radius: 12, x: 0, y: 4)
+                            .shadow(color: accentBlack.opacity(0.08), radius: 12, x: 0, y: 4)
                     )
                     .padding(.horizontal, 20)
                     
@@ -99,7 +99,7 @@ struct JournalEntryView: View {
                                 .padding(16)
                                 .background(
                                     RoundedRectangle(cornerRadius: 12)
-                                        .fill(thoughts.isEmpty ? accentBlue.opacity(0.5) : accentBlue)
+                                        .fill(thoughts.isEmpty ? accentBlack.opacity(0.5) : accentBlack)
                                 )
                         }
                         

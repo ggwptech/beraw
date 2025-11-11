@@ -10,7 +10,7 @@ struct HomeView: View {
     @State private var showFullScreenTimer = false
     @State private var showJournalEntry = false
     
-    private let accentBlue = Color(red: 47/255, green: 0, blue: 1) // #2f00ff
+    private let accentBlack = Color.black
     
     var body: some View {
         NavigationView {
@@ -21,7 +21,7 @@ struct HomeView: View {
                         HStack(spacing: 8) {
                             Image(systemName: "bolt.fill")
                                 .font(.system(size: 24, weight: .bold))
-                                .foregroundColor(accentBlue)
+                                .foregroundColor(accentBlack)
                             Text("Be Raw")
                                 .font(.system(size: 28, weight: .bold))
                                 .foregroundColor(.black)
@@ -75,7 +75,7 @@ struct HomeView: View {
                             .padding(.vertical, 14)
                             .background(
                                 RoundedRectangle(cornerRadius: 12)
-                                    .fill(appState.currentSession == nil ? accentBlue : Color.red)
+                                    .fill(appState.currentSession == nil ? accentBlack : Color.red)
                             )
                         }
                     }
@@ -83,82 +83,58 @@ struct HomeView: View {
                     .background(
                         RoundedRectangle(cornerRadius: 16)
                             .fill(Color.white)
-                            .shadow(color: accentBlue.opacity(0.08), radius: 12, x: 0, y: 4)
+                            .shadow(color: accentBlack.opacity(0.08), radius: 12, x: 0, y: 4)
                     )
                     .padding(.horizontal, 20)
                     
-                    // Daily Goal Card
-                    VStack(spacing: 12) {
-                        HStack {
-                            HStack(spacing: 6) {
-                                Image(systemName: "target")
-                                    .font(.system(size: 12, weight: .medium))
-                                Text("Daily Goal")
-                            }
-                            .font(.system(size: 14, weight: .medium))
-                            .foregroundColor(.gray)
-                            Spacer()
-                            Text("\(getTodayMinutes()) / \(appState.userStats.dailyGoalMinutes) min")
-                                .font(.system(size: 12, weight: .regular))
-                                .foregroundColor(.gray)
-                        }
-                        
-                        // Progress Bar
-                        GeometryReader { geometry in
-                            ZStack(alignment: .leading) {
-                                RoundedRectangle(cornerRadius: 8)
-                                    .fill(accentBlue.opacity(0.1))
-                                    .frame(height: 12)
-                                
-                                RoundedRectangle(cornerRadius: 8)
-                                    .fill(accentBlue)
-                                    .frame(width: geometry.size.width * dailyProgress, height: 12)
-                            }
-                        }
-                        .frame(height: 12)
-                        
-                        HStack {
-                            Spacer()
-                            Text("\(Int(dailyProgress * 100))%")
-                                .font(.system(size: 18, weight: .semibold))
+                    // Day Streak Card
+                    VStack(spacing: 16) {
+                        HStack(spacing: 12) {
+                            Text("Day Streak")
+                                .font(.system(size: 16, weight: .semibold))
                                 .foregroundColor(.black)
+                            
+                            Spacer()
+                            
+                            Image(systemName: "flame.fill")
+                                .font(.system(size: 28, weight: .bold))
+                                .foregroundColor(.orange)
+                            
+                            Text("\(appState.userStats.dailyStreak)")
+                                .font(.system(size: 36, weight: .bold))
+                                .foregroundColor(.orange)
+                        }
+                        
+                        // Week Days Calendar
+                        HStack(spacing: 8) {
+                            ForEach(["S", "M", "T", "W", "T", "F", "S"], id: \.self) { day in
+                                VStack(spacing: 6) {
+                                    Text(day)
+                                        .font(.system(size: 12, weight: .medium))
+                                        .foregroundColor(.gray)
+                                    
+                                    Circle()
+                                        .fill(getStreakColor(for: day))
+                                        .frame(width: 32, height: 32)
+                                        .overlay(
+                                            Image(systemName: isStreakActive(for: day) ? "checkmark" : "")
+                                                .font(.system(size: 12, weight: .bold))
+                                                .foregroundColor(.white)
+                                        )
+                                }
+                            }
                         }
                     }
                     .padding(20)
                     .background(
                         RoundedRectangle(cornerRadius: 16)
                             .fill(Color.white)
-                            .shadow(color: accentBlue.opacity(0.08), radius: 12, x: 0, y: 4)
+                            .shadow(color: Color.black.opacity(0.08), radius: 12, x: 0, y: 4)
                     )
                     .padding(.horizontal, 20)
                     
                     // Stats Grid
                     HStack(spacing: 12) {
-                        // Streak Card
-                        VStack(alignment: .leading, spacing: 8) {
-                            HStack(spacing: 6) {
-                                Image(systemName: "flame.fill")
-                                    .font(.system(size: 11, weight: .medium))
-                                Text("Streak")
-                            }
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundColor(.gray)
-                            
-                            Text("\(appState.userStats.dailyStreak)")
-                                .font(.system(size: 32, weight: .bold))
-                                .foregroundColor(.black)
-                            
-                            Text("Days")
-                                .font(.system(size: 11, weight: .regular))
-                                .foregroundColor(.gray)
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(16)
-                        .background(
-                            RoundedRectangle(cornerRadius: 16)
-                                .fill(Color.white)
-                                .shadow(color: accentBlue.opacity(0.08), radius: 12, x: 0, y: 4)
-                        )
                         
                         // Total Time Card
                         VStack(alignment: .leading, spacing: 8) {
@@ -183,7 +159,7 @@ struct HomeView: View {
                         .background(
                             RoundedRectangle(cornerRadius: 16)
                                 .fill(Color.white)
-                                .shadow(color: accentBlue.opacity(0.08), radius: 12, x: 0, y: 4)
+                                .shadow(color: accentBlack.opacity(0.08), radius: 12, x: 0, y: 4)
                         )
                     }
                     .padding(.horizontal, 20)
@@ -211,7 +187,7 @@ struct HomeView: View {
                     .background(
                         RoundedRectangle(cornerRadius: 16)
                             .fill(Color.white)
-                            .shadow(color: accentBlue.opacity(0.08), radius: 12, x: 0, y: 4)
+                            .shadow(color: accentBlack.opacity(0.08), radius: 12, x: 0, y: 4)
                     )
                     .padding(.horizontal, 20)
                     .padding(.bottom, 20)
@@ -220,7 +196,7 @@ struct HomeView: View {
             .background(Color(red: 0.97, green: 0.97, blue: 0.97))
             .navigationBarHidden(true)
         }
-        .accentColor(accentBlue)
+        .accentColor(accentBlack)
         .fullScreenCover(isPresented: $showFullScreenTimer) {
             FullScreenTimerView()
                 .environmentObject(appState)
@@ -276,12 +252,23 @@ struct HomeView: View {
         let last7 = Array(appState.userStats.dailyHistory.suffix(7))
         return last7.map { $0.totalMinutes }
     }
+    
+    private func getStreakColor(for day: String) -> Color {
+        // For demo: first 2 days are active
+        let activeDays = ["S", "M"]
+        return activeDays.contains(day) ? .orange : Color.gray.opacity(0.2)
+    }
+    
+    private func isStreakActive(for day: String) -> Bool {
+        let activeDays = ["S", "M"]
+        return activeDays.contains(day)
+    }
 }
 
 // MARK: - Mini Bar Chart Component
 struct MiniBarChart: View {
     let data: [Int]
-    private let accentBlue = Color(red: 47/255, green: 0, blue: 1)
+    private let accentBlack = Color.black
     
     var body: some View {
         GeometryReader { geometry in
@@ -294,7 +281,7 @@ struct MiniBarChart: View {
                         Spacer()
                         
                         RoundedRectangle(cornerRadius: 4)
-                            .fill(accentBlue)
+                            .fill(accentBlack)
                             .frame(
                                 width: barWidth,
                                 height: max(CGFloat(data[index]) / CGFloat(maxValue) * geometry.size.height * 0.8, 4)

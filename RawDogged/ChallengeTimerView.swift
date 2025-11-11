@@ -16,7 +16,7 @@ struct ChallengeTimerView: View {
     @State private var motivationTimer: Timer?
     @State private var hasCompleted = false
     
-    private let accentBlue = Color(red: 47/255, green: 0, blue: 1)
+    private let accentBlack = Color.black
     
     private let motivationalTexts = [
         "Stay focused...",
@@ -63,7 +63,7 @@ struct ChallengeTimerView: View {
                         
                         Circle()
                             .trim(from: 0, to: progress)
-                            .stroke(accentBlue, style: StrokeStyle(lineWidth: 4, lineCap: .round))
+                            .stroke(accentBlack, style: StrokeStyle(lineWidth: 4, lineCap: .round))
                             .frame(width: 120, height: 120)
                             .rotationEffect(.degrees(-90))
                         
@@ -160,6 +160,7 @@ struct ChallengeTimerView: View {
         generator.notificationOccurred(.success)
         
         appState.completeChallenge(challenge)
+        appState.markChallengeAsCompleted(challenge)
         appState.stopSession()
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {

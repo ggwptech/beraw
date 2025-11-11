@@ -12,7 +12,7 @@ struct FullScreenTimerView: View {
     @State private var currentMotivationIndex = 0
     @State private var motivationTimer: Timer?
     
-    private let accentBlue = Color(red: 47/255, green: 0, blue: 1)
+    private let accentBlack = Color.black
     
     private let motivationalTexts = [
         "Embrace the silence...",

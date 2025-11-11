@@ -9,7 +9,7 @@ struct ProfileView: View {
     @EnvironmentObject var appState: AppStateManager
     @State private var showGoalSetting = false
     
-    private let accentBlue = Color(red: 47/255, green: 0, blue: 1) // #2f00ff
+    private let accentBlack = Color.black
     
     var body: some View {
         NavigationView {
@@ -20,7 +20,7 @@ struct ProfileView: View {
                         HStack(spacing: 8) {
                             Image(systemName: "person.fill")
                                 .font(.system(size: 24, weight: .bold))
-                                .foregroundColor(accentBlue)
+                                .foregroundColor(accentBlack)
                             Text("My Dog")
                                 .font(.system(size: 28, weight: .bold))
                                 .foregroundColor(.black)
@@ -60,12 +60,7 @@ struct ProfileView: View {
                     .environmentObject(appState)
             }
         }
-        .accentColor(accentBlue)
-    }
-    
-    private func getLast30Days() -> [Int] {
-        let last30 = Array(appState.userStats.dailyHistory.suffix(30))
-        return last30.map { $0.totalMinutes }
+        .accentColor(accentBlack)
     }
 }
 
@@ -76,14 +71,14 @@ struct SettingsCard: View {
     var showChevron: Bool
     let action: () -> Void
     
-    private let accentBlue = Color(red: 47/255, green: 0, blue: 1) // #2f00ff
+    private let accentBlack = Color.black
     
     var body: some View {
         Button(action: action) {
             HStack(spacing: 12) {
                 Image(systemName: icon)
                     .font(.system(size: 20, weight: .medium))
-                    .foregroundColor(isDestructive ? .red : accentBlue)
+                    .foregroundColor(isDestructive ? .red : accentBlack)
                     .frame(width: 24)
                 
                 Text(title)
@@ -95,14 +90,14 @@ struct SettingsCard: View {
                 if showChevron {
                     Image(systemName: "chevron.right")
                         .font(.system(size: 12, weight: .bold))
-                        .foregroundColor(accentBlue.opacity(0.4))
+                        .foregroundColor(accentBlack.opacity(0.4))
                 }
             }
             .padding(16)
             .background(
                 RoundedRectangle(cornerRadius: 16)
                     .fill(Color.white)
-                    .shadow(color: accentBlue.opacity(0.08), radius: 12, x: 0, y: 4)
+                    .shadow(color: accentBlack.opacity(0.08), radius: 12, x: 0, y: 4)
             )
         }
         .buttonStyle(PlainButtonStyle())
@@ -112,7 +107,7 @@ struct SettingsCard: View {
 struct LineChartView: View {
     let data: [Int]
     
-    private let accentBlue = Color(red: 47/255, green: 0, blue: 1) // #2f00ff
+    private let accentBlack = Color.black // #2f00ff
     
     var body: some View {
         GeometryReader { geometry in
@@ -138,7 +133,7 @@ struct LineChartView: View {
                         path.addLine(to: CGPoint(x: x, y: y))
                     }
                 }
-                .stroke(accentBlue, style: StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round))
+                .stroke(accentBlack, style: StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round))
             }
         }
     }
@@ -150,7 +145,7 @@ struct GoalSettingView: View {
     
     @State private var goalMinutes = ""
     
-    private let accentBlue = Color(red: 47/255, green: 0, blue: 1) // #2f00ff
+    private let accentBlack = Color.black // #2f00ff
     
     var body: some View {
         NavigationView {
@@ -185,7 +180,7 @@ struct GoalSettingView: View {
                     .background(
                         RoundedRectangle(cornerRadius: 16)
                             .fill(Color.white)
-                            .shadow(color: accentBlue.opacity(0.08), radius: 12, x: 0, y: 4)
+                            .shadow(color: accentBlack.opacity(0.08), radius: 12, x: 0, y: 4)
                     )
                     .padding(.horizontal, 20)
                     
@@ -209,7 +204,7 @@ struct GoalSettingView: View {
                     .background(
                         RoundedRectangle(cornerRadius: 16)
                             .fill(Color.white)
-                            .shadow(color: accentBlue.opacity(0.08), radius: 12, x: 0, y: 4)
+                            .shadow(color: accentBlack.opacity(0.08), radius: 12, x: 0, y: 4)
                     )
                     .padding(.horizontal, 20)
                     
@@ -229,7 +224,7 @@ struct GoalSettingView: View {
                             .padding(16)
                             .background(
                                 RoundedRectangle(cornerRadius: 12)
-                                    .fill(accentBlue)
+                                    .fill(accentBlack)
                             )
                     }
                     .disabled(goalMinutes.isEmpty)
@@ -246,14 +241,14 @@ struct GoalSettingView: View {
                     Button("Cancel") {
                         dismiss()
                     }
-                    .foregroundColor(accentBlue)
+                    .foregroundColor(accentBlack)
                 }
             }
             .onAppear {
                 goalMinutes = String(appState.userStats.dailyGoalMinutes)
             }
         }
-        .accentColor(accentBlue)
+        .accentColor(accentBlack)
     }
 }
 
