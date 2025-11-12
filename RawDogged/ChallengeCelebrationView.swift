@@ -139,12 +139,13 @@ struct ChallengeCelebrationView: View {
     
     private func generateConfetti() {
         let colors: [Color] = [.red, .blue, .green, .yellow, .orange, .purple, .pink]
+        let screenHeight = UIScreen.main.bounds.height
         
         for _ in 0..<50 {
             let piece = ConfettiPiece(
                 color: colors.randomElement() ?? .blue,
                 x: CGFloat.random(in: 0...UIScreen.main.bounds.width),
-                y: -50,
+                y: screenHeight + 50,
                 rotation: Double.random(in: 0...360),
                 scale: CGFloat.random(in: 0.5...1.5)
             )
@@ -170,23 +171,29 @@ struct ConfettiView: View {
     @State private var yOffset: CGFloat = 0
     @State private var xOffset: CGFloat = 0
     @State private var rotation: Double = 0
+    @State private var opacity: Double = 1.0
     
     var body: some View {
         RoundedRectangle(cornerRadius: 2)
             .fill(piece.color)
             .frame(width: 10 * piece.scale, height: 10 * piece.scale)
             .rotationEffect(.degrees(rotation))
+            .opacity(opacity)
             .position(x: piece.x + xOffset, y: piece.y + yOffset)
             .onAppear {
-                withAnimation(.linear(duration: Double.random(in: 2...4))) {
-                    yOffset = UIScreen.main.bounds.height + 100
+                let duration = Double.random(in: 1.5...2.5)
+                let maxHeight = -CGFloat.random(in: 200...400)
+                
+                withAnimation(.easeOut(duration: duration)) {
+                    yOffset = maxHeight
+                    opacity = 0.0
                 }
                 
-                withAnimation(.easeInOut(duration: 1.0).repeatForever(autoreverses: true)) {
-                    xOffset = CGFloat.random(in: -30...30)
+                withAnimation(.easeInOut(duration: duration * 0.5).repeatCount(3, autoreverses: true)) {
+                    xOffset = CGFloat.random(in: -40...40)
                 }
                 
-                withAnimation(.linear(duration: Double.random(in: 1...2)).repeatForever(autoreverses: false)) {
+                withAnimation(.linear(duration: duration).repeatForever(autoreverses: false)) {
                     rotation = 360
                 }
             }

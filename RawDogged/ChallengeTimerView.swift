@@ -62,29 +62,10 @@ struct ChallengeTimerView: View {
                     .padding(.bottom, 40)
                 
                 // Timer Display
-                VStack(spacing: 20) {
-                    Text(remainingTimeString)
-                        .font(.system(size: 80, weight: .ultraLight))
-                        .foregroundColor(timeColor)
-                        .monospacedDigit()
-                    
-                    // Progress Ring
-                    ZStack {
-                        Circle()
-                            .stroke(Color.white.opacity(0.2), lineWidth: 4)
-                            .frame(width: 120, height: 120)
-                        
-                        Circle()
-                            .trim(from: 0, to: progress)
-                            .stroke(accentBlack, style: StrokeStyle(lineWidth: 4, lineCap: .round))
-                            .frame(width: 120, height: 120)
-                            .rotationEffect(.degrees(-90))
-                        
-                        Text("\(Int(progress * 100))%")
-                            .font(.system(size: 24, weight: .semibold))
-                            .foregroundColor(.white)
-                    }
-                }
+                Text(remainingTimeString)
+                    .font(.system(size: 80, weight: .ultraLight))
+                    .foregroundColor(.green)
+                    .monospacedDigit()
                 
                 Spacer()
                 
