@@ -15,6 +15,7 @@ struct ChallengeTimerView: View {
     @State private var currentMotivationIndex = 0
     @State private var motivationTimer: Timer?
     @State private var hasCompleted = false
+    @State private var showCelebration = false
     
     private let accentBlack = Color.black
     
@@ -40,6 +41,18 @@ struct ChallengeTimerView: View {
                 .ignoresSafeArea()
             
             VStack(spacing: 0) {
+                // App Logo and Name at top
+                HStack(spacing: 8) {
+                    Image(systemName: "bolt.fill")
+                        .font(.system(size: 20, weight: .bold))
+                        .foregroundColor(.white)
+                    
+                    Text("Be Raw")
+                        .font(.system(size: 20, weight: .bold))
+                        .foregroundColor(.white)
+                }
+                .padding(.top, 60)
+                
                 Spacer()
                 
                 // Challenge Title
@@ -110,6 +123,12 @@ struct ChallengeTimerView: View {
         .onDisappear {
             motivationTimer?.invalidate()
         }
+        .fullScreenCover(isPresented: $showCelebration) {
+            ChallengeCelebrationView(challenge: challenge, duration: challenge.durationMinutes)
+                .onDisappear {
+                    dismiss()
+                }
+        }
     }
     
     private var remainingTimeString: String {
@@ -163,8 +182,8 @@ struct ChallengeTimerView: View {
         appState.markChallengeAsCompleted(challenge)
         appState.stopSession()
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            dismiss()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            showCelebration = true
         }
     }
     

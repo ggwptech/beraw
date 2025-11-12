@@ -36,6 +36,18 @@ struct FullScreenTimerView: View {
                 .ignoresSafeArea()
             
             VStack(spacing: 0) {
+                // App Logo and Name at top
+                HStack(spacing: 8) {
+                    Image(systemName: "bolt.fill")
+                        .font(.system(size: 20, weight: .bold))
+                        .foregroundColor(.white)
+                    
+                    Text("Be Raw")
+                        .font(.system(size: 20, weight: .bold))
+                        .foregroundColor(.white)
+                }
+                .padding(.top, 60)
+                
                 Spacer()
                 
                 // Timer Display
