@@ -33,13 +33,17 @@ struct RawChallenge: Identifiable, Codable {
     let durationMinutes: Int
     var completedCount: Int
     var isCompleted: Bool
+    var isPublic: Bool
+    var usersCompletedCount: Int
     
-    init(id: UUID = UUID(), title: String, durationMinutes: Int, completedCount: Int = 0, isCompleted: Bool = false) {
+    init(id: UUID = UUID(), title: String, durationMinutes: Int, completedCount: Int = 0, isCompleted: Bool = false, isPublic: Bool = false, usersCompletedCount: Int = 0) {
         self.id = id
         self.title = title
         self.durationMinutes = durationMinutes
         self.completedCount = completedCount
         self.isCompleted = isCompleted
+        self.isPublic = isPublic
+        self.usersCompletedCount = usersCompletedCount
     }
 }
 
@@ -105,6 +109,7 @@ class AppStateManager: ObservableObject {
     @Published var currentSession: RawSession?
     @Published var userStats: UserStats
     @Published var challenges: [RawChallenge]
+    @Published var publicChallenges: [RawChallenge]
     @Published var leaderboard: [LeaderboardEntry]
     @Published var currentUser: String
     @Published var journalEntries: [JournalEntry]
@@ -127,6 +132,14 @@ class AppStateManager: ObservableObject {
             RawChallenge(title: "No Phone Dinner", durationMinutes: 180, completedCount: 0),
             RawChallenge(title: "Deep Thought", durationMinutes: 30, completedCount: 2),
             RawChallenge(title: "Complete Disconnect", durationMinutes: 120, completedCount: 0)
+        ]
+        
+        self.publicChallenges = [
+            RawChallenge(title: "Morning Meditation", durationMinutes: 20, isPublic: true, usersCompletedCount: 234),
+            RawChallenge(title: "Digital Detox Hour", durationMinutes: 60, isPublic: true, usersCompletedCount: 156),
+            RawChallenge(title: "Mindful Breathing", durationMinutes: 10, isPublic: true, usersCompletedCount: 421),
+            RawChallenge(title: "Nature Walk", durationMinutes: 30, isPublic: true, usersCompletedCount: 189),
+            RawChallenge(title: "Silent Reading", durationMinutes: 45, isPublic: true, usersCompletedCount: 98)
         ]
         
         self.currentUser = "You"
@@ -233,6 +246,21 @@ class AppStateManager: ObservableObject {
     func addChallenge(title: String, durationMinutes: Int) {
         let newChallenge = RawChallenge(title: title, durationMinutes: durationMinutes)
         challenges.append(newChallenge)
+    }
+    
+    func shareChallengeToPublic(_ challenge: RawChallenge) {
+        // Mark the challenge as public in user's own challenges
+        if let index = challenges.firstIndex(where: { $0.id == challenge.id }) {
+            challenges[index].isPublic = true
+        }
+        
+        // Add to public challenges if not already there
+        if !publicChallenges.contains(where: { $0.id == challenge.id }) {
+            var publicChallenge = challenge
+            publicChallenge.isPublic = true
+            publicChallenge.usersCompletedCount = 1
+            publicChallenges.append(publicChallenge)
+        }
     }
     
     // MARK: - Helper Methods

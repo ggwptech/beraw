@@ -31,6 +31,92 @@ struct ProfileView: View {
                     .padding(.horizontal, 20)
                     .padding(.top, 10)
                     
+                    // User Profile Card
+                    VStack(spacing: 20) {
+                        // Avatar
+                        ZStack {
+                            Circle()
+                                .fill(Color.black.opacity(0.1))
+                                .frame(width: 100, height: 100)
+                            
+                            Image(systemName: "person.fill")
+                                .font(.system(size: 45, weight: .medium))
+                                .foregroundColor(.black.opacity(0.6))
+                        }
+                        
+                        // User Info
+                        VStack(spacing: 6) {
+                            Text("Raw Dog")
+                                .font(.system(size: 24, weight: .bold))
+                                .foregroundColor(.black)
+                            
+                            Text("@rawdog")
+                                .font(.system(size: 16, weight: .regular))
+                                .foregroundColor(.gray)
+                        }
+                        
+                        // Stats Row
+                        HStack(spacing: 30) {
+                            VStack(spacing: 4) {
+                                Text("\(appState.userStats.dailyStreak)")
+                                    .font(.system(size: 22, weight: .bold))
+                                    .foregroundColor(.black)
+                                Text("Streak")
+                                    .font(.system(size: 12, weight: .regular))
+                                    .foregroundColor(.gray)
+                            }
+                            
+                            Rectangle()
+                                .fill(Color.gray.opacity(0.3))
+                                .frame(width: 1, height: 35)
+                            
+                            VStack(spacing: 4) {
+                                Text(appState.formatTotalTime(appState.userStats.totalRawTime))
+                                    .font(.system(size: 22, weight: .bold))
+                                    .foregroundColor(.black)
+                                Text("Total Time")
+                                    .font(.system(size: 12, weight: .regular))
+                                    .foregroundColor(.gray)
+                            }
+                            
+                            Rectangle()
+                                .fill(Color.gray.opacity(0.3))
+                                .frame(width: 1, height: 35)
+                            
+                            VStack(spacing: 4) {
+                                Text("\(appState.journalEntries.count)")
+                                    .font(.system(size: 22, weight: .bold))
+                                    .foregroundColor(.black)
+                                Text("Sessions")
+                                    .font(.system(size: 12, weight: .regular))
+                                    .foregroundColor(.gray)
+                            }
+                        }
+                        
+                        // Edit Profile Button
+                        Button(action: {
+                            // Action
+                        }) {
+                            Text("Edit Profile")
+                                .font(.system(size: 14, weight: .semibold))
+                                .foregroundColor(.black)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 10)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .stroke(Color.black, lineWidth: 1.5)
+                                )
+                        }
+                        .padding(.horizontal, 40)
+                    }
+                    .padding(24)
+                    .background(
+                        RoundedRectangle(cornerRadius: 20)
+                            .fill(Color.white)
+                            .shadow(color: Color.black.opacity(0.08), radius: 12, x: 0, y: 4)
+                    )
+                    .padding(.horizontal, 20)
+                    
                     // Settings Section
                     VStack(spacing: 12) {
                         SettingsCard(icon: "bell.fill", title: "App Notifications", showChevron: true) {

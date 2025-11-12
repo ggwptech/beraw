@@ -151,13 +151,15 @@ struct ChallengeCelebrationView: View {
     
     private func shareResult() {
         let text = "I just completed '\(challenge.title)' for \(duration) minutes on Be Raw! 💪"
-        let activityViewController = UIActivityViewController(activityItems: [text], applicationActivities: nil)
         
-        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-           let window = windowScene.windows.first,
-           let rootViewController = window.rootViewController {
-            rootViewController.present(activityViewController, animated: true)
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let window = windowScene.windows.first(where: { $0.isKeyWindow }),
+              let rootViewController = window.rootViewController else {
+            return
         }
+        
+        let activityViewController = UIActivityViewController(activityItems: [text], applicationActivities: nil)
+        rootViewController.present(activityViewController, animated: true)
     }
     
     private func startCelebration() {
@@ -167,12 +169,13 @@ struct ChallengeCelebrationView: View {
     
     private func generateConfetti() {
         let colors: [Color] = [.red, .blue, .green, .yellow, .orange, .purple, .pink]
-        let screenHeight = UIScreen.main.bounds.height
+        let screenWidth: CGFloat = 400 // Approximate screen width
+        let screenHeight: CGFloat = 900 // Approximate screen height
         
         for _ in 0..<50 {
             let piece = ConfettiPiece(
                 color: colors.randomElement() ?? .blue,
-                x: CGFloat.random(in: 0...UIScreen.main.bounds.width),
+                x: CGFloat.random(in: 0...screenWidth),
                 y: screenHeight + 50,
                 rotation: Double.random(in: 0...360),
                 scale: CGFloat.random(in: 0.5...1.5)
