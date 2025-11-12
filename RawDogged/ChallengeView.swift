@@ -212,9 +212,14 @@ struct AddChallengeView: View {
     @EnvironmentObject var appState: AppStateManager
     
     @State private var title = ""
-    @State private var duration = ""
+    @State private var selectedHours = 0
+    @State private var selectedMinutes = 20
     
     private let accentBlack = Color.black // #2f00ff
+    
+    private var totalDuration: Int {
+        selectedHours * 60 + selectedMinutes
+    }
     
     var body: some View {
         NavigationView {
@@ -248,19 +253,42 @@ struct AddChallengeView: View {
                     
                     // Duration Card
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("Duration (minutes)")
+                        Text("Duration")
                             .font(.system(size: 14, weight: .medium))
                             .foregroundColor(.gray)
                         
-                        TextField("e.g., 20", text: $duration)
-                            .font(.system(size: 16, weight: .regular))
-                            .foregroundColor(.black)
-                            .keyboardType(.numberPad)
-                            .padding(16)
-                            .background(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(Color.white)
-                            )
+                        // Time picker using hours and minutes
+                        HStack(spacing: 0) {
+                            // Hours
+                            Picker("Hours", selection: $selectedHours) {
+                                ForEach(0..<24) { hour in
+                                    Text("\(hour)").tag(hour)
+                                }
+                            }
+                            .pickerStyle(.wheel)
+                            .frame(maxWidth: .infinity)
+                            
+                            Text("hr")
+                                .font(.system(size: 16, weight: .regular))
+                                .foregroundColor(.black)
+                                .padding(.horizontal, 8)
+                            
+                            // Minutes
+                            Picker("Minutes", selection: $selectedMinutes) {
+                                ForEach(0..<60) { minute in
+                                    Text("\(minute)").tag(minute)
+                                }
+                            }
+                            .pickerStyle(.wheel)
+                            .frame(maxWidth: .infinity)
+                            
+                            Text("min")
+                                .font(.system(size: 16, weight: .regular))
+                                .foregroundColor(.black)
+                                .padding(.horizontal, 8)
+                        }
+                        .frame(height: 150)
+                        .frame(maxWidth: .infinity)
                     }
                     .padding(20)
                     .background(
@@ -274,8 +302,8 @@ struct AddChallengeView: View {
                     
                     // Add Button
                     Button(action: {
-                        if let durationInt = Int(duration), !title.isEmpty {
-                            appState.addChallenge(title: title, durationMinutes: durationInt)
+                        if totalDuration > 0 && !title.isEmpty {
+                            appState.addChallenge(title: title, durationMinutes: totalDuration)
                             dismiss()
                         }
                     }) {
@@ -289,8 +317,8 @@ struct AddChallengeView: View {
                                     .fill(accentBlack)
                             )
                     }
-                    .disabled(title.isEmpty || duration.isEmpty)
-                    .opacity(title.isEmpty || duration.isEmpty ? 0.5 : 1.0)
+                    .disabled(title.isEmpty || totalDuration == 0)
+                    .opacity(title.isEmpty || totalDuration == 0 ? 0.5 : 1.0)
                     .padding(.horizontal, 20)
                     .padding(.bottom, 20)
                 }
