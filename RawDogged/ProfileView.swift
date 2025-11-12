@@ -33,10 +33,6 @@ struct ProfileView: View {
                     
                     // Settings Section
                     VStack(spacing: 12) {
-                        SettingsCard(icon: "target", title: "Set Daily Goal", showChevron: true) {
-                            showGoalSetting = true
-                        }
-                        
                         SettingsCard(icon: "bell.fill", title: "App Notifications", showChevron: true) {
                             // Action
                         }

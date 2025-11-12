@@ -105,19 +105,36 @@ struct ChallengeCelebrationView: View {
                 
                 Spacer()
                 
-                // Continue Button
-                Button(action: {
-                    dismiss()
-                }) {
-                    Text("Continue")
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundColor(.black)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(
-                            RoundedRectangle(cornerRadius: 14)
-                                .fill(Color.white)
-                        )
+                // Buttons
+                HStack(spacing: 16) {
+                    // Share Button
+                    Button(action: {
+                        shareResult()
+                    }) {
+                        Image(systemName: "square.and.arrow.up")
+                            .font(.system(size: 20, weight: .semibold))
+                            .foregroundColor(.white)
+                            .frame(width: 56, height: 56)
+                            .background(
+                                RoundedRectangle(cornerRadius: 14)
+                                    .fill(Color.white.opacity(0.2))
+                            )
+                    }
+                    
+                    // Continue Button
+                    Button(action: {
+                        dismiss()
+                    }) {
+                        Text("Continue")
+                            .font(.system(size: 18, weight: .semibold))
+                            .foregroundColor(.black)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .background(
+                                RoundedRectangle(cornerRadius: 14)
+                                    .fill(Color.white)
+                            )
+                    }
                 }
                 .padding(.horizontal, 40)
                 .opacity(showConfetti ? 1.0 : 0.0)
@@ -129,6 +146,17 @@ struct ChallengeCelebrationView: View {
         .onAppear {
             selectedMessage = congratulationMessages.randomElement() ?? "You did awesome!"
             startCelebration()
+        }
+    }
+    
+    private func shareResult() {
+        let text = "I just completed '\(challenge.title)' for \(duration) minutes on Be Raw! 💪"
+        let activityViewController = UIActivityViewController(activityItems: [text], applicationActivities: nil)
+        
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = windowScene.windows.first,
+           let rootViewController = window.rootViewController {
+            rootViewController.present(activityViewController, animated: true)
         }
     }
     

@@ -140,11 +140,11 @@ struct LeaderboardRow: View {
             
             Spacer()
             
-            // Star for top 3
+            // Medal for top 3
             if entry.rank <= 3 {
-                Image(systemName: "star.fill")
-                    .font(.system(size: 18))
-                    .foregroundColor(rankStarColor)
+                Image(systemName: "medal.fill")
+                    .font(.system(size: 24))
+                    .foregroundColor(medalColor)
             }
         }
         .padding(16)
@@ -164,7 +164,7 @@ struct LeaderboardRow: View {
         }
     }
     
-    private var rankStarColor: Color {
+    private var medalColor: Color {
         switch entry.rank {
         case 1: return Color(red: 1, green: 0.84, blue: 0) // Gold
         case 2: return Color(red: 0.75, green: 0.75, blue: 0.75) // Silver
