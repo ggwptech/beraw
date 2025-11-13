@@ -9,9 +9,12 @@ import SwiftUI
 
 @main
 struct RawDoggedApp: App {
+    @StateObject private var appState = AppStateManager()
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            RootView()
+                .environmentObject(appState)
         }
     }
 }
