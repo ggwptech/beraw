@@ -171,14 +171,18 @@ struct JournalEntryCard: View {
     }
     
     private var formattedDuration: String {
-        let minutes = Int(entry.sessionDuration / 60)
+        let totalSeconds = Int(entry.sessionDuration)
+        let minutes = totalSeconds / 60
+        let seconds = totalSeconds % 60
         let hours = minutes / 60
         let remainingMinutes = minutes % 60
         
         if hours > 0 {
             return "\(hours)h \(remainingMinutes)m"
-        } else {
+        } else if minutes > 0 {
             return "\(minutes)m"
+        } else {
+            return "\(seconds)s"
         }
     }
 }
@@ -195,21 +199,21 @@ struct JournalDetailView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
                     // Header Info
-                    VStack(spacing: 16) {
+                    VStack(spacing: 12) {
                         Image(systemName: "book.fill")
-                            .font(.system(size: 50))
+                            .font(.system(size: 40))
                             .foregroundColor(accentBlack)
                         
                         Text(formattedDate)
-                            .font(.system(size: 18, weight: .semibold))
-                            .foregroundColor(.black)
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(.gray)
                         
                         Text(formattedDuration)
-                            .font(.system(size: 28, weight: .bold))
+                            .font(.system(size: 24, weight: .bold))
                             .foregroundColor(accentBlack)
                     }
                     .frame(maxWidth: .infinity)
-                    .padding(30)
+                    .padding(20)
                     .background(
                         RoundedRectangle(cornerRadius: 16)
                             .fill(Color.white)
@@ -246,6 +250,8 @@ struct JournalDetailView: View {
             .background(Color(red: 0.97, green: 0.97, blue: 0.97))
             .navigationTitle("Journal Entry")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(.visible, for: .navigationBar)
+            .toolbarColorScheme(.light, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Done") {
@@ -264,14 +270,18 @@ struct JournalDetailView: View {
     }
     
     private var formattedDuration: String {
-        let minutes = Int(entry.sessionDuration / 60)
+        let totalSeconds = Int(entry.sessionDuration)
+        let minutes = totalSeconds / 60
+        let seconds = totalSeconds % 60
         let hours = minutes / 60
         let remainingMinutes = minutes % 60
         
         if hours > 0 {
             return "\(hours)h \(remainingMinutes)m"
-        } else {
+        } else if minutes > 0 {
             return "\(minutes) minutes"
+        } else {
+            return "\(seconds) seconds"
         }
     }
 }

@@ -35,13 +35,6 @@ struct ContentView: View {
                 }
                 .environmentObject(appState)
             
-            JournalView()
-                .tabItem {
-                    Image(systemName: "book.fill")
-                    Text("Journal")
-                }
-                .environmentObject(appState)
-            
             ProfileView()
                 .tabItem {
                     Image(systemName: "person")

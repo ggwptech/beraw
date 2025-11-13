@@ -195,9 +195,13 @@ struct ChallengeView: View {
                     ChallengeActionsSheet(
                         challenge: challenge,
                         onStart: {
+                            let challengeToStart = challenge // Save reference
                             showChallengeActions = false
-                            appState.startChallenge(challenge)
-                            showChallengeTimer = true
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                appState.startChallenge(challengeToStart)
+                                selectedChallenge = challengeToStart
+                                showChallengeTimer = true
+                            }
                         },
                         onShare: {
                             appState.shareChallengeToPublic(challenge)
@@ -367,7 +371,9 @@ struct AddChallengeView: View {
                             // Hours
                             Picker("Hours", selection: $selectedHours) {
                                 ForEach(0..<24) { hour in
-                                    Text("\(hour)").tag(hour)
+                                    Text("\(hour)")
+                                        .foregroundColor(.black)
+                                        .tag(hour)
                                 }
                             }
                             .pickerStyle(.wheel)
@@ -381,7 +387,9 @@ struct AddChallengeView: View {
                             // Minutes
                             Picker("Minutes", selection: $selectedMinutes) {
                                 ForEach(0..<60) { minute in
-                                    Text("\(minute)").tag(minute)
+                                    Text("\(minute)")
+                                        .foregroundColor(.black)
+                                        .tag(minute)
                                 }
                             }
                             .pickerStyle(.wheel)
@@ -431,6 +439,8 @@ struct AddChallengeView: View {
             }
             .navigationTitle("New Challenge")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(.visible, for: .navigationBar)
+            .toolbarColorScheme(.light, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button("Cancel") {

@@ -9,6 +9,7 @@ struct HomeView: View {
     @EnvironmentObject var appState: AppStateManager
     @State private var showFullScreenTimer = false
     @State private var showJournalEntry = false
+    @State private var selectedEntry: JournalEntry?
     
     private let accentBlack = Color.black
     
@@ -83,7 +84,7 @@ struct HomeView: View {
                         
                         // Week Days Calendar
                         HStack(spacing: 8) {
-                            ForEach(["S", "M", "T", "W", "T", "F", "S"], id: \.self) { day in
+                            ForEach(Array(["S", "M", "T", "W", "T", "F", "S"].enumerated()), id: \.offset) { index, day in
                                 VStack(spacing: 6) {
                                     Text(day)
                                         .font(.system(size: 12, weight: .medium))
@@ -166,6 +167,47 @@ struct HomeView: View {
                     }
                     .padding(.horizontal, 20)
                     
+                    // Journal Entries Section
+                    VStack(alignment: .leading, spacing: 10) {
+                        HStack {
+                            HStack(spacing: 6) {
+                                Image(systemName: "book.fill")
+                                    .font(.system(size: 12, weight: .medium))
+                                Text("Recent Sessions")
+                            }
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(.gray)
+                            Spacer()
+                        }
+                        
+                        if appState.journalEntries.isEmpty {
+                            Text("No journal entries yet")
+                                .font(.system(size: 13, weight: .regular))
+                                .foregroundColor(.gray)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 16)
+                        } else {
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack(spacing: 10) {
+                                    ForEach(appState.journalEntries.prefix(5)) { entry in
+                                        CompactJournalCard(entry: entry)
+                                            .onTapGesture {
+                                                selectedEntry = entry
+                                            }
+                                    }
+                                }
+                                .padding(.horizontal, 4)
+                            }
+                        }
+                    }
+                    .padding(16)
+                    .background(
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(Color.white)
+                            .shadow(color: accentBlack.opacity(0.08), radius: 12, x: 0, y: 4)
+                    )
+                    .padding(.horizontal, 20)
+                    
                     // Motivational Card with Button (Last)
                     VStack(spacing: 20) {
                         VStack(spacing: 8) {
@@ -214,6 +256,14 @@ struct HomeView: View {
             .navigationBarHidden(true)
         }
         .accentColor(accentBlack)
+        .sheet(isPresented: Binding(
+            get: { selectedEntry != nil },
+            set: { if !$0 { selectedEntry = nil } }
+        )) {
+            if let entry = selectedEntry {
+                JournalEntryDetailView(entry: entry)
+            }
+        }
         .fullScreenCover(isPresented: $showFullScreenTimer) {
             FullScreenTimerView()
                 .environmentObject(appState)
@@ -226,6 +276,8 @@ struct HomeView: View {
         .sheet(isPresented: $showJournalEntry) {
             JournalEntryView()
                 .environmentObject(appState)
+                .presentationDetents([.height(500)])
+                .presentationDragIndicator(.visible)
         }
     }
     
@@ -318,6 +370,169 @@ struct MiniBarChart: View {
         let today = Calendar.current.component(.weekday, from: Date())
         let adjustedIndex = (today - 2 + index) % 7
         return days[max(0, min(adjustedIndex, 6))]
+    }
+}
+
+// Compact Journal Card for horizontal scroll
+struct CompactJournalCard: View {
+    let entry: JournalEntry
+    private let accentBlack = Color.black
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Image(systemName: "clock.fill")
+                    .font(.system(size: 9))
+                    .foregroundColor(accentBlack)
+                
+                Text(formattedDate)
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundColor(.black)
+            }
+            
+            Text(entry.thoughts.isEmpty ? "No thoughts recorded" : entry.thoughts)
+                .font(.system(size: 12, weight: .regular))
+                .foregroundColor(.black.opacity(0.7))
+                .lineLimit(2)
+                .frame(height: 32)
+            
+            Text(formattedDuration)
+                .font(.system(size: 10, weight: .medium))
+                .foregroundColor(.white)
+                .padding(.horizontal, 7)
+                .padding(.vertical, 3)
+                .background(
+                    RoundedRectangle(cornerRadius: 5)
+                        .fill(accentBlack)
+                )
+        }
+        .padding(10)
+        .frame(width: 150)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.white)
+                .shadow(color: accentBlack.opacity(0.08), radius: 8, x: 0, y: 2)
+        )
+    }
+    
+    private var formattedDate: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMM d"
+        return formatter.string(from: entry.date)
+    }
+    
+    private var formattedDuration: String {
+        let totalSeconds = Int(entry.sessionDuration)
+        let minutes = totalSeconds / 60
+        let hours = minutes / 60
+        let remainingMinutes = minutes % 60
+        
+        if hours > 0 {
+            return "\(hours)h \(remainingMinutes)m"
+        } else if minutes > 0 {
+            return "\(minutes)m"
+        } else {
+            return "\(totalSeconds)s"
+        }
+    }
+}
+
+// Journal Entry Detail View
+struct JournalEntryDetailView: View {
+    let entry: JournalEntry
+    @Environment(\.dismiss) var dismiss
+    
+    private let accentBlack = Color.black
+    
+    var body: some View {
+        NavigationView {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 20) {
+                    // Header Info
+                    VStack(spacing: 12) {
+                        Image(systemName: "book.fill")
+                            .font(.system(size: 40))
+                            .foregroundColor(accentBlack)
+                        
+                        Text(formattedDate)
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(.gray)
+                        
+                        Text(formattedDuration)
+                            .font(.system(size: 24, weight: .bold))
+                            .foregroundColor(accentBlack)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(20)
+                    .background(
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(Color.white)
+                            .shadow(color: accentBlack.opacity(0.08), radius: 12, x: 0, y: 4)
+                    )
+                    .padding(.horizontal, 20)
+                    .padding(.top, 20)
+                    
+                    // Thoughts Content
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "text.quote")
+                                .font(.system(size: 12, weight: .medium))
+                            Text("Your Thoughts")
+                        }
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(.gray)
+                        
+                        Text(entry.thoughts)
+                            .font(.system(size: 16, weight: .regular))
+                            .foregroundColor(.black)
+                            .lineSpacing(6)
+                    }
+                    .padding(20)
+                    .background(
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(Color.white)
+                            .shadow(color: accentBlack.opacity(0.08), radius: 12, x: 0, y: 4)
+                    )
+                    .padding(.horizontal, 20)
+                }
+                .padding(.bottom, 20)
+            }
+            .background(Color(red: 0.97, green: 0.97, blue: 0.97))
+            .navigationTitle("Journal Entry")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(.visible, for: .navigationBar)
+            .toolbarColorScheme(.light, for: .navigationBar)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Done") {
+                        dismiss()
+                    }
+                    .foregroundColor(accentBlack)
+                }
+            }
+        }
+    }
+    
+    private var formattedDate: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMMM d, yyyy • HH:mm"
+        return formatter.string(from: entry.date)
+    }
+    
+    private var formattedDuration: String {
+        let totalSeconds = Int(entry.sessionDuration)
+        let minutes = totalSeconds / 60
+        let seconds = totalSeconds % 60
+        let hours = minutes / 60
+        let remainingMinutes = minutes % 60
+        
+        if hours > 0 {
+            return "\(hours)h \(remainingMinutes)m"
+        } else if minutes > 0 {
+            return "\(minutes) minutes"
+        } else {
+            return "\(seconds) seconds"
+        }
     }
 }
 
