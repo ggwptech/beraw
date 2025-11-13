@@ -36,48 +36,24 @@ struct HomeView: View {
                     .padding(.horizontal, 20)
                     .padding(.top, 10)
                     
-                    // Main Timer Card
-                    VStack(spacing: 16) {
+                    // Activity Card (First)
+                    VStack(alignment: .leading, spacing: 12) {
                         HStack {
                             HStack(spacing: 6) {
-                                Image(systemName: "timer")
+                                Image(systemName: "chart.bar.fill")
                                     .font(.system(size: 12, weight: .medium))
-                                Text("Current Session")
+                                Text("Activity")
                             }
                             .font(.system(size: 14, weight: .medium))
                             .foregroundColor(.gray)
                             Spacer()
+                            Text("Last 7 Days")
+                                .font(.system(size: 12, weight: .regular))
+                                .foregroundColor(.gray)
                         }
                         
-                        Text(currentTimeString)
-                            .font(.system(size: 56, weight: .bold))
-                            .foregroundColor(.black)
-                            .monospacedDigit()
-                        
-                        // Action Button
-                        Button(action: {
-                            if appState.currentSession == nil {
-                                appState.startSession()
-                                showFullScreenTimer = true
-                            } else {
-                                appState.stopSession()
-                                showJournalEntry = true
-                            }
-                        }) {
-                            HStack {
-                                Image(systemName: appState.currentSession == nil ? "play.fill" : "stop.fill")
-                                    .font(.system(size: 16, weight: .semibold))
-                                Text(appState.currentSession == nil ? "Do it" : "STOP")
-                                    .font(.system(size: 16, weight: .semibold))
-                            }
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 14)
-                            .background(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(appState.currentSession == nil ? accentBlack : Color.red)
-                            )
-                        }
+                        MiniBarChart(data: getLast7Days())
+                            .frame(height: 80)
                     }
                     .padding(20)
                     .background(
@@ -87,7 +63,7 @@ struct HomeView: View {
                     )
                     .padding(.horizontal, 20)
                     
-                    // Day Streak Card
+                    // Day Streak Card (Second)
                     VStack(spacing: 16) {
                         HStack(spacing: 12) {
                             Text("Day Streak")
@@ -133,7 +109,7 @@ struct HomeView: View {
                     )
                     .padding(.horizontal, 20)
                     
-                    // Stats Grid
+                    // Stats Grid (Third - Two small blocks)
                     HStack(spacing: 12) {
                         
                         // Raw Time Card
@@ -190,24 +166,39 @@ struct HomeView: View {
                     }
                     .padding(.horizontal, 20)
                     
-                    // Activity Card
-                    VStack(alignment: .leading, spacing: 12) {
-                        HStack {
-                            HStack(spacing: 6) {
-                                Image(systemName: "chart.bar.fill")
-                                    .font(.system(size: 12, weight: .medium))
-                                Text("Activity")
-                            }
-                            .font(.system(size: 14, weight: .medium))
-                            .foregroundColor(.gray)
-                            Spacer()
-                            Text("Last 7 Days")
-                                .font(.system(size: 12, weight: .regular))
-                                .foregroundColor(.gray)
+                    // Motivational Card with Button (Last)
+                    VStack(spacing: 20) {
+                        VStack(spacing: 8) {
+                            Text("No rush. Just real time")
+                                .font(.system(size: 18, weight: .semibold))
+                                .foregroundColor(.black)
+                                .multilineTextAlignment(.center)
                         }
                         
-                        MiniBarChart(data: getLast7Days())
-                            .frame(height: 80)
+                        // Action Button
+                        Button(action: {
+                            if appState.currentSession == nil {
+                                appState.startSession()
+                                showFullScreenTimer = true
+                            } else {
+                                appState.stopSession()
+                                showJournalEntry = true
+                            }
+                        }) {
+                            HStack {
+                                Image(systemName: appState.currentSession == nil ? "bolt.fill" : "stop.fill")
+                                    .font(.system(size: 16, weight: .semibold))
+                                Text(appState.currentSession == nil ? "Do it" : "STOP")
+                                    .font(.system(size: 16, weight: .semibold))
+                            }
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 14)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(appState.currentSession == nil ? accentBlack : Color.red)
+                            )
+                        }
                     }
                     .padding(20)
                     .background(
