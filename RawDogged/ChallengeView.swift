@@ -8,9 +8,8 @@ import SwiftUI
 struct ChallengeView: View {
     @EnvironmentObject var appState: AppStateManager
     @State private var showAddChallenge = false
-    @State private var selectedChallenge: RawChallenge?
-    @State private var showChallengeTimer = false
-    @State private var showChallengeActions = false
+    @State private var challengeForActions: RawChallenge?
+    @State private var challengeForTimer: RawChallenge?
     @State private var selectedTab: ChallengeTab = .myChalllenges
     
     private let accentBlack = Color.black // #2f00ff
@@ -157,9 +156,9 @@ struct ChallengeView: View {
                                     .environmentObject(appState)
                                     .onTapGesture {
                                         // Tap directly starts public challenge
-                                        selectedChallenge = challenge
-                                        appState.startChallenge(challenge)
-                                        showChallengeTimer = true
+                                        let storedChallenge = appState.publicChallenges.first(where: { $0.id == challenge.id }) ?? challenge
+                                        appState.startChallenge(storedChallenge)
+                                        challengeForTimer = storedChallenge
                                     }
                             }
                         }
@@ -172,9 +171,10 @@ struct ChallengeView: View {
                                 ChallengeCard(challenge: challenge, isPublic: challenge.isPublic)
                                     .environmentObject(appState)
                                     .onTapGesture {
-                                        if !challenge.isCompleted {
-                                            selectedChallenge = challenge
-                                            showChallengeActions = true
+                                        guard !challenge.isCompleted else { return }
+                                        let storedChallenge = appState.challenges.first(where: { $0.id == challenge.id }) ?? challenge
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                                            challengeForActions = storedChallenge
                                         }
                                     }
                             }
@@ -190,35 +190,44 @@ struct ChallengeView: View {
                 AddChallengeView()
                     .environmentObject(appState)
             }
-            .sheet(isPresented: $showChallengeActions) {
-                if let challenge = selectedChallenge {
-                    ChallengeActionsSheet(
-                        challenge: challenge,
-                        onStart: {
-                            let challengeToStart = challenge // Save reference
-                            showChallengeActions = false
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                appState.startChallenge(challengeToStart)
-                                selectedChallenge = challengeToStart
-                                showChallengeTimer = true
-                            }
-                        },
-                        onShare: {
-                            appState.shareChallengeToPublic(challenge)
-                            showChallengeActions = false
+            .sheet(item: $challengeForActions) { challenge in
+                ChallengeActionsSheet(
+                    challenge: challenge,
+                    onStart: {
+                        let challengeId = challenge.id
+                        challengeForActions = nil
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                            let challengeToStart = appState.challenges.first(where: { $0.id == challengeId }) ?? challenge
+                            appState.startChallenge(challengeToStart)
+                            challengeForTimer = challengeToStart
                         }
-                    )
-                    .presentationDetents([.height(160)])
-                    .presentationBackground(Color.white)
+                    },
+                    onShare: {
+                        let challengeId = challenge.id
+                        if let storedChallenge = appState.challenges.first(where: { $0.id == challengeId }) {
+                            appState.shareChallengeToPublic(storedChallenge)
+                        } else {
+                            appState.shareChallengeToPublic(challenge)
+                        }
+                        challengeForActions = nil
+                    }
+                )
+                .presentationDetents([.height(160)])
+                .presentationBackground(Color.white)
+                .onDisappear {
+                    if challengeForActions?.id == challenge.id {
+                        challengeForActions = nil
+                    }
                 }
             }
-            .fullScreenCover(isPresented: $showChallengeTimer) {
-                if let challenge = selectedChallenge {
-                    ChallengeTimerView(
-                        challenge: challenge,
-                        targetDuration: TimeInterval(challenge.durationMinutes * 60)
-                    )
-                    .environmentObject(appState)
+            .fullScreenCover(item: $challengeForTimer) { challenge in
+                ChallengeTimerView(
+                    challenge: challenge,
+                    targetDuration: TimeInterval(challenge.durationMinutes * 60)
+                )
+                .environmentObject(appState)
+                .onDisappear {
+                    challengeForTimer = nil
                 }
             }
         }
