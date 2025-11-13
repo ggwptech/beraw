@@ -10,6 +10,7 @@ struct HomeView: View {
     @State private var showFullScreenTimer = false
     @State private var showJournalEntry = false
     @State private var selectedEntry: JournalEntry?
+    @State private var showFullJournal = false
     
     private let accentBlack = Color.black
     
@@ -167,13 +168,13 @@ struct HomeView: View {
                     }
                     .padding(.horizontal, 20)
                     
-                    // Journal Entries Section
-                    VStack(alignment: .leading, spacing: 10) {
+                    // Latest Journal Entry Section
+                    VStack(alignment: .leading, spacing: 12) {
                         HStack {
                             HStack(spacing: 6) {
                                 Image(systemName: "book.fill")
                                     .font(.system(size: 12, weight: .medium))
-                                Text("Recent Sessions")
+                                Text("Latest Session")
                             }
                             .font(.system(size: 14, weight: .medium))
                             .foregroundColor(.gray)
@@ -185,18 +186,45 @@ struct HomeView: View {
                                 .font(.system(size: 13, weight: .regular))
                                 .foregroundColor(.gray)
                                 .frame(maxWidth: .infinity)
-                                .padding(.vertical, 16)
-                        } else {
-                            ScrollView(.horizontal, showsIndicators: false) {
-                                HStack(spacing: 10) {
-                                    ForEach(appState.journalEntries.prefix(5)) { entry in
-                                        CompactJournalCard(entry: entry)
-                                            .onTapGesture {
-                                                selectedEntry = entry
-                                            }
-                                    }
+                                .padding(.vertical, 20)
+                        } else if let latestEntry = appState.journalEntries.first {
+                            VStack(alignment: .leading, spacing: 10) {
+                                HStack {
+                                    Image(systemName: "clock.fill")
+                                        .font(.system(size: 11))
+                                        .foregroundColor(accentBlack)
+                                    
+                                    Text(formatDate(latestEntry.date))
+                                        .font(.system(size: 13, weight: .medium))
+                                        .foregroundColor(.black)
+                                    
+                                    Spacer()
+                                    
+                                    Text(formatDuration(latestEntry.sessionDuration))
+                                        .font(.system(size: 11, weight: .medium))
+                                        .foregroundColor(.white)
+                                        .padding(.horizontal, 8)
+                                        .padding(.vertical, 4)
+                                        .background(
+                                            RoundedRectangle(cornerRadius: 6)
+                                                .fill(accentBlack)
+                                        )
                                 }
-                                .padding(.horizontal, 4)
+                                
+                                Text(latestEntry.thoughts.isEmpty ? "No thoughts recorded" : latestEntry.thoughts)
+                                    .font(.system(size: 14, weight: .regular))
+                                    .foregroundColor(.black.opacity(0.8))
+                                    .lineLimit(3)
+                                    .padding(.top, 4)
+                            }
+                            .padding(14)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(Color.white)
+                                    .shadow(color: accentBlack.opacity(0.06), radius: 8, x: 0, y: 2)
+                            )
+                            .onTapGesture {
+                                showFullJournal = true
                             }
                         }
                     }
@@ -264,6 +292,10 @@ struct HomeView: View {
                 JournalEntryDetailView(entry: entry)
             }
         }
+        .sheet(isPresented: $showFullJournal) {
+            JournalView()
+                .environmentObject(appState)
+        }
         .fullScreenCover(isPresented: $showFullScreenTimer) {
             FullScreenTimerView()
                 .environmentObject(appState)
@@ -278,6 +310,28 @@ struct HomeView: View {
                 .environmentObject(appState)
                 .presentationDetents([.height(500)])
                 .presentationDragIndicator(.visible)
+        }
+    }
+    
+    private func formatDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMM d"
+        return formatter.string(from: date)
+    }
+    
+    private func formatDuration(_ duration: TimeInterval) -> String {
+        let totalSeconds = Int(duration)
+        let minutes = totalSeconds / 60
+        let hours = minutes / 60
+        let remainingMinutes = minutes % 60
+        let seconds = totalSeconds % 60
+        
+        if hours > 0 {
+            return "\(hours)h \(remainingMinutes)m"
+        } else if minutes > 0 {
+            return "\(minutes)m"
+        } else {
+            return "\(seconds)s"
         }
     }
     
