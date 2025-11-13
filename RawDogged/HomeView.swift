@@ -136,7 +136,7 @@ struct HomeView: View {
                     // Stats Grid
                     HStack(spacing: 12) {
                         
-                        // Total Time Card
+                        // Raw Time Card
                         VStack(alignment: .leading, spacing: 8) {
                             HStack(spacing: 6) {
                                 Image(systemName: "clock.fill")
@@ -151,6 +151,32 @@ struct HomeView: View {
                                 .foregroundColor(.black)
                             
                             Text("Raw Time")
+                                .font(.system(size: 11, weight: .regular))
+                                .foregroundColor(.gray)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(16)
+                        .background(
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(Color.white)
+                                .shadow(color: accentBlack.opacity(0.08), radius: 12, x: 0, y: 4)
+                        )
+                        
+                        // Total Points Card
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "bolt.fill")
+                                    .font(.system(size: 11, weight: .medium))
+                                Text("Total")
+                            }
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundColor(.gray)
+                            
+                            Text("\(appState.userStats.totalPoints)")
+                                .font(.system(size: 28, weight: .bold))
+                                .foregroundColor(.orange)
+                            
+                            Text("Points")
                                 .font(.system(size: 11, weight: .regular))
                                 .foregroundColor(.gray)
                         }

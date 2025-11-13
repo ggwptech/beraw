@@ -52,12 +52,14 @@ struct LeaderboardEntry: Identifiable, Codable {
     let id: UUID
     let nickname: String
     let totalRawTime: TimeInterval
-    var rank: Int = 0
+    let totalPoints: Int
+    var rank: Int
     
-    init(id: UUID = UUID(), nickname: String, totalRawTime: TimeInterval, rank: Int = 0) {
+    init(id: UUID = UUID(), nickname: String, totalRawTime: TimeInterval, totalPoints: Int = 0, rank: Int) {
         self.id = id
         self.nickname = nickname
         self.totalRawTime = totalRawTime
+        self.totalPoints = totalPoints
         self.rank = rank
     }
 }
@@ -66,12 +68,14 @@ struct LeaderboardEntry: Identifiable, Codable {
 struct UserStats: Codable {
     var dailyStreak: Int
     var totalRawTime: TimeInterval
+    var totalPoints: Int
     var dailyGoalMinutes: Int
     var dailyHistory: [DailyRecord]
     
-    init(dailyStreak: Int = 0, totalRawTime: TimeInterval = 0, dailyGoalMinutes: Int = 60, dailyHistory: [DailyRecord] = []) {
+    init(dailyStreak: Int = 0, totalRawTime: TimeInterval = 0, totalPoints: Int = 0, dailyGoalMinutes: Int = 60, dailyHistory: [DailyRecord] = []) {
         self.dailyStreak = dailyStreak
         self.totalRawTime = totalRawTime
+        self.totalPoints = totalPoints
         self.dailyGoalMinutes = dailyGoalMinutes
         self.dailyHistory = dailyHistory
     }
@@ -145,12 +149,12 @@ class AppStateManager: ObservableObject {
         self.currentUser = "You"
         
         self.leaderboard = [
-            LeaderboardEntry(nickname: "ZenMaster", totalRawTime: 144000, rank: 1), // 40 hours
-            LeaderboardEntry(nickname: "MindfulNinja", totalRawTime: 108000, rank: 2), // 30 hours
-            LeaderboardEntry(nickname: "SilentWarrior", totalRawTime: 86400, rank: 3), // 24 hours
-            LeaderboardEntry(nickname: "You", totalRawTime: 28800, rank: 4), // 8 hours
-            LeaderboardEntry(nickname: "DeepThinker", totalRawTime: 21600, rank: 5), // 6 hours
-            LeaderboardEntry(nickname: "Minimalist", totalRawTime: 18000, rank: 6), // 5 hours
+            LeaderboardEntry(nickname: "RawMaster", totalRawTime: 144000, totalPoints: 2400, rank: 1), // 40 hours, 2400 pts
+            LeaderboardEntry(nickname: "ZenSeeker", totalRawTime: 108000, totalPoints: 1800, rank: 2), // 30 hours, 1800 pts
+            LeaderboardEntry(nickname: "SilentWarrior", totalRawTime: 86400, totalPoints: 1440, rank: 3), // 24 hours, 1440 pts
+            LeaderboardEntry(nickname: "You", totalRawTime: 28800, totalPoints: 480, rank: 4), // 8 hours, 480 pts
+            LeaderboardEntry(nickname: "DeepThinker", totalRawTime: 21600, totalPoints: 360, rank: 5), // 6 hours, 360 pts
+            LeaderboardEntry(nickname: "Minimalist", totalRawTime: 18000, totalPoints: 300, rank: 6), // 5 hours, 300 pts
         ]
         
         self.journalEntries = []
@@ -176,6 +180,10 @@ class AppStateManager: ObservableObject {
         // Update stats
         userStats.totalRawTime += completedSession.duration
         updateDailyHistory(duration: completedSession.duration)
+        
+        // Award points: 1 point per minute
+        let pointsEarned = Int(completedSession.duration / 60)
+        userStats.totalPoints += pointsEarned
         
         currentSession = nil
         stopTimer()
@@ -228,6 +236,10 @@ class AppStateManager: ObservableObject {
     func completeChallenge(_ challenge: RawChallenge) {
         if let index = challenges.firstIndex(where: { $0.id == challenge.id }) {
             challenges[index].completedCount += 1
+            
+            // Award bonus points for completing challenge: 2x the duration in minutes
+            let bonusPoints = challenge.durationMinutes * 2
+            userStats.totalPoints += bonusPoints
         }
     }
     

@@ -60,13 +60,25 @@ struct LeaderboardView: View {
                                 
                                 Spacer()
                                 
-                                VStack(alignment: .trailing, spacing: 4) {
-                                    Text(appState.formatTotalTime(yourEntry.totalRawTime))
-                                        .font(.system(size: 28, weight: .bold))
-                                        .foregroundColor(.black)
-                                    Text("Total Time")
-                                        .font(.system(size: 12, weight: .regular))
-                                        .foregroundColor(.gray)
+                                VStack(alignment: .trailing, spacing: 8) {
+                                    // Time
+                                    VStack(alignment: .trailing, spacing: 4) {
+                                        Text(appState.formatTotalTime(yourEntry.totalRawTime))
+                                            .font(.system(size: 24, weight: .bold))
+                                            .foregroundColor(.black)
+                                        Text("Total Time")
+                                            .font(.system(size: 11, weight: .regular))
+                                            .foregroundColor(.gray)
+                                    }
+                                    
+                                    // Points
+                                    HStack(spacing: 4) {
+                                        Image(systemName: "bolt.fill")
+                                            .font(.system(size: 12, weight: .medium))
+                                        Text("\(yourEntry.totalPoints) pts")
+                                            .font(.system(size: 14, weight: .bold))
+                                    }
+                                    .foregroundColor(.orange)
                                 }
                             }
                         }
@@ -133,9 +145,23 @@ struct LeaderboardRow: View {
                     .font(.system(size: 16, weight: .medium))
                     .foregroundColor(.black)
                 
-                Text(appState.formatTotalTime(entry.totalRawTime))
-                    .font(.system(size: 12, weight: .regular))
-                    .foregroundColor(.gray)
+                HStack(spacing: 8) {
+                    Text(appState.formatTotalTime(entry.totalRawTime))
+                        .font(.system(size: 12, weight: .regular))
+                        .foregroundColor(.gray)
+                    
+                    Text("•")
+                        .font(.system(size: 12, weight: .regular))
+                        .foregroundColor(.gray)
+                    
+                    HStack(spacing: 4) {
+                        Image(systemName: "bolt.fill")
+                            .font(.system(size: 10))
+                        Text("\(entry.totalPoints)")
+                            .font(.system(size: 12, weight: .semibold))
+                    }
+                    .foregroundColor(.orange)
+                }
             }
             
             Spacer()
