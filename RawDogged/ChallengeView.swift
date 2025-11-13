@@ -10,6 +10,8 @@ struct ChallengeView: View {
     @State private var showAddChallenge = false
     @State private var challengeForActions: RawChallenge?
     @State private var challengeForTimer: RawChallenge?
+    @State private var challengeForShare: RawChallenge?
+    @State private var pendingChallengeStart: RawChallenge?
     @State private var selectedTab: ChallengeTab = .myChalllenges
     
     private let accentBlack = Color.black // #2f00ff
@@ -194,31 +196,41 @@ struct ChallengeView: View {
                 ChallengeActionsSheet(
                     challenge: challenge,
                     onStart: {
-                        let challengeId = challenge.id
+                        pendingChallengeStart = challenge
                         challengeForActions = nil
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
-                            let challengeToStart = appState.challenges.first(where: { $0.id == challengeId }) ?? challenge
-                            appState.startChallenge(challengeToStart)
-                            challengeForTimer = challengeToStart
-                        }
                     },
                     onShare: {
                         let challengeId = challenge.id
-                        if let storedChallenge = appState.challenges.first(where: { $0.id == challengeId }) {
-                            appState.shareChallengeToPublic(storedChallenge)
-                        } else {
-                            appState.shareChallengeToPublic(challenge)
-                        }
                         challengeForActions = nil
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            if let storedChallenge = appState.challenges.first(where: { $0.id == challengeId }) {
+                                challengeForShare = storedChallenge
+                            } else {
+                                challengeForShare = challenge
+                            }
+                        }
                     }
                 )
                 .presentationDetents([.height(160)])
                 .presentationBackground(Color.white)
                 .onDisappear {
-                    if challengeForActions?.id == challenge.id {
-                        challengeForActions = nil
+                    if let pendingStart = pendingChallengeStart {
+                        pendingChallengeStart = nil
+                        let challengeToStart = appState.challenges.first(where: { $0.id == pendingStart.id }) ?? pendingStart
+                        appState.startChallenge(challengeToStart)
+                        challengeForTimer = challengeToStart
                     }
                 }
+            }
+            .sheet(item: $challengeForShare) { challenge in
+                ShareChallengeSheet(challenge: challenge)
+                    .environmentObject(appState)
+                    .presentationDetents([.height(380)])
+                    .presentationDragIndicator(.visible)
+                    .presentationBackground(Color.white)
+                    .onAppear {
+                        appState.shareChallengeToPublic(challenge)
+                    }
             }
             .fullScreenCover(item: $challengeForTimer) { challenge in
                 ChallengeTimerView(
@@ -594,6 +606,154 @@ struct ChallengeActionsSheet: View {
             .padding(.bottom, 20)
         }
         .background(Color.white)
+    }
+}
+
+// Share Challenge Sheet
+struct ShareChallengeSheet: View {
+    @Environment(\.dismiss) var dismiss
+    @EnvironmentObject var appState: AppStateManager
+    let challenge: RawChallenge
+    
+    @State private var linkCopied = false
+    
+    private let accentBlack = Color.black
+    
+    private var challengeLink: String {
+        "beraw://challenge/\(challenge.id.uuidString)"
+    }
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            // Header
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Share Challenge")
+                        .font(.system(size: 22, weight: .bold))
+                        .foregroundColor(.black)
+                    Text("Published to Public")
+                        .font(.system(size: 13, weight: .regular))
+                        .foregroundColor(.green)
+                }
+                
+                Spacer()
+                
+                Button(action: {
+                    dismiss()
+                }) {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 26))
+                        .foregroundColor(.gray)
+                }
+            }
+            .padding(20)
+            .background(Color.white)
+            
+            VStack(spacing: 20) {
+                // Challenge Preview
+                HStack(spacing: 12) {
+                    ZStack {
+                        Circle()
+                            .fill(accentBlack)
+                            .frame(width: 48, height: 48)
+                        
+                        Image(systemName: "target")
+                            .font(.system(size: 20, weight: .semibold))
+                            .foregroundColor(.white)
+                    }
+                    
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(challenge.title)
+                            .font(.system(size: 18, weight: .bold))
+                            .foregroundColor(.black)
+                            .lineLimit(1)
+                        
+                        HStack(spacing: 6) {
+                            Image(systemName: "clock.fill")
+                                .font(.system(size: 11))
+                            Text("\(challenge.durationMinutes) min")
+                                .font(.system(size: 13, weight: .medium))
+                        }
+                        .foregroundColor(.gray)
+                    }
+                    
+                    Spacer()
+                }
+                .padding(16)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.gray.opacity(0.05))
+                )
+                
+                // Link Section
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("Challenge Link")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(.black)
+                    
+                    HStack(spacing: 10) {
+                        Text(challengeLink)
+                            .font(.system(size: 12, weight: .regular))
+                            .foregroundColor(.gray)
+                            .lineLimit(1)
+                            .truncationMode(.middle)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 12)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .fill(Color.gray.opacity(0.1))
+                            )
+                        
+                        Button(action: {
+                            UIPasteboard.general.string = challengeLink
+                            linkCopied = true
+                            
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                linkCopied = false
+                            }
+                        }) {
+                            HStack(spacing: 5) {
+                                Image(systemName: linkCopied ? "checkmark" : "doc.on.doc")
+                                    .font(.system(size: 13, weight: .semibold))
+                                Text(linkCopied ? "Copied" : "Copy")
+                                    .font(.system(size: 13, weight: .semibold))
+                            }
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 12)
+                            .background(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .fill(linkCopied ? Color.green : accentBlack)
+                            )
+                        }
+                    }
+                }
+                
+                // Share Button
+                ShareLink(
+                    item: URL(string: challengeLink)!,
+                    subject: Text("Join my Raw Challenge"),
+                    message: Text("I challenge you to: \(challenge.title) for \(challenge.durationMinutes) minutes. Can you do it?")
+                ) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "square.and.arrow.up")
+                            .font(.system(size: 15, weight: .semibold))
+                        Text("Share with Friends")
+                            .font(.system(size: 15, weight: .semibold))
+                    }
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 48)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(accentBlack)
+                    )
+                }
+            }
+            .padding(20)
+            .background(Color.white)
+        }
     }
 }
 
