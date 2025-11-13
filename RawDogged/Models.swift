@@ -116,6 +116,7 @@ class AppStateManager: ObservableObject {
     @Published var publicChallenges: [RawChallenge]
     @Published var leaderboard: [LeaderboardEntry]
     @Published var currentUser: String
+    @Published var userName: String
     @Published var journalEntries: [JournalEntry]
     @Published var completedSessionDuration: TimeInterval?
     
@@ -147,6 +148,7 @@ class AppStateManager: ObservableObject {
         ]
         
         self.currentUser = "You"
+        self.userName = "Raw Dog"
         
         self.leaderboard = [
             LeaderboardEntry(nickname: "RawMaster", totalRawTime: 144000, totalPoints: 2400, rank: 1), // 40 hours, 2400 pts

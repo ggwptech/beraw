@@ -364,14 +364,24 @@ struct AddChallengeView: View {
                             .font(.system(size: 14, weight: .medium))
                             .foregroundColor(.gray)
                         
-                        TextField("e.g., 20 Min: Meditate", text: $title)
-                            .font(.system(size: 16, weight: .regular))
-                            .foregroundColor(.black)
-                            .padding(16)
-                            .background(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(Color.white)
-                            )
+                        ZStack(alignment: .leading) {
+                            if title.isEmpty {
+                                Text("e.g., 20 Min: Meditate")
+                                    .font(.system(size: 16, weight: .regular))
+                                    .foregroundColor(.gray.opacity(0.8))
+                                    .padding(.leading, 16)
+                            }
+                            
+                            TextField("", text: $title)
+                                .font(.system(size: 16, weight: .regular))
+                                .foregroundColor(.black)
+                                .tint(accentBlack)
+                                .padding(16)
+                        }
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.white)
+                        )
                     }
                     .padding(20)
                     .background(
