@@ -11,6 +11,7 @@ struct HomeView: View {
     @State private var showJournalEntry = false
     @State private var selectedEntry: JournalEntry?
     @State private var showFullJournal = false
+    @State private var showMotivation = true
     
     private let accentBlack = Color.black
     
@@ -236,46 +237,47 @@ struct HomeView: View {
                     )
                     .padding(.horizontal, 20)
                     
-                    // Motivational Card with Button (Last)
-                    VStack(spacing: 20) {
-                        VStack(spacing: 8) {
-                            Text("No rush. Just real time")
-                                .font(.system(size: 18, weight: .semibold))
-                                .foregroundColor(.black)
-                                .multilineTextAlignment(.center)
+                    // Action Button
+                    Button(action: {
+                        if appState.currentSession == nil {
+                            appState.startSession()
+                            showFullScreenTimer = true
+                        } else {
+                            appState.stopSession()
+                            showJournalEntry = true
                         }
-                        
-                        // Action Button
-                        Button(action: {
+                    }) {
+                        HStack(spacing: 8) {
                             if appState.currentSession == nil {
-                                appState.startSession()
-                                showFullScreenTimer = true
+                                if showMotivation {
+                                    Text("No rush. Just real time")
+                                        .font(.system(size: 16, weight: .semibold))
+                                        .transition(.opacity)
+                                } else {
+                                    Image(systemName: "bolt.fill")
+                                        .font(.system(size: 16, weight: .semibold))
+                                    Text("Do it")
+                                        .font(.system(size: 16, weight: .semibold))
+                                        .transition(.opacity)
+                                }
                             } else {
-                                appState.stopSession()
-                                showJournalEntry = true
-                            }
-                        }) {
-                            HStack {
-                                Image(systemName: appState.currentSession == nil ? "bolt.fill" : "stop.fill")
+                                Image(systemName: "stop.fill")
                                     .font(.system(size: 16, weight: .semibold))
-                                Text(appState.currentSession == nil ? "Do it" : "STOP")
+                                Text("STOP")
                                     .font(.system(size: 16, weight: .semibold))
                             }
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 14)
-                            .background(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(appState.currentSession == nil ? accentBlack : Color.red)
-                            )
                         }
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(appState.currentSession == nil ? accentBlack : Color.red)
+                        )
                     }
-                    .padding(20)
-                    .background(
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(Color.white)
-                            .shadow(color: accentBlack.opacity(0.08), radius: 12, x: 0, y: 4)
-                    )
+                    .onAppear {
+                        startButtonTextTimer()
+                    }
                     .padding(.horizontal, 20)
                     .padding(.bottom, 20)
                 }
@@ -340,6 +342,14 @@ struct HomeView: View {
             return appState.formatTime(session.duration)
         } else {
             return "00:00"
+        }
+    }
+    
+    private func startButtonTextTimer() {
+        Timer.scheduledTimer(withTimeInterval: 30.0, repeats: true) { _ in
+            withAnimation(.easeInOut(duration: 0.5)) {
+                showMotivation.toggle()
+            }
         }
     }
     
