@@ -522,11 +522,6 @@ struct PublicChallengeCard: View {
             }
             
             Spacer()
-            
-            // Play Icon
-            Image(systemName: "play.circle.fill")
-                .font(.system(size: 28, weight: .regular))
-                .foregroundColor(accentBlack)
         }
         .padding(16)
         .background(

@@ -32,10 +32,6 @@ struct HomeView: View {
                         }
                         
                         Spacer()
-                        
-                        Text("Today")
-                            .font(.system(size: 14, weight: .regular))
-                            .foregroundColor(.gray)
                     }
                     .padding(.horizontal, 20)
                     .padding(.top, 10)
