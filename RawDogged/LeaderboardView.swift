@@ -20,7 +20,7 @@ struct LeaderboardView: View {
                             Image(systemName: "trophy.fill")
                                 .font(.system(size: 24, weight: .bold))
                                 .foregroundColor(accentBlack)
-                            Text("Top Dogs")
+                            Text("Top Raw")
                                 .font(.system(size: 28, weight: .bold))
                                 .foregroundColor(.black)
                         }

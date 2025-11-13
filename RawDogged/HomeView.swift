@@ -12,6 +12,7 @@ struct HomeView: View {
     @State private var selectedEntry: JournalEntry?
     @State private var showFullJournal = false
     @State private var showMotivation = true
+    @State private var showPointsInfo = false
     
     private let accentBlack = Color.black
     
@@ -147,6 +148,16 @@ struct HomeView: View {
                                 Image(systemName: "bolt.fill")
                                     .font(.system(size: 11, weight: .medium))
                                 Text("Total")
+                                
+                                Spacer()
+                                
+                                Button(action: {
+                                    showPointsInfo = true
+                                }) {
+                                    Image(systemName: "info.circle")
+                                        .font(.system(size: 14, weight: .medium))
+                                        .foregroundColor(.gray)
+                                }
                             }
                             .font(.system(size: 12, weight: .medium))
                             .foregroundColor(.gray)
@@ -297,6 +308,9 @@ struct HomeView: View {
         .sheet(isPresented: $showFullJournal) {
             JournalView()
                 .environmentObject(appState)
+        }
+        .sheet(isPresented: $showPointsInfo) {
+            PointsInfoSheet()
         }
         .fullScreenCover(isPresented: $showFullScreenTimer) {
             FullScreenTimerView()
@@ -596,6 +610,171 @@ struct JournalEntryDetailView: View {
             return "\(minutes) minutes"
         } else {
             return "\(seconds) seconds"
+        }
+    }
+}
+
+// Points Info Sheet
+struct PointsInfoSheet: View {
+    @Environment(\.dismiss) var dismiss
+    private let accentBlack = Color.black
+    
+    var body: some View {
+        NavigationView {
+            VStack(spacing: 0) {
+                // Header
+                HStack {
+                    Text("How Points Work")
+                        .font(.system(size: 24, weight: .bold))
+                        .foregroundColor(.black)
+                    
+                    Spacer()
+                    
+                    Button(action: {
+                        dismiss()
+                    }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: 28))
+                            .foregroundColor(.gray)
+                    }
+                }
+                .padding(20)
+                .background(Color.white)
+                
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 24) {
+                        // Regular Sessions
+                        VStack(alignment: .leading, spacing: 12) {
+                            HStack(spacing: 10) {
+                                ZStack {
+                                    Circle()
+                                        .fill(accentBlack)
+                                        .frame(width: 44, height: 44)
+                                    
+                                    Image(systemName: "clock.fill")
+                                        .font(.system(size: 20, weight: .semibold))
+                                        .foregroundColor(.white)
+                                }
+                                
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Regular Sessions")
+                                        .font(.system(size: 18, weight: .semibold))
+                                        .foregroundColor(.black)
+                                    Text("Focus time tracking")
+                                        .font(.system(size: 14, weight: .regular))
+                                        .foregroundColor(.gray)
+                                }
+                            }
+                            
+                            VStack(alignment: .leading, spacing: 8) {
+                                HStack {
+                                    Text("•")
+                                        .font(.system(size: 16, weight: .bold))
+                                        .foregroundColor(.orange)
+                                    Text("1 point per minute")
+                                        .font(.system(size: 15, weight: .regular))
+                                        .foregroundColor(.black)
+                                }
+                                
+                                Text("Track your focus sessions and earn 1 point for every minute you stay present.")
+                                    .font(.system(size: 14, weight: .regular))
+                                    .foregroundColor(.gray)
+                                    .padding(.leading, 20)
+                            }
+                            .padding(16)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(Color.orange.opacity(0.1))
+                            )
+                        }
+                        
+                        // Challenge Completion
+                        VStack(alignment: .leading, spacing: 12) {
+                            HStack(spacing: 10) {
+                                ZStack {
+                                    Circle()
+                                        .fill(Color.orange)
+                                        .frame(width: 44, height: 44)
+                                    
+                                    Image(systemName: "target")
+                                        .font(.system(size: 20, weight: .semibold))
+                                        .foregroundColor(.white)
+                                }
+                                
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Challenge Bonus")
+                                        .font(.system(size: 18, weight: .semibold))
+                                        .foregroundColor(.black)
+                                    Text("Extra rewards")
+                                        .font(.system(size: 14, weight: .regular))
+                                        .foregroundColor(.gray)
+                                }
+                            }
+                            
+                            VStack(alignment: .leading, spacing: 8) {
+                                HStack {
+                                    Text("•")
+                                        .font(.system(size: 16, weight: .bold))
+                                        .foregroundColor(.orange)
+                                    Text("2x points for challenge duration")
+                                        .font(.system(size: 15, weight: .regular))
+                                        .foregroundColor(.black)
+                                }
+                                
+                                Text("Complete a challenge to earn bonus points: 2 points per minute of the challenge duration.")
+                                    .font(.system(size: 14, weight: .regular))
+                                    .foregroundColor(.gray)
+                                    .padding(.leading, 20)
+                                
+                                HStack(spacing: 8) {
+                                    Text("Example:")
+                                        .font(.system(size: 14, weight: .semibold))
+                                        .foregroundColor(.black)
+                                    Text("30-min challenge = 60 bonus points")
+                                        .font(.system(size: 14, weight: .regular))
+                                        .foregroundColor(.gray)
+                                }
+                                .padding(.leading, 20)
+                                .padding(.top, 4)
+                            }
+                            .padding(16)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(Color.orange.opacity(0.1))
+                            )
+                        }
+                        
+                        // Summary
+                        VStack(alignment: .leading, spacing: 12) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "lightbulb.fill")
+                                    .font(.system(size: 16, weight: .semibold))
+                                    .foregroundColor(.orange)
+                                Text("Pro Tip")
+                                    .font(.system(size: 16, weight: .semibold))
+                                    .foregroundColor(.black)
+                            }
+                            
+                            Text("Combine regular sessions with challenges to maximize your points and climb the leaderboard!")
+                                .font(.system(size: 14, weight: .regular))
+                                .foregroundColor(.gray)
+                                .lineSpacing(4)
+                        }
+                        .padding(16)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.yellow.opacity(0.1))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(Color.yellow.opacity(0.3), lineWidth: 1)
+                                )
+                        )
+                    }
+                    .padding(20)
+                }
+                .background(Color(red: 0.97, green: 0.97, blue: 0.97))
+            }
+            .navigationBarHidden(true)
         }
     }
 }

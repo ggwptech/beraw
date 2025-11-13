@@ -21,7 +21,7 @@ struct ProfileView: View {
                             Image(systemName: "person.fill")
                                 .font(.system(size: 24, weight: .bold))
                                 .foregroundColor(accentBlack)
-                            Text("My Dog")
+                            Text("My Profile")
                                 .font(.system(size: 28, weight: .bold))
                                 .foregroundColor(.black)
                         }
@@ -119,8 +119,20 @@ struct ProfileView: View {
                     
                     // Settings Section
                     VStack(spacing: 12) {
-                        SettingsCard(icon: "bell.fill", title: "App Notifications", showChevron: true) {
-                            // Action
+                        SettingsCard(icon: "star.fill", title: "Rate App", showChevron: true) {
+                            // Action: Open App Store rating
+                        }
+                        
+                        SettingsCard(icon: "square.and.arrow.up.fill", title: "Share with Friends", showChevron: true) {
+                            // Action: Share app
+                        }
+                        
+                        SettingsCard(icon: "questionmark.circle.fill", title: "Support", showChevron: true) {
+                            // Action: Contact support
+                        }
+                        
+                        SettingsCard(icon: "doc.text.fill", title: "Terms of Service", showChevron: true) {
+                            // Action: Show terms
                         }
                         
                         SettingsCard(icon: "info.circle.fill", title: "About & Privacy", showChevron: true) {
