@@ -204,7 +204,8 @@ struct ChallengeView: View {
                             showChallengeActions = false
                         }
                     )
-                    .presentationDetents([.height(200)])
+                    .presentationDetents([.height(160)])
+                    .presentationBackground(Color.white)
                 }
             }
             .fullScreenCover(isPresented: $showChallengeTimer) {
@@ -520,61 +521,60 @@ struct ChallengeActionsSheet: View {
                 .fill(Color.gray.opacity(0.3))
                 .frame(width: 36, height: 5)
                 .padding(.top, 12)
-                .padding(.bottom, 20)
+                .padding(.bottom, 16)
             
             // Challenge title
             Text(challenge.title)
-                .font(.system(size: 18, weight: .semibold))
+                .font(.system(size: 16, weight: .semibold))
                 .foregroundColor(.black)
-                .padding(.bottom, 20)
+                .padding(.bottom, 16)
             
-            // Actions
-            HStack(spacing: 20) {
-                // Share button
+            // Horizontal buttons
+            HStack(spacing: 12) {
+                // Share button - white with black border
                 Button(action: onShare) {
-                    VStack(spacing: 8) {
-                        ZStack {
-                            Circle()
-                                .fill(Color.blue.opacity(0.1))
-                                .frame(width: 60, height: 60)
-                            
-                            Image(systemName: "square.and.arrow.up")
-                                .font(.system(size: 24, weight: .medium))
-                                .foregroundColor(.blue)
-                        }
-                        
+                    HStack(spacing: 8) {
+                        Image(systemName: "square.and.arrow.up")
+                            .font(.system(size: 16, weight: .semibold))
+                            .frame(width: 20)
                         Text("Share")
-                            .font(.system(size: 14, weight: .medium))
-                            .foregroundColor(.gray)
+                            .font(.system(size: 16, weight: .semibold))
                     }
+                    .foregroundColor(.black)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 48)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color.white)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(Color.black, lineWidth: 2)
+                            )
+                    )
                 }
                 
-                Spacer()
-                
-                // Start button
+                // Start button - black
                 Button(action: onStart) {
-                    VStack(spacing: 8) {
-                        ZStack {
-                            Circle()
-                                .fill(accentBlack)
-                                .frame(width: 60, height: 60)
-                            
-                            Image(systemName: "play.fill")
-                                .font(.system(size: 24, weight: .medium))
-                                .foregroundColor(.white)
-                        }
-                        
+                    HStack(spacing: 8) {
+                        Image(systemName: "play.fill")
+                            .font(.system(size: 16, weight: .semibold))
+                            .frame(width: 20)
                         Text("Start")
-                            .font(.system(size: 14, weight: .medium))
-                            .foregroundColor(.gray)
+                            .font(.system(size: 16, weight: .semibold))
                     }
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 48)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(accentBlack)
+                    )
                 }
             }
-            .padding(.horizontal, 60)
+            .padding(.horizontal, 20)
             .padding(.bottom, 20)
-            
-            Spacer()
         }
+        .background(Color.white)
     }
 }
 
