@@ -4,6 +4,8 @@
 //
 
 import SwiftUI
+import FirebaseCore
+import AuthenticationServices
 
 struct RootView: View {
     @State private var showSplash = true
@@ -331,6 +333,7 @@ struct AuthView: View {
     @Binding var isPresented: Bool
     @Binding var showPaywallNext: Bool
     @EnvironmentObject var appState: AppStateManager
+    @StateObject private var authManager = AuthenticationManager()
     
     private let accentBlack = Color.black
     
@@ -363,24 +366,31 @@ struct AuthView: View {
                 // Auth Buttons
                 VStack(spacing: 16) {
                     // Apple Sign In
-                    Button(action: {
-                        // Action: Apple Sign In
-                        completeAuth()
-                    }) {
-                        HStack(spacing: 12) {
-                            Image(systemName: "apple.logo")
-                                .font(.system(size: 20, weight: .semibold))
-                            Text(appState.localized("auth_apple"))
-                                .font(.system(size: 16, weight: .semibold))
+                    SignInWithAppleButton(
+                        onRequest: { request in
+                            let appleRequest = authManager.startSignInWithAppleFlow()
+                            request.requestedScopes = appleRequest.requestedScopes
+                            request.nonce = appleRequest.nonce
+                        },
+                        onCompletion: { result in
+                            switch result {
+                            case .success(let authorization):
+                                authManager.signInWithApple(authorization: authorization) { result in
+                                    switch result {
+                                    case .success:
+                                        completeAuth()
+                                    case .failure(let error):
+                                        print("Apple Sign In failed: \(error.localizedDescription)")
+                                    }
+                                }
+                            case .failure(let error):
+                                print("Apple Sign In failed: \(error.localizedDescription)")
+                            }
                         }
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.black)
-                        )
-                    }
+                    )
+                    .signInWithAppleButtonStyle(.black)
+                    .frame(height: 50)
+                    .cornerRadius(12)
                     
                     // Google Sign In
                     Button(action: {
