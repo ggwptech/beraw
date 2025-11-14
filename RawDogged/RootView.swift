@@ -337,6 +337,7 @@ struct AuthView: View {
 
 struct InitialPaywallView: View {
     @Binding var isPresented: Bool
+    @EnvironmentObject var appState: AppStateManager
     @State private var selectedPlan: SubscriptionPlan = .yearly
     @State private var showCloseButton = false
     
@@ -405,7 +406,7 @@ struct InitialPaywallView: View {
                         // Features List
                         VStack(spacing: 16) {
                             PaywallFeatureRow(icon: "infinity", title: "Unlimited Sessions")
-                            PaywallFeatureRow(icon: "chart.line.uptrend.xyaxis", title: "Advanced Analytics")
+                            PaywallFeatureRow(icon: "chart.line.uptrend.xyaxis", title: "Access to Leaderboard")
                             PaywallFeatureRow(icon: "trophy.fill", title: "Exclusive Challenges")
                             PaywallFeatureRow(icon: "sparkles", title: "Priority Support")
                         }
@@ -514,6 +515,7 @@ struct InitialPaywallView: View {
                         // Subscribe Button
                         Button(action: {
                             // Action: Process subscription
+                            appState.unlockPremium()
                             completePaywall()
                         }) {
                             Text("Continue")

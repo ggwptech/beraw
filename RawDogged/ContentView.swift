@@ -11,6 +11,7 @@ import StoreKit
 struct ContentView: View {
     @StateObject private var appState = AppStateManager()
     @State private var hasRequestedReview = false
+    @State private var showPaywall = false
     
     private let accentBlack = Color.black // #2f00ff
     
@@ -23,19 +24,37 @@ struct ContentView: View {
                 }
                 .environmentObject(appState)
             
-            ChallengeView()
-                .tabItem {
-                    Image(systemName: "target")
-                    Text("Challenges")
+            Group {
+                if appState.isPremiumUser {
+                    ChallengeView()
+                } else {
+                    PremiumLockedView(feature: "Challenges")
+                        .onTapGesture {
+                            showPaywall = true
+                        }
                 }
-                .environmentObject(appState)
+            }
+            .tabItem {
+                Image(systemName: "target")
+                Text("Challenges")
+            }
+            .environmentObject(appState)
             
-            LeaderboardView()
-                .tabItem {
-                    Image(systemName: "chart.bar")
-                    Text("Leaderboard")
+            Group {
+                if appState.isPremiumUser {
+                    LeaderboardView()
+                } else {
+                    PremiumLockedView(feature: "Leaderboard")
+                        .onTapGesture {
+                            showPaywall = true
+                        }
                 }
-                .environmentObject(appState)
+            }
+            .tabItem {
+                Image(systemName: "chart.bar")
+                Text("Leaderboard")
+            }
+            .environmentObject(appState)
             
             ProfileView()
                 .tabItem {
@@ -45,6 +64,10 @@ struct ContentView: View {
                 .environmentObject(appState)
         }
         .accentColor(accentBlack)
+        .sheet(isPresented: $showPaywall) {
+            PaywallView()
+                .environmentObject(appState)
+        }
         .onAppear {
             // Request review after 5 seconds, only once per session
             if !hasRequestedReview {
@@ -76,6 +99,58 @@ struct ContentView: View {
     }
 }
 
+struct PremiumLockedView: View {
+    let feature: String
+    
+    private let accentBlack = Color.black
+    
+    var body: some View {
+        ZStack {
+            Color(red: 0.97, green: 0.97, blue: 0.97)
+                .ignoresSafeArea()
+            
+            VStack(spacing: 24) {
+                // Lock Icon
+                ZStack {
+                    Circle()
+                        .fill(accentBlack.opacity(0.1))
+                        .frame(width: 100, height: 100)
+                    
+                    Image(systemName: "lock.fill")
+                        .font(.system(size: 40, weight: .bold))
+                        .foregroundColor(accentBlack)
+                }
+                
+                // Text
+                VStack(spacing: 12) {
+                    Text("Premium Feature")
+                        .font(.system(size: 24, weight: .bold))
+                        .foregroundColor(.black)
+                    
+                    Text("Unlock \(feature) with Premium")
+                        .font(.system(size: 16, weight: .regular))
+                        .foregroundColor(.gray)
+                        .multilineTextAlignment(.center)
+                }
+                
+                // Unlock Button
+                VStack(spacing: 8) {
+                    Text("Tap anywhere to unlock")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(.gray)
+                    
+                    Image(systemName: "hand.tap.fill")
+                        .font(.system(size: 24))
+                        .foregroundColor(accentBlack.opacity(0.6))
+                }
+                .padding(.top, 8)
+            }
+            .padding(.horizontal, 40)
+        }
+    }
+}
+
 #Preview {
     ContentView()
 }
+

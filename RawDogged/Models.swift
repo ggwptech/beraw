@@ -117,6 +117,7 @@ class AppStateManager: ObservableObject {
     @Published var userName: String
     @Published var journalEntries: [JournalEntry]
     @Published var completedSessionDuration: TimeInterval?
+    @Published var isPremiumUser: Bool
     
     private var timer: Timer?
     
@@ -152,6 +153,15 @@ class AppStateManager: ObservableObject {
         ]
         
         self.journalEntries = []
+        
+        // Load premium status from UserDefaults
+        self.isPremiumUser = UserDefaults.standard.bool(forKey: "isPremiumUser")
+    }
+    
+    // MARK: - Premium Management
+    func unlockPremium() {
+        isPremiumUser = true
+        UserDefaults.standard.set(true, forKey: "isPremiumUser")
     }
     
     // MARK: - Session Management

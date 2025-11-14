@@ -473,6 +473,7 @@ struct EditProfileView: View {
 
 struct PaywallView: View {
     @Environment(\.dismiss) var dismiss
+    @EnvironmentObject var appState: AppStateManager
     @State private var selectedPlan: SubscriptionPlan = .yearly
     
     private let accentBlack = Color.black
@@ -529,7 +530,7 @@ struct PaywallView: View {
                         // Features List
                         VStack(spacing: 16) {
                             FeatureRow(icon: "infinity", title: "Unlimited Sessions")
-                            FeatureRow(icon: "chart.line.uptrend.xyaxis", title: "Advanced Analytics")
+                            FeatureRow(icon: "chart.line.uptrend.xyaxis", title: "Access to Leaderboard")
                             FeatureRow(icon: "trophy.fill", title: "Exclusive Challenges")
                             FeatureRow(icon: "sparkles", title: "Priority Support")
                         }
@@ -638,6 +639,8 @@ struct PaywallView: View {
                         // Subscribe Button
                         Button(action: {
                             // Action: Process subscription
+                            appState.unlockPremium()
+                            dismiss()
                         }) {
                             Text("Continue")
                                 .font(.system(size: 16, weight: .semibold))
