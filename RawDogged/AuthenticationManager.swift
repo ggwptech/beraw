@@ -1,8 +1,10 @@
 import Foundation
+import FirebaseCore
 import FirebaseAuth
 import AuthenticationServices
 import CryptoKit
 import Combine
+import GoogleSignIn
 
 class AuthenticationManager: ObservableObject {
     @Published var isAuthenticated = false
@@ -66,6 +68,51 @@ class AuthenticationManager: ObservableObject {
         request.nonce = sha256(nonce)
         
         return request
+    }
+    
+    // MARK: - Sign in with Google
+    func signInWithGoogle(presentingViewController: UIViewController, completion: @escaping (Result<FirebaseAuth.User, Error>) -> Void) {
+        guard let clientID = FirebaseApp.app()?.options.clientID else {
+            completion(.failure(NSError(domain: "AuthenticationManager", code: -1, userInfo: [NSLocalizedDescriptionKey: "Firebase client ID not found"])))
+            return
+        }
+        
+        let config = GIDConfiguration(clientID: clientID)
+        GIDSignIn.sharedInstance.configuration = config
+        
+        GIDSignIn.sharedInstance.signIn(withPresenting: presentingViewController) { [weak self] result, error in
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+            
+            guard let user = result?.user,
+                  let idToken = user.idToken?.tokenString else {
+                completion(.failure(NSError(domain: "AuthenticationManager", code: -1, userInfo: [NSLocalizedDescriptionKey: "Google Sign-In failed"])))
+                return
+            }
+            
+            let credential = GoogleAuthProvider.credential(withIDToken: idToken,
+                                                          accessToken: user.accessToken.tokenString)
+            
+            Auth.auth().signIn(with: credential) { authResult, error in
+                if let error = error {
+                    completion(.failure(error))
+                    return
+                }
+                
+                guard let firebaseUser = authResult?.user else {
+                    completion(.failure(NSError(domain: "AuthenticationManager", code: -1, userInfo: [NSLocalizedDescriptionKey: "User not found"])))
+                    return
+                }
+                
+                DispatchQueue.main.async {
+                    self?.isAuthenticated = true
+                    self?.currentUser = firebaseUser
+                    completion(.success(firebaseUser))
+                }
+            }
+        }
     }
     
     // MARK: - Sign Out

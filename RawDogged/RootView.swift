@@ -394,8 +394,7 @@ struct AuthView: View {
                     
                     // Google Sign In
                     Button(action: {
-                        // Action: Google Sign In
-                        completeAuth()
+                        signInWithGoogle()
                     }) {
                         HStack(spacing: 12) {
                             Image(systemName: "g.circle.fill")
@@ -450,6 +449,23 @@ struct AuthView: View {
                 }
                 .padding(.top, 24)
                 .padding(.bottom, 40)
+            }
+        }
+    }
+    
+    private func signInWithGoogle() {
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let rootViewController = windowScene.windows.first?.rootViewController else {
+            print("Unable to get root view controller")
+            return
+        }
+        
+        authManager.signInWithGoogle(presentingViewController: rootViewController) { result in
+            switch result {
+            case .success:
+                completeAuth()
+            case .failure(let error):
+                print("Google Sign In failed: \(error.localizedDescription)")
             }
         }
     }

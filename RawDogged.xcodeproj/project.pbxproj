@@ -16,6 +16,8 @@
 		D34A76BB2EC7527D00F64A85 /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = D34A76BA2EC7527D00F64A85 /* FirebaseDatabase */; };
 		D34A76BD2EC7527D00F64A85 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = D34A76BC2EC7527D00F64A85 /* FirebaseStorage */; };
 		D34A76BF2EC7527D00F64A85 /* FirebaseStorageCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = D34A76BE2EC7527D00F64A85 /* FirebaseStorageCombine-Community */; };
+		D34A76C52EC7581600F64A85 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = D34A76C42EC7581600F64A85 /* GoogleSignIn */; };
+		D34A76C72EC7581600F64A85 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = D34A76C62EC7581600F64A85 /* GoogleSignInSwift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -41,9 +43,22 @@
 		D3D129912EC242B500A7B601 /* RawDoggedUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RawDoggedUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		D34A76C92EC7585F00F64A85 /* Exceptions for "RawDogged" folder in "RawDogged" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = D3D129792EC242B300A7B601 /* RawDogged */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		D3D1297C2EC242B400A7B601 /* RawDogged */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				D34A76C92EC7585F00F64A85 /* Exceptions for "RawDogged" folder in "RawDogged" target */,
+			);
 			path = RawDogged;
 			sourceTree = "<group>";
 		};
@@ -69,10 +84,12 @@
 				D34A76B32EC7527D00F64A85 /* FirebaseAnalyticsIdentitySupport in Frameworks */,
 				D34A76B52EC7527D00F64A85 /* FirebaseAuth in Frameworks */,
 				D34A76B92EC7527D00F64A85 /* FirebaseCore in Frameworks */,
+				D34A76C52EC7581600F64A85 /* GoogleSignIn in Frameworks */,
 				D34A76BD2EC7527D00F64A85 /* FirebaseStorage in Frameworks */,
 				D34A76BB2EC7527D00F64A85 /* FirebaseDatabase in Frameworks */,
 				D34A76BF2EC7527D00F64A85 /* FirebaseStorageCombine-Community in Frameworks */,
 				D34A76B72EC7527D00F64A85 /* FirebaseAuthCombine-Community in Frameworks */,
+				D34A76C72EC7581600F64A85 /* GoogleSignInSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -142,6 +159,8 @@
 				D34A76BA2EC7527D00F64A85 /* FirebaseDatabase */,
 				D34A76BC2EC7527D00F64A85 /* FirebaseStorage */,
 				D34A76BE2EC7527D00F64A85 /* FirebaseStorageCombine-Community */,
+				D34A76C42EC7581600F64A85 /* GoogleSignIn */,
+				D34A76C62EC7581600F64A85 /* GoogleSignInSwift */,
 			);
 			productName = RawDogged;
 			productReference = D3D1297A2EC242B400A7B601 /* RawDogged.app */;
@@ -227,6 +246,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				D34A76AD2EC7527D00F64A85 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				D34A76C32EC7581600F64A85 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D3D1297B2EC242B400A7B601 /* Products */;
@@ -434,6 +454,7 @@
 				DEVELOPMENT_TEAM = 45M934M76F;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = RawDogged/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Be Raw";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -473,6 +494,7 @@
 				DEVELOPMENT_TEAM = 45M934M76F;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = RawDogged/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Be Raw";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -635,6 +657,14 @@
 				minimumVersion = 12.6.0;
 			};
 		};
+		D34A76C32EC7581600F64A85 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 9.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -682,6 +712,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = D34A76AD2EC7527D00F64A85 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = "FirebaseStorageCombine-Community";
+		};
+		D34A76C42EC7581600F64A85 /* GoogleSignIn */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D34A76C32EC7581600F64A85 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignIn;
+		};
+		D34A76C62EC7581600F64A85 /* GoogleSignInSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D34A76C32EC7581600F64A85 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignInSwift;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
