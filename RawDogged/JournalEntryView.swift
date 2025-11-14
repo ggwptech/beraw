@@ -28,7 +28,7 @@ struct JournalEntryView: View {
                                 .font(.system(size: 22))
                                 .foregroundColor(accentBlack)
                             
-                            Text("Session Complete!")
+                            Text(appState.localized("journal_session_complete"))
                                 .font(.system(size: 18, weight: .bold))
                                 .foregroundColor(.black)
                         }
@@ -40,7 +40,7 @@ struct JournalEntryView: View {
                                 .monospacedDigit()
                         }
                         
-                        Text("How do you feel?")
+                        Text(appState.localized("journal_feel_question"))
                             .font(.system(size: 14, weight: .regular))
                             .foregroundColor(.gray)
                     }
@@ -52,7 +52,7 @@ struct JournalEntryView: View {
                         HStack(spacing: 6) {
                             Image(systemName: "pencil.line")
                                 .font(.system(size: 11, weight: .medium))
-                            Text("Your Thoughts")
+                            Text(appState.localized("journal_your_thoughts"))
                         }
                         .font(.system(size: 13, weight: .medium))
                         .foregroundColor(.gray)
@@ -69,7 +69,7 @@ struct JournalEntryView: View {
                                 .focused($isTextFieldFocused)
                             
                             if thoughts.isEmpty {
-                                Text("Write your thoughts here...")
+                                Text(appState.localized("journal_thoughts_placeholder"))
                                     .font(.system(size: 15, weight: .regular))
                                     .foregroundColor(.gray.opacity(0.5))
                                     .padding(.horizontal, 12)
@@ -94,7 +94,7 @@ struct JournalEntryView: View {
                             }
                             dismiss()
                         }) {
-                            Text("Save Thoughts")
+                            Text(appState.localized("journal_save_thoughts"))
                                 .font(.system(size: 16, weight: .semibold))
                                 .foregroundColor(.white)
                                 .frame(maxWidth: .infinity)
@@ -109,7 +109,7 @@ struct JournalEntryView: View {
                             appState.skipJournalEntry()
                             dismiss()
                         }) {
-                            Text("Skip")
+                            Text(appState.localized("journal_skip"))
                                 .font(.system(size: 16, weight: .medium))
                                 .foregroundColor(.gray)
                         }

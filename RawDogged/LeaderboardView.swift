@@ -20,14 +20,14 @@ struct LeaderboardView: View {
                             Image(systemName: "trophy.fill")
                                 .font(.system(size: 24, weight: .bold))
                                 .foregroundColor(accentBlack)
-                            Text("Top Raw")
+                            Text(appState.localized("leaderboard_top_raw"))
                                 .font(.system(size: 28, weight: .bold))
                                 .foregroundColor(.black)
                         }
                         
                         Spacer()
                         
-                        Text("All-Time")
+                        Text(appState.localized("leaderboard_all_time"))
                             .font(.system(size: 14, weight: .medium))
                             .foregroundColor(.gray)
                     }
@@ -41,7 +41,7 @@ struct LeaderboardView: View {
                                 HStack(spacing: 6) {
                                     Image(systemName: "chart.bar.fill")
                                         .font(.system(size: 12, weight: .medium))
-                                    Text("Your Rank")
+                                    Text(appState.localized("leaderboard_your_rank"))
                                 }
                                 .font(.system(size: 14, weight: .medium))
                                 .foregroundColor(.gray)
@@ -53,7 +53,7 @@ struct LeaderboardView: View {
                                     Text("#\(yourEntry.rank)")
                                         .font(.system(size: 32, weight: .bold))
                                         .foregroundColor(.black)
-                                    Text("Position")
+                                    Text(appState.localized("leaderboard_position"))
                                         .font(.system(size: 12, weight: .regular))
                                         .foregroundColor(.gray)
                                 }
@@ -66,7 +66,7 @@ struct LeaderboardView: View {
                                         Text(appState.formatTotalTime(yourEntry.totalRawTime))
                                             .font(.system(size: 24, weight: .bold))
                                             .foregroundColor(.black)
-                                        Text("Total Time")
+                                        Text(appState.localized("leaderboard_total_time"))
                                             .font(.system(size: 11, weight: .regular))
                                             .foregroundColor(.gray)
                                     }
@@ -75,7 +75,7 @@ struct LeaderboardView: View {
                                     HStack(spacing: 4) {
                                         Image(systemName: "bolt.fill")
                                             .font(.system(size: 12, weight: .medium))
-                                        Text("\(yourEntry.totalPoints) pts")
+                                        Text("\(yourEntry.totalPoints) \(appState.localized("leaderboard_points"))")
                                             .font(.system(size: 14, weight: .bold))
                                     }
                                     .foregroundColor(.orange)
@@ -157,7 +157,7 @@ struct LeaderboardRow: View {
                     HStack(spacing: 4) {
                         Image(systemName: "bolt.fill")
                             .font(.system(size: 10))
-                        Text("\(entry.totalPoints)")
+                        Text("\(entry.totalPoints) \(appState.localized("leaderboard_points"))")
                             .font(.system(size: 12, weight: .semibold))
                     }
                     .foregroundColor(.orange)

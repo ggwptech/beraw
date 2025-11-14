@@ -23,7 +23,7 @@ struct ProfileView: View {
                             Image(systemName: "person.fill")
                                 .font(.system(size: 24, weight: .bold))
                                 .foregroundColor(accentBlack)
-                            Text("My Profile")
+                            Text(appState.localized("profile_title"))
                                 .font(.system(size: 28, weight: .bold))
                                 .foregroundColor(.black)
                         }
@@ -49,7 +49,7 @@ struct ProfileView: View {
                                 Text("\(appState.userStats.dailyStreak)")
                                     .font(.system(size: 22, weight: .bold))
                                     .foregroundColor(.black)
-                                Text("Streak")
+                                Text(appState.localized("home_streak"))
                                     .font(.system(size: 12, weight: .regular))
                                     .foregroundColor(.gray)
                             }
@@ -62,7 +62,7 @@ struct ProfileView: View {
                                 Text(appState.formatTotalTime(appState.userStats.totalRawTime))
                                     .font(.system(size: 22, weight: .bold))
                                     .foregroundColor(.black)
-                                Text("Total Time")
+                                Text(appState.localized("home_total_time"))
                                     .font(.system(size: 12, weight: .regular))
                                     .foregroundColor(.gray)
                             }
@@ -75,7 +75,7 @@ struct ProfileView: View {
                                 Text("\(appState.journalEntries.count)")
                                     .font(.system(size: 22, weight: .bold))
                                     .foregroundColor(.black)
-                                Text("Sessions")
+                                Text(appState.localized("home_journal_entries"))
                                     .font(.system(size: 12, weight: .regular))
                                     .foregroundColor(.gray)
                             }
@@ -85,7 +85,7 @@ struct ProfileView: View {
                         Button(action: {
                             showEditProfile = true
                         }) {
-                            Text("Edit Profile")
+                            Text(appState.localized("profile_edit_profile"))
                                 .font(.system(size: 14, weight: .semibold))
                                 .foregroundColor(.black)
                                 .frame(maxWidth: .infinity)
@@ -114,12 +114,12 @@ struct ProfileView: View {
                                         .font(.system(size: 18, weight: .bold))
                                         .foregroundColor(.orange)
                                     
-                                    Text("Premium")
+                                    Text(appState.localized("profile_premium"))
                                         .font(.system(size: 20, weight: .bold))
                                         .foregroundColor(.black)
                                 }
                                 
-                                Text("Unlock all features")
+                                Text(appState.localized("profile_unlock_features"))
                                     .font(.system(size: 14, weight: .regular))
                                     .foregroundColor(.gray)
                             }
@@ -129,7 +129,7 @@ struct ProfileView: View {
                             Button(action: {
                                 showPaywall = true
                             }) {
-                                Text("Upgrade")
+                                Text(appState.localized("profile_upgrade"))
                                     .font(.system(size: 14, weight: .semibold))
                                     .foregroundColor(.white)
                                     .padding(.horizontal, 20)
@@ -151,19 +151,19 @@ struct ProfileView: View {
                     
                     // Settings Section
                     VStack(spacing: 12) {
-                        SettingsCard(icon: "questionmark.circle.fill", title: "Support", showChevron: true) {
+                        SettingsCard(icon: "questionmark.circle.fill", title: appState.localized("profile_support"), showChevron: true) {
                             // Action: Contact support
                         }
                         
-                        SettingsCard(icon: "doc.text.fill", title: "Terms of Service", showChevron: true) {
+                        SettingsCard(icon: "doc.text.fill", title: appState.localized("profile_terms"), showChevron: true) {
                             // Action: Show terms
                         }
                         
-                        SettingsCard(icon: "info.circle.fill", title: "About & Privacy", showChevron: true) {
+                        SettingsCard(icon: "info.circle.fill", title: appState.localized("profile_about_privacy"), showChevron: true) {
                             // Action
                         }
                         
-                        SettingsCard(icon: "rectangle.portrait.and.arrow.right", title: "Log Out", isDestructive: true, showChevron: false) {
+                        SettingsCard(icon: "rectangle.portrait.and.arrow.right", title: appState.localized("profile_logout"), isDestructive: true, showChevron: false) {
                             // Action
                         }
                     }
@@ -394,13 +394,13 @@ struct EditProfileView: View {
                 VStack(spacing: 20) {
                     // User Name Input Card
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("User Name")
+                        Text(appState.localized("profile_username"))
                             .font(.system(size: 14, weight: .medium))
                             .foregroundColor(.gray)
                         
                         ZStack(alignment: .leading) {
                             if userName.isEmpty {
-                                Text("Enter your name")
+                                Text(appState.localized("profile_enter_username"))
                                     .font(.system(size: 16, weight: .regular))
                                     .foregroundColor(.gray.opacity(0.8))
                                     .padding(.leading, 16)
@@ -434,7 +434,7 @@ struct EditProfileView: View {
                             dismiss()
                         }
                     }) {
-                        Text("Save")
+                        Text(appState.localized("common_save"))
                             .font(.system(size: 16, weight: .semibold))
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
@@ -451,13 +451,13 @@ struct EditProfileView: View {
                 }
                 .padding(.top, 20)
             }
-            .navigationTitle("Edit Profile")
+            .navigationTitle(appState.localized("profile_edit_profile"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.visible, for: .navigationBar)
             .toolbarColorScheme(.light, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") {
+                    Button(appState.localized("common_cancel")) {
                         dismiss()
                     }
                     .foregroundColor(accentBlack)
@@ -517,11 +517,11 @@ struct PaywallView: View {
                                 .font(.system(size: 50, weight: .bold))
                                 .foregroundColor(.orange)
                             
-                            Text("Be Raw Premium")
+                            Text(appState.localized("paywall_title"))
                                 .font(.system(size: 28, weight: .bold))
                                 .foregroundColor(.black)
                             
-                            Text("Unlock the full experience")
+                            Text(appState.localized("paywall_subtitle"))
                                 .font(.system(size: 16, weight: .regular))
                                 .foregroundColor(.gray)
                         }
@@ -529,10 +529,10 @@ struct PaywallView: View {
                         
                         // Features List
                         VStack(spacing: 16) {
-                            FeatureRow(icon: "infinity", title: "Unlimited Sessions")
-                            FeatureRow(icon: "chart.line.uptrend.xyaxis", title: "Access to Leaderboard")
-                            FeatureRow(icon: "trophy.fill", title: "Exclusive Challenges")
-                            FeatureRow(icon: "sparkles", title: "Priority Support")
+                            FeatureRow(icon: "infinity", title: appState.localized("paywall_feature_unlimited"), appState: appState)
+                            FeatureRow(icon: "chart.line.uptrend.xyaxis", title: appState.localized("paywall_feature_leaderboard"), appState: appState)
+                            FeatureRow(icon: "trophy.fill", title: appState.localized("paywall_feature_challenges"), appState: appState)
+                            FeatureRow(icon: "sparkles", title: appState.localized("paywall_feature_support"), appState: appState)
                         }
                         .padding(.horizontal, 20)
                         
@@ -545,11 +545,11 @@ struct PaywallView: View {
                                 HStack {
                                     VStack(alignment: .leading, spacing: 6) {
                                         HStack {
-                                            Text("Yearly")
+                                            Text(appState.localized("paywall_yearly"))
                                                 .font(.system(size: 18, weight: .bold))
                                                 .foregroundColor(.black)
                                             
-                                            Text("SAVE 40%")
+                                            Text(appState.localized("paywall_save"))
                                                 .font(.system(size: 11, weight: .bold))
                                                 .foregroundColor(.white)
                                                 .padding(.horizontal, 8)
@@ -560,7 +560,7 @@ struct PaywallView: View {
                                                 )
                                         }
                                         
-                                        Text("$49.99/year")
+                                        Text(appState.localized("paywall_price_yearly"))
                                             .font(.system(size: 14, weight: .regular))
                                             .foregroundColor(.gray)
                                     }
@@ -598,11 +598,11 @@ struct PaywallView: View {
                             }) {
                                 HStack {
                                     VStack(alignment: .leading, spacing: 6) {
-                                        Text("Weekly")
+                                        Text(appState.localized("paywall_weekly"))
                                             .font(.system(size: 18, weight: .bold))
                                             .foregroundColor(.black)
                                         
-                                        Text("$1.99/week")
+                                        Text(appState.localized("paywall_price_weekly"))
                                             .font(.system(size: 14, weight: .regular))
                                             .foregroundColor(.gray)
                                     }
@@ -642,7 +642,7 @@ struct PaywallView: View {
                             appState.unlockPremium()
                             dismiss()
                         }) {
-                            Text("Continue")
+                            Text(appState.localized("continue"))
                                 .font(.system(size: 16, weight: .semibold))
                                 .foregroundColor(.white)
                                 .frame(maxWidth: .infinity)
@@ -656,7 +656,7 @@ struct PaywallView: View {
                         
                         // Terms
                         VStack(spacing: 8) {
-                            Text("By continuing, you agree to our")
+                            Text(appState.localized("paywall_terms_prefix"))
                                 .font(.system(size: 12, weight: .regular))
                                 .foregroundColor(.gray)
                             
@@ -664,20 +664,20 @@ struct PaywallView: View {
                                 Button(action: {
                                     // Action: Show terms
                                 }) {
-                                    Text("Terms of Service")
+                                    Text(appState.localized("auth_terms"))
                                         .font(.system(size: 12, weight: .medium))
                                         .foregroundColor(accentBlack)
                                         .underline()
                                 }
                                 
-                                Text("and")
+                                Text(appState.localized("auth_and"))
                                     .font(.system(size: 12, weight: .regular))
                                     .foregroundColor(.gray)
                                 
                                 Button(action: {
                                     // Action: Show privacy
                                 }) {
-                                    Text("Privacy Policy")
+                                    Text(appState.localized("auth_privacy"))
                                         .font(.system(size: 12, weight: .medium))
                                         .foregroundColor(accentBlack)
                                         .underline()
@@ -695,6 +695,7 @@ struct PaywallView: View {
 struct FeatureRow: View {
     let icon: String
     let title: String
+    let appState: AppStateManager
     
     private let accentBlack = Color.black
     

@@ -14,20 +14,30 @@ struct FullScreenTimerView: View {
     
     private let accentBlack = Color.black
     
-    private let motivationalTexts = [
-        "Embrace the silence...",
-        "Your mind is clearing...",
-        "Creativity blooms in stillness...",
-        "You're building mental strength...",
-        "Deep focus is forming...",
-        "Let your thoughts flow freely...",
-        "Every second counts...",
-        "You're doing great...",
-        "Stay present in this moment...",
-        "Inner peace is growing...",
-        "Your creativity is awakening...",
-        "Boredom is the gateway to innovation..."
+    private let motivationalTextKeys = [
+        "timer_fs_silence",
+        "timer_fs_mind_clearing",
+        "timer_fs_creativity_stillness",
+        "timer_fs_mental_strength",
+        "timer_fs_deep_focus",
+        "timer_fs_flow_freely",
+        "timer_fs_every_second_counts",
+        "timer_fs_doing_great",
+        "timer_fs_stay_present",
+        "timer_fs_inner_peace",
+        "timer_fs_creativity_awakening",
+        "timer_fs_boredom_innovation"
     ]
+    
+    private var motivationalTexts: [String] {
+        motivationalTextKeys.map { appState.localized($0) }
+    }
+    
+    private var currentMotivationalText: String {
+        guard !motivationalTexts.isEmpty else { return "" }
+        let index = min(currentMotivationIndex, motivationalTexts.count - 1)
+        return motivationalTexts[index]
+    }
     
     var body: some View {
         ZStack {
@@ -42,7 +52,7 @@ struct FullScreenTimerView: View {
                         .font(.system(size: 20, weight: .bold))
                         .foregroundColor(.white)
                     
-                    Text("Be Raw")
+                    Text(appState.localized("app_brand"))
                         .font(.system(size: 20, weight: .bold))
                         .foregroundColor(.white)
                 }
@@ -57,7 +67,7 @@ struct FullScreenTimerView: View {
                         .foregroundColor(.white)
                         .monospacedDigit()
                     
-                    Text("Raw Dogging")
+                    Text(appState.localized("timer_raw_dogging"))
                         .font(.system(size: 18, weight: .regular))
                         .foregroundColor(.white.opacity(0.6))
                 }
@@ -66,7 +76,7 @@ struct FullScreenTimerView: View {
                 
                 // Motivational Text
                 VStack(spacing: 40) {
-                    Text(motivationalTexts[currentMotivationIndex])
+                    Text(currentMotivationalText)
                         .font(.system(size: 20, weight: .medium))
                         .foregroundColor(.white.opacity(0.8))
                         .multilineTextAlignment(.center)
@@ -109,9 +119,11 @@ struct FullScreenTimerView: View {
     }
     
     private func startMotivationTimer() {
+        guard !motivationalTextKeys.isEmpty else { return }
         motivationTimer = Timer.scheduledTimer(withTimeInterval: 8.0, repeats: true) { _ in
             withAnimation {
-                currentMotivationIndex = (currentMotivationIndex + 1) % motivationalTexts.count
+                let count = motivationalTextKeys.count
+                currentMotivationIndex = count > 0 ? (currentMotivationIndex + 1) % count : 0
             }
         }
     }

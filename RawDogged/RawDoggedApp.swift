@@ -9,6 +9,7 @@ import SwiftUI
 
 @main
 struct RawDoggedApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @StateObject private var appState = AppStateManager()
     
     var body: some Scene {

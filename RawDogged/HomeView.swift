@@ -26,7 +26,7 @@ struct HomeView: View {
                             Image(systemName: "bolt.fill")
                                 .font(.system(size: 24, weight: .bold))
                                 .foregroundColor(accentBlack)
-                            Text("Be Raw")
+                            Text(appState.localized("app_brand"))
                                 .font(.system(size: 28, weight: .bold))
                                 .foregroundColor(.black)
                         }
@@ -42,12 +42,12 @@ struct HomeView: View {
                             HStack(spacing: 6) {
                                 Image(systemName: "chart.bar.fill")
                                     .font(.system(size: 12, weight: .medium))
-                                Text("Activity")
+                                Text(appState.localized("home_activity"))
                             }
                             .font(.system(size: 14, weight: .medium))
                             .foregroundColor(.gray)
                             Spacer()
-                            Text("Last 7 Days")
+                            Text(appState.localized("home_last_7_days"))
                                 .font(.system(size: 12, weight: .regular))
                                 .foregroundColor(.gray)
                         }
@@ -66,7 +66,7 @@ struct HomeView: View {
                     // Day Streak Card (Second)
                     VStack(spacing: 16) {
                         HStack(spacing: 12) {
-                            Text("Day Streak")
+                            Text(appState.localized("home_day_streak"))
                                 .font(.system(size: 16, weight: .semibold))
                                 .foregroundColor(.black)
                             
@@ -117,7 +117,7 @@ struct HomeView: View {
                             HStack(spacing: 6) {
                                 Image(systemName: "clock.fill")
                                     .font(.system(size: 11, weight: .medium))
-                                Text("Total")
+                                Text(appState.localized("home_total"))
                             }
                             .font(.system(size: 12, weight: .medium))
                             .foregroundColor(.gray)
@@ -126,7 +126,7 @@ struct HomeView: View {
                                 .font(.system(size: 28, weight: .bold))
                                 .foregroundColor(.black)
                             
-                            Text("Raw Time")
+                            Text(appState.localized("home_raw_time"))
                                 .font(.system(size: 11, weight: .regular))
                                 .foregroundColor(.gray)
                         }
@@ -143,7 +143,7 @@ struct HomeView: View {
                             HStack(spacing: 6) {
                                 Image(systemName: "bolt.fill")
                                     .font(.system(size: 11, weight: .medium))
-                                Text("Total")
+                                Text(appState.localized("home_total"))
                                 
                                 Spacer()
                                 
@@ -162,7 +162,7 @@ struct HomeView: View {
                                 .font(.system(size: 28, weight: .bold))
                                 .foregroundColor(.orange)
                             
-                            Text("Points")
+                            Text(appState.localized("home_points"))
                                 .font(.system(size: 11, weight: .regular))
                                 .foregroundColor(.gray)
                         }
@@ -182,7 +182,7 @@ struct HomeView: View {
                             HStack(spacing: 6) {
                                 Image(systemName: "book.fill")
                                     .font(.system(size: 12, weight: .medium))
-                                Text("Latest Session")
+                                Text(appState.localized("home_latest_session"))
                             }
                             .font(.system(size: 14, weight: .medium))
                             .foregroundColor(.gray)
@@ -190,7 +190,7 @@ struct HomeView: View {
                         }
                         
                         if appState.journalEntries.isEmpty {
-                            Text("No journal entries yet")
+                            Text(appState.localized("home_no_entries"))
                                 .font(.system(size: 13, weight: .regular))
                                 .foregroundColor(.gray)
                                 .frame(maxWidth: .infinity)
@@ -219,7 +219,7 @@ struct HomeView: View {
                                         )
                                 }
                                 
-                                Text(latestEntry.thoughts.isEmpty ? "No thoughts recorded" : latestEntry.thoughts)
+                                Text(latestEntry.thoughts.isEmpty ? appState.localized("home_no_thoughts") : latestEntry.thoughts)
                                     .font(.system(size: 14, weight: .regular))
                                     .foregroundColor(.black.opacity(0.8))
                                     .lineLimit(3)
@@ -257,20 +257,20 @@ struct HomeView: View {
                         HStack(spacing: 8) {
                             if appState.currentSession == nil {
                                 if showMotivation {
-                                    Text("No rush. Just real time")
+                                    Text(appState.localized("home_start_motivation"))
                                         .font(.system(size: 16, weight: .semibold))
                                         .transition(.opacity)
                                 } else {
                                     Image(systemName: "bolt.fill")
                                         .font(.system(size: 16, weight: .semibold))
-                                    Text("Do it")
+                                    Text(appState.localized("home_do_it"))
                                         .font(.system(size: 16, weight: .semibold))
                                         .transition(.opacity)
                                 }
                             } else {
                                 Image(systemName: "stop.fill")
                                     .font(.system(size: 16, weight: .semibold))
-                                Text("STOP")
+                                Text(appState.localized("home_stop"))
                                     .font(.system(size: 16, weight: .semibold))
                             }
                         }

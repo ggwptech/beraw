@@ -19,20 +19,30 @@ struct ChallengeTimerView: View {
     
     private let accentBlack = Color.black
     
-    private let motivationalTexts = [
-        "Stay focused...",
-        "You're doing amazing...",
-        "Keep going strong...",
-        "Almost there...",
-        "You've got this...",
-        "Embrace the challenge...",
-        "Every second matters...",
-        "Building discipline...",
-        "Stay present...",
-        "You're stronger than you think...",
-        "Push through...",
-        "Excellence is forming..."
+    private let motivationalTextKeys = [
+        "timer_motivation_focus",
+        "timer_motivation_amazing",
+        "timer_motivation_keep_strong",
+        "timer_motivation_almost_there",
+        "timer_motivation_got_this",
+        "timer_motivation_embrace",
+        "timer_motivation_every_second",
+        "timer_motivation_discipline",
+        "timer_motivation_stay_present",
+        "timer_motivation_stronger",
+        "timer_motivation_push",
+        "timer_motivation_excellence"
     ]
+    
+    private var motivationalTexts: [String] {
+        motivationalTextKeys.map { appState.localized($0) }
+    }
+    
+    private var currentMotivationalText: String {
+        guard !motivationalTexts.isEmpty else { return "" }
+        let index = min(currentMotivationIndex, motivationalTexts.count - 1)
+        return motivationalTexts[index]
+    }
     
     var body: some View {
         ZStack {
@@ -47,7 +57,7 @@ struct ChallengeTimerView: View {
                         .font(.system(size: 20, weight: .bold))
                         .foregroundColor(.white)
                     
-                    Text("Be Raw")
+                    Text(appState.localized("app_brand"))
                         .font(.system(size: 20, weight: .bold))
                         .foregroundColor(.white)
                 }
@@ -71,7 +81,7 @@ struct ChallengeTimerView: View {
                 
                 // Motivational Text
                 VStack(spacing: 40) {
-                    Text(motivationalTexts[currentMotivationIndex])
+                    Text(currentMotivationalText)
                         .font(.system(size: 20, weight: .medium))
                         .foregroundColor(.white.opacity(0.8))
                         .multilineTextAlignment(.center)
@@ -174,9 +184,11 @@ struct ChallengeTimerView: View {
     }
     
     private func startMotivationTimer() {
+        guard !motivationalTextKeys.isEmpty else { return }
         motivationTimer = Timer.scheduledTimer(withTimeInterval: 8.0, repeats: true) { _ in
             withAnimation {
-                currentMotivationIndex = (currentMotivationIndex + 1) % motivationalTexts.count
+                let count = motivationalTextKeys.count
+                currentMotivationIndex = count > 0 ? (currentMotivationIndex + 1) % count : 0
             }
         }
     }

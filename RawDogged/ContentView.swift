@@ -20,7 +20,7 @@ struct ContentView: View {
             HomeView()
                 .tabItem {
                     Image(systemName: "timer")
-                    Text("Home")
+                    Text(appState.localized("tab_home"))
                 }
                 .environmentObject(appState)
             
@@ -28,7 +28,7 @@ struct ContentView: View {
                 if appState.isPremiumUser {
                     ChallengeView()
                 } else {
-                    PremiumLockedView(feature: "Challenges")
+                    PremiumLockedView(feature: appState.localized("tab_challenge"))
                         .onTapGesture {
                             showPaywall = true
                         }
@@ -36,7 +36,7 @@ struct ContentView: View {
             }
             .tabItem {
                 Image(systemName: "target")
-                Text("Challenges")
+                Text(appState.localized("tab_challenge"))
             }
             .environmentObject(appState)
             
@@ -44,7 +44,7 @@ struct ContentView: View {
                 if appState.isPremiumUser {
                     LeaderboardView()
                 } else {
-                    PremiumLockedView(feature: "Leaderboard")
+                    PremiumLockedView(feature: appState.localized("tab_leaderboard"))
                         .onTapGesture {
                             showPaywall = true
                         }
@@ -52,14 +52,14 @@ struct ContentView: View {
             }
             .tabItem {
                 Image(systemName: "chart.bar")
-                Text("Leaderboard")
+                Text(appState.localized("tab_leaderboard"))
             }
             .environmentObject(appState)
             
             ProfileView()
                 .tabItem {
                     Image(systemName: "person")
-                    Text("Profile")
+                    Text(appState.localized("tab_profile"))
                 }
                 .environmentObject(appState)
         }
@@ -101,6 +101,7 @@ struct ContentView: View {
 
 struct PremiumLockedView: View {
     let feature: String
+    @EnvironmentObject var appState: AppStateManager
     
     private let accentBlack = Color.black
     
@@ -123,11 +124,13 @@ struct PremiumLockedView: View {
                 
                 // Text
                 VStack(spacing: 12) {
-                    Text("Premium Feature")
+                    Text(appState.localized("premium_locked_title"))
                         .font(.system(size: 24, weight: .bold))
                         .foregroundColor(.black)
                     
-                    Text("Unlock \(feature) with Premium")
+                    Text(feature == appState.localized("tab_challenge") 
+                         ? appState.localized("premium_unlock_challenges")
+                         : appState.localized("premium_unlock_leaderboard"))
                         .font(.system(size: 16, weight: .regular))
                         .foregroundColor(.gray)
                         .multilineTextAlignment(.center)
@@ -135,7 +138,7 @@ struct PremiumLockedView: View {
                 
                 // Unlock Button
                 VStack(spacing: 8) {
-                    Text("Tap anywhere to unlock")
+                    Text(appState.localized("premium_tap_to_unlock"))
                         .font(.system(size: 14, weight: .medium))
                         .foregroundColor(.gray)
                     

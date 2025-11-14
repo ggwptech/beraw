@@ -7,6 +7,7 @@ import SwiftUI
 
 struct ChallengeCelebrationView: View {
     @Environment(\.dismiss) var dismiss
+    @EnvironmentObject var appState: AppStateManager
     let challenge: RawChallenge
     let duration: Int // in minutes
     
@@ -14,13 +15,17 @@ struct ChallengeCelebrationView: View {
     @State private var confettiPieces: [ConfettiPiece] = []
     @State private var selectedMessage: String = ""
     
-    private let congratulationMessages = [
-        "You went raw and won",
-        "All in. No filters. You did it",
-        "Raw energy. Real results",
-        "That's how it's done - raw and real",
-        "You did awesome!"
+    private let congratulationMessageKeys = [
+        "celebration_message_1",
+        "celebration_message_2",
+        "celebration_message_3",
+        "celebration_message_4",
+        "celebration_message_5"
     ]
+    
+    private var localizedCelebrationMessages: [String] {
+        congratulationMessageKeys.map { appState.localized($0) }
+    }
     
     var body: some View {
         ZStack {
@@ -40,7 +45,7 @@ struct ChallengeCelebrationView: View {
                         .font(.system(size: 24, weight: .bold))
                         .foregroundColor(.white)
                     
-                    Text("Be Raw")
+                    Text(appState.localized("app_brand"))
                         .font(.system(size: 24, weight: .bold))
                         .foregroundColor(.white)
                 }
@@ -88,7 +93,7 @@ struct ChallengeCelebrationView: View {
                     HStack(spacing: 8) {
                         Image(systemName: "clock.fill")
                             .font(.system(size: 16))
-                        Text("\(duration) min")
+                        Text("\(duration) \(appState.localized("home_min"))")
                             .font(.system(size: 18, weight: .semibold))
                     }
                     .foregroundColor(.orange)
@@ -125,7 +130,7 @@ struct ChallengeCelebrationView: View {
                     Button(action: {
                         dismiss()
                     }) {
-                        Text("Continue")
+                        Text(appState.localized("common_continue"))
                             .font(.system(size: 18, weight: .semibold))
                             .foregroundColor(.black)
                             .frame(maxWidth: .infinity)
@@ -144,13 +149,15 @@ struct ChallengeCelebrationView: View {
             }
         }
         .onAppear {
-            selectedMessage = congratulationMessages.randomElement() ?? "You did awesome!"
+            selectedMessage = localizedCelebrationMessages.randomElement() ?? appState.localized("celebration_message_5")
             startCelebration()
         }
     }
     
     private func shareResult() {
-        let text = "I just completed '\(challenge.title)' for \(duration) minutes on Be Raw! 💪"
+        let template = appState.localized("celebration_share_text")
+        let locale = Locale(identifier: appState.selectedLanguage.rawValue)
+        let text = String(format: template, locale: locale, challenge.title, duration)
         
         guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
               let window = windowScene.windows.first(where: { $0.isKeyWindow }),
@@ -236,4 +243,5 @@ struct ConfettiView: View {
         challenge: RawChallenge(title: "Медитация", durationMinutes: 20),
         duration: 20
     )
+    .environmentObject(AppStateManager())
 }

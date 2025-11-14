@@ -21,7 +21,7 @@ struct JournalView: View {
                             Image(systemName: "book.fill")
                                 .font(.system(size: 24, weight: .bold))
                                 .foregroundColor(accentBlack)
-                            Text("Journal")
+                            Text(appState.localized("journal_title"))
                                 .font(.system(size: 28, weight: .bold))
                                 .foregroundColor(.black)
                         }
@@ -37,7 +37,7 @@ struct JournalView: View {
                             HStack(spacing: 6) {
                                 Image(systemName: "chart.bar.fill")
                                     .font(.system(size: 12, weight: .medium))
-                                Text("Summary")
+                                Text(appState.localized("journal_summary"))
                             }
                             .font(.system(size: 14, weight: .medium))
                             .foregroundColor(.gray)
@@ -49,7 +49,7 @@ struct JournalView: View {
                                 Text("\(appState.journalEntries.count)")
                                     .font(.system(size: 32, weight: .bold))
                                     .foregroundColor(.black)
-                                Text("Entries")
+                                Text(appState.localized("home_journal_entries"))
                                     .font(.system(size: 12, weight: .regular))
                                     .foregroundColor(.gray)
                             }
@@ -60,7 +60,7 @@ struct JournalView: View {
                                 Text(totalSessionsTime)
                                     .font(.system(size: 28, weight: .bold))
                                     .foregroundColor(.black)
-                                Text("Total Time")
+                                Text(appState.localized("home_total_time"))
                                     .font(.system(size: 12, weight: .regular))
                                     .foregroundColor(.gray)
                             }
@@ -81,11 +81,11 @@ struct JournalView: View {
                                 .font(.system(size: 60))
                                 .foregroundColor(.gray.opacity(0.3))
                             
-                            Text("No journal entries yet")
+                            Text(appState.localized("journal_no_entries_title"))
                                 .font(.system(size: 18, weight: .medium))
                                 .foregroundColor(.gray)
                             
-                            Text("Complete a session and share your thoughts")
+                            Text(appState.localized("journal_no_entries_subtitle"))
                                 .font(.system(size: 14, weight: .regular))
                                 .foregroundColor(.gray.opacity(0.7))
                                 .multilineTextAlignment(.center)
@@ -227,7 +227,7 @@ struct JournalDetailView: View {
                         HStack(spacing: 6) {
                             Image(systemName: "text.quote")
                                 .font(.system(size: 12, weight: .medium))
-                            Text("Your Thoughts")
+                            Text(appState.localized("journal_your_thoughts"))
                         }
                         .font(.system(size: 14, weight: .medium))
                         .foregroundColor(.gray)
@@ -248,13 +248,13 @@ struct JournalDetailView: View {
                 .padding(.bottom, 20)
             }
             .background(Color(red: 0.97, green: 0.97, blue: 0.97))
-            .navigationTitle("Journal Entry")
+            .navigationTitle(appState.localized("journal_entry_title"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.visible, for: .navigationBar)
             .toolbarColorScheme(.light, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") {
+                    Button(appState.localized("challenge_done")) {
                         dismiss()
                     }
                     .foregroundColor(accentBlack)

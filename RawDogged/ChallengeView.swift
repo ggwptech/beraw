@@ -31,7 +31,7 @@ struct ChallengeView: View {
                             Image(systemName: "target")
                                 .font(.system(size: 24, weight: .bold))
                                 .foregroundColor(accentBlack)
-                            Text("Raw Challenges")
+                            Text(appState.localized("challenge_title"))
                                 .font(.system(size: 28, weight: .bold))
                                 .foregroundColor(.black)
                         }
@@ -66,7 +66,7 @@ struct ChallengeView: View {
                                 HStack(spacing: 6) {
                                     Image(systemName: "person.fill")
                                         .font(.system(size: 14, weight: .medium))
-                                    Text("Personal")
+                                    Text(appState.localized("challenge_my"))
                                         .font(.system(size: 16, weight: .semibold))
                                 }
                                 .foregroundColor(selectedTab == .myChalllenges ? accentBlack : .gray)
@@ -88,7 +88,7 @@ struct ChallengeView: View {
                                 HStack(spacing: 6) {
                                     Image(systemName: "globe")
                                         .font(.system(size: 14, weight: .medium))
-                                    Text("Public")
+                                    Text(appState.localized("challenge_public"))
                                         .font(.system(size: 16, weight: .semibold))
                                 }
                                 .foregroundColor(selectedTab == .publicChallenges ? accentBlack : .gray)
@@ -215,6 +215,7 @@ struct ChallengeView: View {
                         challengeForActions = nil
                     }
                 )
+                .environmentObject(appState)
                 .presentationDetents([.height(225)])
                 .presentationBackground(Color.white)
                 .onDisappear {
@@ -354,13 +355,13 @@ struct AddChallengeView: View {
                 VStack(spacing: 20) {
                     // Title Card
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("Challenge Title")
+                        Text(appState.localized("challenge_title"))
                             .font(.system(size: 14, weight: .medium))
                             .foregroundColor(.gray)
                         
                         ZStack(alignment: .leading) {
                             if title.isEmpty {
-                                Text("e.g., 20 Min: Meditate")
+                                Text(appState.localized("challenge_enter_title"))
                                     .font(.system(size: 16, weight: .regular))
                                     .foregroundColor(.gray.opacity(0.8))
                                     .padding(.leading, 16)
@@ -387,7 +388,7 @@ struct AddChallengeView: View {
                     
                     // Duration Card
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("Duration")
+                        Text(appState.localized("challenge_duration"))
                             .font(.system(size: 14, weight: .medium))
                             .foregroundColor(.gray)
                         
@@ -404,7 +405,7 @@ struct AddChallengeView: View {
                             .pickerStyle(.wheel)
                             .frame(maxWidth: .infinity)
                             
-                            Text("hr")
+                            Text(appState.localized("common_hour_short"))
                                 .font(.system(size: 16, weight: .regular))
                                 .foregroundColor(.black)
                                 .padding(.horizontal, 8)
@@ -420,7 +421,7 @@ struct AddChallengeView: View {
                             .pickerStyle(.wheel)
                             .frame(maxWidth: .infinity)
                             
-                            Text("min")
+                            Text(appState.localized("common_minute_short"))
                                 .font(.system(size: 16, weight: .regular))
                                 .foregroundColor(.black)
                                 .padding(.horizontal, 8)
@@ -445,7 +446,7 @@ struct AddChallengeView: View {
                             dismiss()
                         }
                     }) {
-                        Text("Add Challenge")
+                        Text(appState.localized("challenge_create_button"))
                             .font(.system(size: 16, weight: .semibold))
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
@@ -462,13 +463,13 @@ struct AddChallengeView: View {
                 }
                 .padding(.top, 20)
             }
-            .navigationTitle("New Challenge")
+            .navigationTitle(appState.localized("challenge_create_new"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.visible, for: .navigationBar)
             .toolbarColorScheme(.light, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") {
+                    Button(appState.localized("challenge_cancel")) {
                         dismiss()
                     }
                     .foregroundColor(accentBlack)
@@ -542,6 +543,7 @@ struct ChallengeActionsSheet: View {
     let onStart: () -> Void
     let onShare: () -> Void
     let onDelete: () -> Void
+    @EnvironmentObject var appState: AppStateManager
     
     private let accentBlack = Color.black
     
@@ -568,7 +570,7 @@ struct ChallengeActionsSheet: View {
                         Image(systemName: "square.and.arrow.up")
                             .font(.system(size: 16, weight: .semibold))
                             .frame(width: 20)
-                        Text("Share")
+                        Text(appState.localized("share"))
                             .font(.system(size: 16, weight: .semibold))
                     }
                     .foregroundColor(.black)
@@ -590,7 +592,7 @@ struct ChallengeActionsSheet: View {
                         Image(systemName: "play.fill")
                             .font(.system(size: 16, weight: .semibold))
                             .frame(width: 20)
-                        Text("Start")
+                        Text(appState.localized("start"))
                             .font(.system(size: 16, weight: .semibold))
                     }
                     .foregroundColor(.white)
@@ -610,7 +612,7 @@ struct ChallengeActionsSheet: View {
                     Image(systemName: "trash")
                         .font(.system(size: 16, weight: .semibold))
                         .frame(width: 20)
-                    Text("Delete")
+                    Text(appState.localized("delete"))
                         .font(.system(size: 16, weight: .semibold))
                 }
                 .foregroundColor(.white)
@@ -648,10 +650,10 @@ struct ShareChallengeSheet: View {
             // Header
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Share Challenge")
+                    Text(appState.localized("share_challenge_title"))
                         .font(.system(size: 22, weight: .bold))
                         .foregroundColor(.black)
-                    Text("Published to Public")
+                    Text(appState.localized("share_published_public"))
                         .font(.system(size: 13, weight: .regular))
                         .foregroundColor(.green)
                 }
@@ -707,7 +709,7 @@ struct ShareChallengeSheet: View {
                 
                 // Link Section
                 VStack(alignment: .leading, spacing: 10) {
-                    Text("Challenge Link")
+                    Text(appState.localized("share_challenge_link"))
                         .font(.system(size: 14, weight: .semibold))
                         .foregroundColor(.black)
                     
@@ -736,7 +738,7 @@ struct ShareChallengeSheet: View {
                             HStack(spacing: 5) {
                                 Image(systemName: linkCopied ? "checkmark" : "doc.on.doc")
                                     .font(.system(size: 13, weight: .semibold))
-                                Text(linkCopied ? "Copied" : "Copy")
+                                Text(linkCopied ? appState.localized("share_link_copied") : appState.localized("share_copy_link"))
                                     .font(.system(size: 13, weight: .semibold))
                             }
                             .foregroundColor(.white)
@@ -759,7 +761,7 @@ struct ShareChallengeSheet: View {
                     HStack(spacing: 8) {
                         Image(systemName: "square.and.arrow.up")
                             .font(.system(size: 15, weight: .semibold))
-                        Text("Share with Friends")
+                        Text(appState.localized("share_with_friends"))
                             .font(.system(size: 15, weight: .semibold))
                     }
                     .foregroundColor(.white)

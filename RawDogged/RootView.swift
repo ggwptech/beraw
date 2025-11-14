@@ -7,6 +7,7 @@ import SwiftUI
 
 struct RootView: View {
     @State private var showSplash = true
+    @State private var showLanguageSelection = !UserDefaults.standard.bool(forKey: "hasSelectedLanguage")
     @State private var showOnboarding = !UserDefaults.standard.bool(forKey: "hasCompletedOnboarding")
     @State private var showAuth = !UserDefaults.standard.bool(forKey: "hasCompletedAuth")
     @State private var showPaywall = !UserDefaults.standard.bool(forKey: "hasSeenInitialPaywall")
@@ -15,6 +16,8 @@ struct RootView: View {
         ZStack {
             if showSplash {
                 SplashScreenView()
+            } else if showLanguageSelection {
+                LanguageSelectionView(isPresented: $showLanguageSelection, showOnboardingNext: $showOnboarding)
             } else if showOnboarding {
                 OnboardingView(isPresented: $showOnboarding, showAuthNext: $showAuth)
             } else if showAuth {
@@ -57,35 +60,153 @@ struct SplashScreenView: View {
     }
 }
 
+struct LanguageSelectionView: View {
+    @Binding var isPresented: Bool
+    @Binding var showOnboardingNext: Bool
+    @EnvironmentObject var appState: AppStateManager
+    @State private var selectedLanguage: AppLanguage? = nil
+    
+    private let accentBlack = Color.black
+    
+    let columns = [
+        GridItem(.flexible()),
+        GridItem(.flexible())
+    ]
+    
+    var body: some View {
+        ZStack {
+            Color.white
+                .ignoresSafeArea()
+            
+            VStack(spacing: 0) {
+                // Header
+                VStack(spacing: 12) {
+                    Image(systemName: "globe")
+                        .font(.system(size: 50, weight: .bold))
+                        .foregroundColor(accentBlack)
+                    
+                    Text(selectedLanguage == nil ? "Choose Language" : appState.localized("language_selection_title"))
+                        .font(.system(size: 28, weight: .bold))
+                        .foregroundColor(.black)
+                    
+                    Text(selectedLanguage == nil ? "Select your preferred language" : appState.localized("language_selection_subtitle"))
+                        .font(.system(size: 16, weight: .regular))
+                        .foregroundColor(.gray)
+                        .multilineTextAlignment(.center)
+                }
+                .padding(.top, 60)
+                .padding(.horizontal, 20)
+                
+                Spacer()
+                
+                // Language Grid
+                ScrollView {
+                    LazyVGrid(columns: columns, spacing: 16) {
+                        ForEach(AppLanguage.allCases, id: \.self) { language in
+                            LanguageCard(
+                                language: language,
+                                isSelected: selectedLanguage == language
+                            ) {
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    selectedLanguage = language
+                                    appState.setLanguage(language)
+                                }
+                            }
+                        }
+                    }
+                    .padding(.horizontal, 20)
+                }
+                .frame(maxHeight: 500)
+                
+                Spacer()
+                
+                // Continue Button
+                Button(action: {
+                    if selectedLanguage != nil {
+                        UserDefaults.standard.set(true, forKey: "hasSelectedLanguage")
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            isPresented = false
+                        }
+                    }
+                }) {
+                    Text("Continue")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(16)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(selectedLanguage != nil ? accentBlack : Color.gray.opacity(0.3))
+                        )
+                }
+                .disabled(selectedLanguage == nil)
+                .padding(.horizontal, 20)
+                .padding(.bottom, 40)
+            }
+        }
+    }
+}
+
+struct LanguageCard: View {
+    let language: AppLanguage
+    let isSelected: Bool
+    let action: () -> Void
+    
+    private let accentBlack = Color.black
+    
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 12) {
+                Text(language.flagEmoji)
+                    .font(.system(size: 48))
+                
+                Text(language.displayName)
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(.black)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 24)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color.white)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(isSelected ? accentBlack : Color.gray.opacity(0.2), lineWidth: isSelected ? 3 : 1)
+                    )
+                    .shadow(color: accentBlack.opacity(isSelected ? 0.15 : 0.05), radius: 8, x: 0, y: 4)
+            )
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+}
+
 struct OnboardingView: View {
     @Binding var isPresented: Bool
     @Binding var showAuthNext: Bool
+    @EnvironmentObject var appState: AppStateManager
     @State private var currentPage = 0
     
     private let accentBlack = Color.black
     
-    let pages: [OnboardingPage] = [
-        OnboardingPage(
-            icon: "bolt.fill",
-            title: "Welcome to Be Raw",
-            description: "Experience life without digital distractions. Take control of your time."
-        ),
-        OnboardingPage(
-            icon: "timer",
-            title: "Track Your Sessions",
-            description: "Start a timer and spend quality time with yourself. Journal your thoughts after each session."
-        ),
-        OnboardingPage(
-            icon: "flag.fill",
-            title: "Take Challenges",
-            description: "Push yourself with personal and public challenges. Earn points and build your streak."
-        ),
-        OnboardingPage(
-            icon: "flame.fill",
-            title: "Build Your Streak",
-            description: "Stay consistent, track your progress, and compete on the leaderboard."
-        )
-    ]
+    var pages: [OnboardingPage] {
+        [
+            OnboardingPage(
+                icon: "bolt.fill",
+                title: appState.localized("onboarding_welcome_title"),
+                description: appState.localized("onboarding_welcome_description")
+            ),
+            OnboardingPage(
+                icon: "timer",
+                title: appState.localized("onboarding_track_title"),
+                description: appState.localized("onboarding_track_description")
+            ),
+            OnboardingPage(
+                icon: "flag.fill",
+                title: appState.localized("onboarding_challenges_title"),
+                description: appState.localized("onboarding_challenges_description")
+            )
+        ]
+    }
     
     var body: some View {
         ZStack {
@@ -134,7 +255,7 @@ struct OnboardingView: View {
                         completeOnboarding()
                     }
                 }) {
-                    Text(currentPage < pages.count - 1 ? "Continue" : "Get Started")
+                    Text(currentPage < pages.count - 1 ? appState.localized("continue") : appState.localized("get_started"))
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
@@ -209,6 +330,7 @@ struct OnboardingPageView: View {
 struct AuthView: View {
     @Binding var isPresented: Bool
     @Binding var showPaywallNext: Bool
+    @EnvironmentObject var appState: AppStateManager
     
     private let accentBlack = Color.black
     
@@ -226,11 +348,11 @@ struct AuthView: View {
                         .font(.system(size: 60, weight: .bold))
                         .foregroundColor(accentBlack)
                     
-                    Text("Be Raw")
+                    Text(appState.localized("auth_title"))
                         .font(.system(size: 36, weight: .bold))
                         .foregroundColor(.black)
                     
-                    Text("Sign in to continue")
+                    Text(appState.localized("auth_subtitle"))
                         .font(.system(size: 16, weight: .regular))
                         .foregroundColor(.gray)
                         .padding(.top, 8)
@@ -248,7 +370,7 @@ struct AuthView: View {
                         HStack(spacing: 12) {
                             Image(systemName: "apple.logo")
                                 .font(.system(size: 20, weight: .semibold))
-                            Text("Continue with Apple")
+                            Text(appState.localized("auth_apple"))
                                 .font(.system(size: 16, weight: .semibold))
                         }
                         .foregroundColor(.white)
@@ -268,7 +390,7 @@ struct AuthView: View {
                         HStack(spacing: 12) {
                             Image(systemName: "g.circle.fill")
                                 .font(.system(size: 20, weight: .semibold))
-                            Text("Continue with Google")
+                            Text(appState.localized("auth_google"))
                                 .font(.system(size: 16, weight: .semibold))
                         }
                         .foregroundColor(.black)
@@ -288,7 +410,7 @@ struct AuthView: View {
                 
                 // Terms
                 VStack(spacing: 8) {
-                    Text("By continuing, you agree to our")
+                    Text(appState.localized("auth_terms_prefix"))
                         .font(.system(size: 12, weight: .regular))
                         .foregroundColor(.gray)
                     
@@ -296,20 +418,20 @@ struct AuthView: View {
                         Button(action: {
                             // Action: Show terms
                         }) {
-                            Text("Terms of Service")
+                            Text(appState.localized("auth_terms"))
                                 .font(.system(size: 12, weight: .medium))
                                 .foregroundColor(accentBlack)
                                 .underline()
                         }
                         
-                        Text("and")
+                        Text(appState.localized("auth_and"))
                             .font(.system(size: 12, weight: .regular))
                             .foregroundColor(.gray)
                         
                         Button(action: {
                             // Action: Show privacy
                         }) {
-                            Text("Privacy Policy")
+                            Text(appState.localized("auth_privacy"))
                                 .font(.system(size: 12, weight: .medium))
                                 .foregroundColor(accentBlack)
                                 .underline()
@@ -393,11 +515,11 @@ struct InitialPaywallView: View {
                                 .font(.system(size: 50, weight: .bold))
                                 .foregroundColor(.orange)
                             
-                            Text("Be Raw Premium")
+                            Text(appState.localized("paywall_title"))
                                 .font(.system(size: 28, weight: .bold))
                                 .foregroundColor(.black)
                             
-                            Text("Unlock the full experience")
+                            Text(appState.localized("paywall_subtitle"))
                                 .font(.system(size: 16, weight: .regular))
                                 .foregroundColor(.gray)
                         }
@@ -405,10 +527,10 @@ struct InitialPaywallView: View {
                         
                         // Features List
                         VStack(spacing: 16) {
-                            PaywallFeatureRow(icon: "infinity", title: "Unlimited Sessions")
-                            PaywallFeatureRow(icon: "chart.line.uptrend.xyaxis", title: "Access to Leaderboard")
-                            PaywallFeatureRow(icon: "trophy.fill", title: "Exclusive Challenges")
-                            PaywallFeatureRow(icon: "sparkles", title: "Priority Support")
+                            PaywallFeatureRow(icon: "infinity", title: appState.localized("paywall_feature_unlimited"), appState: appState)
+                            PaywallFeatureRow(icon: "chart.line.uptrend.xyaxis", title: appState.localized("paywall_feature_leaderboard"), appState: appState)
+                            PaywallFeatureRow(icon: "trophy.fill", title: appState.localized("paywall_feature_challenges"), appState: appState)
+                            PaywallFeatureRow(icon: "sparkles", title: appState.localized("paywall_feature_support"), appState: appState)
                         }
                         .padding(.horizontal, 20)
                         
@@ -421,11 +543,11 @@ struct InitialPaywallView: View {
                                 HStack {
                                     VStack(alignment: .leading, spacing: 6) {
                                         HStack {
-                                            Text("Yearly")
+                                            Text(appState.localized("paywall_yearly"))
                                                 .font(.system(size: 18, weight: .bold))
                                                 .foregroundColor(.black)
                                             
-                                            Text("SAVE 40%")
+                                            Text(appState.localized("paywall_save"))
                                                 .font(.system(size: 11, weight: .bold))
                                                 .foregroundColor(.white)
                                                 .padding(.horizontal, 8)
@@ -436,7 +558,7 @@ struct InitialPaywallView: View {
                                                 )
                                         }
                                         
-                                        Text("$49.99/year")
+                                        Text(appState.localized("paywall_price_yearly"))
                                             .font(.system(size: 14, weight: .regular))
                                             .foregroundColor(.gray)
                                     }
@@ -474,11 +596,11 @@ struct InitialPaywallView: View {
                             }) {
                                 HStack {
                                     VStack(alignment: .leading, spacing: 6) {
-                                        Text("Weekly")
+                                        Text(appState.localized("paywall_weekly"))
                                             .font(.system(size: 18, weight: .bold))
                                             .foregroundColor(.black)
                                         
-                                        Text("$1.99/week")
+                                        Text(appState.localized("paywall_price_weekly"))
                                             .font(.system(size: 14, weight: .regular))
                                             .foregroundColor(.gray)
                                     }
@@ -518,7 +640,7 @@ struct InitialPaywallView: View {
                             appState.unlockPremium()
                             completePaywall()
                         }) {
-                            Text("Continue")
+                            Text(appState.localized("continue"))
                                 .font(.system(size: 16, weight: .semibold))
                                 .foregroundColor(.white)
                                 .frame(maxWidth: .infinity)
@@ -532,7 +654,7 @@ struct InitialPaywallView: View {
                         
                         // Terms
                         VStack(spacing: 8) {
-                            Text("By continuing, you agree to our")
+                            Text(appState.localized("paywall_terms_prefix"))
                                 .font(.system(size: 12, weight: .regular))
                                 .foregroundColor(.gray)
                             
@@ -540,20 +662,20 @@ struct InitialPaywallView: View {
                                 Button(action: {
                                     // Action: Show terms
                                 }) {
-                                    Text("Terms of Service")
+                                    Text(appState.localized("auth_terms"))
                                         .font(.system(size: 12, weight: .medium))
                                         .foregroundColor(accentBlack)
                                         .underline()
                                 }
                                 
-                                Text("and")
+                                Text(appState.localized("auth_and"))
                                     .font(.system(size: 12, weight: .regular))
                                     .foregroundColor(.gray)
                                 
                                 Button(action: {
                                     // Action: Show privacy
                                 }) {
-                                    Text("Privacy Policy")
+                                    Text(appState.localized("auth_privacy"))
                                         .font(.system(size: 12, weight: .medium))
                                         .foregroundColor(accentBlack)
                                         .underline()
@@ -586,6 +708,7 @@ struct InitialPaywallView: View {
 struct PaywallFeatureRow: View {
     let icon: String
     let title: String
+    let appState: AppStateManager
     
     private let accentBlack = Color.black
     
