@@ -8,6 +8,7 @@ import SwiftUI
 struct RootView: View {
     @State private var showSplash = true
     @State private var showOnboarding = !UserDefaults.standard.bool(forKey: "hasCompletedOnboarding")
+    @State private var showAuth = !UserDefaults.standard.bool(forKey: "hasCompletedAuth")
     @State private var showPaywall = !UserDefaults.standard.bool(forKey: "hasSeenInitialPaywall")
     
     var body: some View {
@@ -15,7 +16,9 @@ struct RootView: View {
             if showSplash {
                 SplashScreenView()
             } else if showOnboarding {
-                OnboardingView(isPresented: $showOnboarding, showPaywallNext: $showPaywall)
+                OnboardingView(isPresented: $showOnboarding, showAuthNext: $showAuth)
+            } else if showAuth {
+                AuthView(isPresented: $showAuth, showPaywallNext: $showPaywall)
             } else if showPaywall {
                 InitialPaywallView(isPresented: $showPaywall)
             } else {
@@ -56,7 +59,7 @@ struct SplashScreenView: View {
 
 struct OnboardingView: View {
     @Binding var isPresented: Bool
-    @Binding var showPaywallNext: Bool
+    @Binding var showAuthNext: Bool
     @State private var currentPage = 0
     
     private let accentBlack = Color.black
@@ -153,9 +156,9 @@ struct OnboardingView: View {
             isPresented = false
         }
         
-        // Show paywall after onboarding if user hasn't seen it
-        if !UserDefaults.standard.bool(forKey: "hasSeenInitialPaywall") {
-            showPaywallNext = true
+        // Show auth after onboarding if user hasn't completed it
+        if !UserDefaults.standard.bool(forKey: "hasCompletedAuth") {
+            showAuthNext = true
         }
     }
 }
@@ -200,6 +203,135 @@ struct OnboardingPageView: View {
             }
         }
         .padding(.horizontal, 20)
+    }
+}
+
+struct AuthView: View {
+    @Binding var isPresented: Bool
+    @Binding var showPaywallNext: Bool
+    
+    private let accentBlack = Color.black
+    
+    var body: some View {
+        ZStack {
+            Color(red: 0.97, green: 0.97, blue: 0.97)
+                .ignoresSafeArea()
+            
+            VStack(spacing: 0) {
+                Spacer()
+                
+                // Logo and Title
+                VStack(spacing: 20) {
+                    Image(systemName: "bolt.fill")
+                        .font(.system(size: 60, weight: .bold))
+                        .foregroundColor(accentBlack)
+                    
+                    Text("Be Raw")
+                        .font(.system(size: 36, weight: .bold))
+                        .foregroundColor(.black)
+                    
+                    Text("Sign in to continue")
+                        .font(.system(size: 16, weight: .regular))
+                        .foregroundColor(.gray)
+                        .padding(.top, 8)
+                }
+                
+                Spacer()
+                
+                // Auth Buttons
+                VStack(spacing: 16) {
+                    // Apple Sign In
+                    Button(action: {
+                        // Action: Apple Sign In
+                        completeAuth()
+                    }) {
+                        HStack(spacing: 12) {
+                            Image(systemName: "apple.logo")
+                                .font(.system(size: 20, weight: .semibold))
+                            Text("Continue with Apple")
+                                .font(.system(size: 16, weight: .semibold))
+                        }
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.black)
+                        )
+                    }
+                    
+                    // Google Sign In
+                    Button(action: {
+                        // Action: Google Sign In
+                        completeAuth()
+                    }) {
+                        HStack(spacing: 12) {
+                            Image(systemName: "g.circle.fill")
+                                .font(.system(size: 20, weight: .semibold))
+                            Text("Continue with Google")
+                                .font(.system(size: 16, weight: .semibold))
+                        }
+                        .foregroundColor(.black)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.white)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(Color.black, lineWidth: 2)
+                                )
+                        )
+                    }
+                }
+                .padding(.horizontal, 20)
+                
+                // Terms
+                VStack(spacing: 8) {
+                    Text("By continuing, you agree to our")
+                        .font(.system(size: 12, weight: .regular))
+                        .foregroundColor(.gray)
+                    
+                    HStack(spacing: 4) {
+                        Button(action: {
+                            // Action: Show terms
+                        }) {
+                            Text("Terms of Service")
+                                .font(.system(size: 12, weight: .medium))
+                                .foregroundColor(accentBlack)
+                                .underline()
+                        }
+                        
+                        Text("and")
+                            .font(.system(size: 12, weight: .regular))
+                            .foregroundColor(.gray)
+                        
+                        Button(action: {
+                            // Action: Show privacy
+                        }) {
+                            Text("Privacy Policy")
+                                .font(.system(size: 12, weight: .medium))
+                                .foregroundColor(accentBlack)
+                                .underline()
+                        }
+                    }
+                }
+                .padding(.top, 24)
+                .padding(.bottom, 40)
+            }
+        }
+    }
+    
+    private func completeAuth() {
+        UserDefaults.standard.set(true, forKey: "hasCompletedAuth")
+        withAnimation {
+            isPresented = false
+        }
+        
+        // Show paywall after auth if user hasn't seen it
+        if !UserDefaults.standard.bool(forKey: "hasSeenInitialPaywall") {
+            showPaywallNext = true
+        }
     }
 }
 

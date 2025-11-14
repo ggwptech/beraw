@@ -31,16 +31,14 @@ struct RawChallenge: Identifiable, Codable {
     let id: UUID
     let title: String
     let durationMinutes: Int
-    var completedCount: Int
     var isCompleted: Bool
     var isPublic: Bool
     var usersCompletedCount: Int
     
-    init(id: UUID = UUID(), title: String, durationMinutes: Int, completedCount: Int = 0, isCompleted: Bool = false, isPublic: Bool = false, usersCompletedCount: Int = 0) {
+    init(id: UUID = UUID(), title: String, durationMinutes: Int, isCompleted: Bool = false, isPublic: Bool = false, usersCompletedCount: Int = 0) {
         self.id = id
         self.title = title
         self.durationMinutes = durationMinutes
-        self.completedCount = completedCount
         self.isCompleted = isCompleted
         self.isPublic = isPublic
         self.usersCompletedCount = usersCompletedCount
@@ -131,13 +129,7 @@ class AppStateManager: ObservableObject {
             dailyHistory: AppStateManager.generateDummyHistory()
         )
         
-        self.challenges = [
-            RawChallenge(title: "Stare at the Wall", durationMinutes: 15, completedCount: 3),
-            RawChallenge(title: "Silent Walk", durationMinutes: 45, completedCount: 0),
-            RawChallenge(title: "No Phone Dinner", durationMinutes: 180, completedCount: 0),
-            RawChallenge(title: "Deep Thought", durationMinutes: 30, completedCount: 2),
-            RawChallenge(title: "Complete Disconnect", durationMinutes: 120, completedCount: 0)
-        ]
+        self.challenges = []
         
         self.publicChallenges = [
             RawChallenge(title: "Morning Meditation", durationMinutes: 20, isPublic: true, usersCompletedCount: 234),
@@ -236,13 +228,11 @@ class AppStateManager: ObservableObject {
     }
     
     func completeChallenge(_ challenge: RawChallenge) {
-        if let index = challenges.firstIndex(where: { $0.id == challenge.id }) {
-            challenges[index].completedCount += 1
-            
-            // Award bonus points for completing challenge: 2x the duration in minutes
-            let bonusPoints = challenge.durationMinutes * 2
-            userStats.totalPoints += bonusPoints
-        }
+        guard challenges.contains(where: { $0.id == challenge.id }) else { return }
+        
+        // Award bonus points for completing challenge: 2x the duration in minutes
+        let bonusPoints = challenge.durationMinutes * 2
+        userStats.totalPoints += bonusPoints
     }
     
     func toggleChallengeCompletion(_ challenge: RawChallenge) {
@@ -260,6 +250,10 @@ class AppStateManager: ObservableObject {
     func addChallenge(title: String, durationMinutes: Int) {
         let newChallenge = RawChallenge(title: title, durationMinutes: durationMinutes)
         challenges.append(newChallenge)
+    }
+    
+    func deleteChallenge(_ challenge: RawChallenge) {
+        challenges.removeAll { $0.id == challenge.id }
     }
     
     func shareChallengeToPublic(_ challenge: RawChallenge) {

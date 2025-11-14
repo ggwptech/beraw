@@ -209,9 +209,13 @@ struct ChallengeView: View {
                                 challengeForShare = challenge
                             }
                         }
+                    },
+                    onDelete: {
+                        appState.deleteChallenge(challenge)
+                        challengeForActions = nil
                     }
                 )
-                .presentationDetents([.height(160)])
+                .presentationDetents([.height(225)])
                 .presentationBackground(Color.white)
                 .onDisappear {
                     if let pendingStart = pendingChallengeStart {
@@ -291,16 +295,6 @@ struct ChallengeCard: View {
                     }
                     .font(.system(size: 12, weight: .regular))
                     .foregroundColor(.gray)
-                    
-                    if challenge.completedCount > 0 {
-                        HStack(spacing: 4) {
-                            Image(systemName: "checkmark.circle.fill")
-                                .font(.system(size: 10))
-                            Text("\(challenge.completedCount)×")
-                        }
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundColor(challenge.isCompleted ? .gray : accentBlack)
-                    }
                     
                     if isPublic {
                         HStack(spacing: 4) {
@@ -547,6 +541,7 @@ struct ChallengeActionsSheet: View {
     let challenge: RawChallenge
     let onStart: () -> Void
     let onShare: () -> Void
+    let onDelete: () -> Void
     
     private let accentBlack = Color.black
     
@@ -608,6 +603,26 @@ struct ChallengeActionsSheet: View {
                 }
             }
             .padding(.horizontal, 20)
+            
+            // Delete button - red
+            Button(action: onDelete) {
+                HStack(spacing: 8) {
+                    Image(systemName: "trash")
+                        .font(.system(size: 16, weight: .semibold))
+                        .frame(width: 20)
+                    Text("Delete")
+                        .font(.system(size: 16, weight: .semibold))
+                }
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity)
+                .frame(height: 48)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.red)
+                )
+            }
+            .padding(.horizontal, 20)
+            .padding(.top, 8)
             .padding(.bottom, 20)
         }
         .background(Color.white)
