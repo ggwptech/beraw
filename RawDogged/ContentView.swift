@@ -65,9 +65,13 @@ struct ContentView: View {
         // Request review only once per session
         hasRequestedReview = true
         
-        // Request review using StoreKit
+        // Request review using new iOS 18+ API
         if let scene = UIApplication.shared.connectedScenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene {
-            SKStoreReviewController.requestReview(in: scene)
+            if #available(iOS 18.0, *) {
+                AppStore.requestReview(in: scene)
+            } else {
+                SKStoreReviewController.requestReview(in: scene)
+            }
         }
     }
 }
