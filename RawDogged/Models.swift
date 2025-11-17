@@ -33,14 +33,16 @@ struct RawChallenge: Identifiable, Codable {
     let durationMinutes: Int
     var isCompleted: Bool
     var isPublic: Bool
+    var createdAt: Date
     var usersCompletedCount: Int
     
-    init(id: UUID = UUID(), title: String, durationMinutes: Int, isCompleted: Bool = false, isPublic: Bool = false, usersCompletedCount: Int = 0) {
+    init(id: UUID = UUID(), title: String, durationMinutes: Int, isCompleted: Bool = false, isPublic: Bool = false, createdAt: Date = Date(), usersCompletedCount: Int = 0) {
         self.id = id
         self.title = title
         self.durationMinutes = durationMinutes
         self.isCompleted = isCompleted
         self.isPublic = isPublic
+        self.createdAt = createdAt
         self.usersCompletedCount = usersCompletedCount
     }
 }
@@ -48,13 +50,15 @@ struct RawChallenge: Identifiable, Codable {
 // MARK: - Leaderboard Entry
 struct LeaderboardEntry: Identifiable, Codable {
     let id: UUID
+    let userId: String // Firebase userId
     let nickname: String
     let totalRawTime: TimeInterval
     let totalPoints: Int
     var rank: Int
     
-    init(id: UUID = UUID(), nickname: String, totalRawTime: TimeInterval, totalPoints: Int = 0, rank: Int) {
+    init(id: UUID = UUID(), userId: String = "", nickname: String, totalRawTime: TimeInterval, totalPoints: Int = 0, rank: Int) {
         self.id = id
+        self.userId = userId
         self.nickname = nickname
         self.totalRawTime = totalRawTime
         self.totalPoints = totalPoints
@@ -95,15 +99,18 @@ struct DailyRecord: Identifiable, Codable {
 struct JournalEntry: Identifiable, Codable {
     let id: UUID
     let date: Date
-    let sessionDuration: TimeInterval
+    let duration: TimeInterval
     let thoughts: String
     
-    init(id: UUID = UUID(), date: Date = Date(), sessionDuration: TimeInterval, thoughts: String) {
+    init(id: UUID = UUID(), date: Date = Date(), duration: TimeInterval, thoughts: String) {
         self.id = id
         self.date = date
-        self.sessionDuration = sessionDuration
+        self.duration = duration
         self.thoughts = thoughts
     }
+    
+    // Compatibility property
+    var sessionDuration: TimeInterval { duration }
 }
 
 // MARK: - Language Support
@@ -159,12 +166,16 @@ class AppStateManager: ObservableObject {
     @Published var leaderboard: [LeaderboardEntry]
     @Published var currentUser: String
     @Published var userName: String
+    @Published var userEmail: String?
     @Published var journalEntries: [JournalEntry]
     @Published var completedSessionDuration: TimeInterval?
     @Published var isPremiumUser: Bool
     @Published var selectedLanguage: AppLanguage
+    @Published var isLoading: Bool = false
     
     private var timer: Timer?
+    private let firestoreManager = FirestoreManager()
+    var currentUserId: String?
     
     init() {
         // Load selected language from UserDefaults
@@ -175,40 +186,145 @@ class AppStateManager: ObservableObject {
             self.selectedLanguage = .english
         }
         
-        // Initialize with default data
+        // Initialize with empty data - will be loaded from Firebase after login
         self.userStats = UserStats(
-            dailyStreak: 5,
-            totalRawTime: 28800, // 8 hours
+            dailyStreak: 0,
+            totalRawTime: 0,
             dailyGoalMinutes: 60,
-            dailyHistory: AppStateManager.generateDummyHistory()
+            dailyHistory: []
         )
         
         self.challenges = []
-        
-        self.publicChallenges = [
-            RawChallenge(title: "Morning Meditation", durationMinutes: 20, isPublic: true, usersCompletedCount: 234),
-            RawChallenge(title: "Digital Detox Hour", durationMinutes: 60, isPublic: true, usersCompletedCount: 156),
-            RawChallenge(title: "Mindful Breathing", durationMinutes: 10, isPublic: true, usersCompletedCount: 421),
-            RawChallenge(title: "Nature Walk", durationMinutes: 30, isPublic: true, usersCompletedCount: 189),
-            RawChallenge(title: "Silent Reading", durationMinutes: 45, isPublic: true, usersCompletedCount: 98)
-        ]
-        
+        self.publicChallenges = []
         self.currentUser = "You"
         self.userName = "Raw Dog"
-        
-        self.leaderboard = [
-            LeaderboardEntry(nickname: "RawMaster", totalRawTime: 144000, totalPoints: 2400, rank: 1), // 40 hours, 2400 pts
-            LeaderboardEntry(nickname: "ZenSeeker", totalRawTime: 108000, totalPoints: 1800, rank: 2), // 30 hours, 1800 pts
-            LeaderboardEntry(nickname: "SilentWarrior", totalRawTime: 86400, totalPoints: 1440, rank: 3), // 24 hours, 1440 pts
-            LeaderboardEntry(nickname: "You", totalRawTime: 28800, totalPoints: 480, rank: 4), // 8 hours, 480 pts
-            LeaderboardEntry(nickname: "DeepThinker", totalRawTime: 21600, totalPoints: 360, rank: 5), // 6 hours, 360 pts
-            LeaderboardEntry(nickname: "Minimalist", totalRawTime: 18000, totalPoints: 300, rank: 6), // 5 hours, 300 pts
-        ]
-        
+        self.userEmail = nil
+        self.leaderboard = []
         self.journalEntries = []
         
         // Load premium status from UserDefaults
         self.isPremiumUser = UserDefaults.standard.bool(forKey: "isPremiumUser")
+    }
+    
+    // MARK: - Firebase Sync
+    func setUser(userId: String, userName: String, email: String?) {
+        self.currentUserId = userId
+        self.userName = userName
+        self.userEmail = email
+        
+        Task {
+            await syncWithFirebase(userId: userId, userName: userName, email: email)
+        }
+    }
+    
+    func syncWithFirebase(userId: String, userName: String, email: String?) async {
+        isLoading = true
+        
+        do {
+            // Load user profile first (might have been updated)
+            if let profileData = try await firestoreManager.fetchUserProfile(userId: userId) {
+                DispatchQueue.main.async {
+                    // Update userName from Firebase if it exists
+                    if let savedUserName = profileData["userName"] as? String, !savedUserName.isEmpty {
+                        self.userName = savedUserName
+                    }
+                    if let savedEmail = profileData["email"] as? String {
+                        self.userEmail = savedEmail
+                    }
+                }
+            } else {
+                // If profile doesn't exist, create it
+                try await firestoreManager.saveUserProfile(userId: userId, userName: userName, email: email)
+            }
+            
+            // Load user data
+            if let stats = try await firestoreManager.fetchUserStats(userId: userId) {
+                DispatchQueue.main.async {
+                    self.userStats = stats
+                }
+            }
+            
+            let challenges = try await firestoreManager.fetchChallenges(userId: userId)
+            DispatchQueue.main.async {
+                self.challenges = challenges
+            }
+            
+            let entries = try await firestoreManager.fetchJournalEntries(userId: userId)
+            DispatchQueue.main.async {
+                self.journalEntries = entries
+            }
+            
+            let history = try await firestoreManager.fetchDailyHistory(userId: userId, days: 30)
+            DispatchQueue.main.async {
+                self.userStats.dailyHistory = history
+                // Update streak based on loaded history
+                self.updateStreak()
+            }
+            
+            // Load public challenges
+            let publicChallenges = try await firestoreManager.fetchPublicChallenges()
+            DispatchQueue.main.async {
+                self.publicChallenges = publicChallenges
+            }
+            
+            // Load leaderboard
+            let leaderboard = try await firestoreManager.fetchLeaderboard(limit: 50)
+            DispatchQueue.main.async {
+                self.leaderboard = leaderboard
+            }
+            
+        } catch {
+            print("Error syncing with Firebase: \(error)")
+        }
+        
+        DispatchQueue.main.async {
+            self.isLoading = false
+        }
+    }
+    
+    func saveToFirebase() {
+        guard let userId = currentUserId else { return }
+        
+        Task {
+            do {
+                try await firestoreManager.saveUserStats(userId: userId, stats: userStats)
+                try await firestoreManager.saveChallenges(userId: userId, challenges: challenges)
+                try await firestoreManager.saveJournalEntries(userId: userId, entries: journalEntries)
+                try await firestoreManager.saveDailyHistory(userId: userId, history: userStats.dailyHistory)
+                try await firestoreManager.updateLeaderboard(
+                    userId: userId,
+                    userName: userName,
+                    totalRawTime: userStats.totalRawTime,
+                    totalPoints: userStats.totalPoints
+                )
+            } catch {
+                print("Error saving to Firebase: \(error)")
+            }
+        }
+    }
+    
+    // MARK: - User Management
+    func updateUserName(_ newName: String) {
+        userName = newName
+        
+        // Update in Firebase
+        guard let userId = currentUserId else { return }
+        
+        Task {
+            do {
+                try await firestoreManager.saveUserProfile(userId: userId, userName: newName, email: userEmail)
+                
+                // Update in leaderboard as well
+                try await firestoreManager.updateLeaderboard(
+                    userId: userId,
+                    userName: newName,
+                    totalRawTime: userStats.totalRawTime,
+                    totalPoints: userStats.totalPoints
+                )
+            } catch {
+                print("Error updating user name: \(error)")
+            }
+        }
     }
     
     // MARK: - Premium Management
@@ -254,13 +370,30 @@ class AppStateManager: ObservableObject {
         
         currentSession = nil
         stopTimer()
+        
+        // Save session to Firebase
+        if let userId = currentUserId {
+            Task {
+                do {
+                    try await firestoreManager.saveSession(userId: userId, session: completedSession)
+                } catch {
+                    print("Error saving session: \(error)")
+                }
+            }
+        }
+        
+        // Auto-save to Firebase
+        saveToFirebase()
     }
     
     func saveJournalEntry(thoughts: String) {
         guard let duration = completedSessionDuration else { return }
-        let entry = JournalEntry(sessionDuration: duration, thoughts: thoughts)
+        let entry = JournalEntry(duration: duration, thoughts: thoughts)
         journalEntries.insert(entry, at: 0) // Add at beginning for newest first
         completedSessionDuration = nil
+        
+        // Save to Firebase
+        saveToFirebase()
     }
     
     func skipJournalEntry() {
@@ -292,6 +425,38 @@ class AppStateManager: ObservableObject {
                 totalMinutes: Int(duration / 60)
             ))
         }
+        
+        // Update streak
+        updateStreak()
+    }
+    
+    private func updateStreak() {
+        guard !userStats.dailyHistory.isEmpty else {
+            userStats.dailyStreak = 0
+            return
+        }
+        
+        // Sort history by date descending
+        let sortedHistory = userStats.dailyHistory.sorted { $0.date > $1.date }
+        
+        var streak = 0
+        let calendar = Calendar.current
+        var checkDate = calendar.startOfDay(for: Date())
+        
+        for record in sortedHistory {
+            let recordDate = calendar.startOfDay(for: record.date)
+            
+            if calendar.isDate(recordDate, inSameDayAs: checkDate) {
+                streak += 1
+                // Move to previous day
+                checkDate = calendar.date(byAdding: .day, value: -1, to: checkDate) ?? checkDate
+            } else if recordDate < checkDate {
+                // Gap found, break the streak
+                break
+            }
+        }
+        
+        userStats.dailyStreak = streak
     }
     
     // MARK: - Challenge Management
@@ -306,30 +471,39 @@ class AppStateManager: ObservableObject {
         // Award bonus points for completing challenge: 2x the duration in minutes
         let bonusPoints = challenge.durationMinutes * 2
         userStats.totalPoints += bonusPoints
+        
+        // Save to Firebase
+        saveToFirebase()
     }
     
     func toggleChallengeCompletion(_ challenge: RawChallenge) {
         if let index = challenges.firstIndex(where: { $0.id == challenge.id }) {
             challenges[index].isCompleted.toggle()
+            saveToFirebase()
         }
     }
     
     func markChallengeAsCompleted(_ challenge: RawChallenge) {
         if let index = challenges.firstIndex(where: { $0.id == challenge.id }) {
             challenges[index].isCompleted = true
+            saveToFirebase()
         }
     }
     
     func addChallenge(title: String, durationMinutes: Int) {
         let newChallenge = RawChallenge(title: title, durationMinutes: durationMinutes)
         challenges.append(newChallenge)
+        saveToFirebase()
     }
     
     func deleteChallenge(_ challenge: RawChallenge) {
         challenges.removeAll { $0.id == challenge.id }
+        saveToFirebase()
     }
     
     func shareChallengeToPublic(_ challenge: RawChallenge) {
+        guard let userId = currentUserId else { return }
+        
         // Mark the challenge as public in user's own challenges
         if let index = challenges.firstIndex(where: { $0.id == challenge.id }) {
             challenges[index].isPublic = true
@@ -341,7 +515,18 @@ class AppStateManager: ObservableObject {
             publicChallenge.isPublic = true
             publicChallenge.usersCompletedCount = 1
             publicChallenges.append(publicChallenge)
+            
+            // Save to Firebase
+            Task {
+                do {
+                    try await firestoreManager.savePublicChallenge(challenge: publicChallenge, creatorId: userId)
+                } catch {
+                    print("Error saving public challenge: \(error)")
+                }
+            }
         }
+        
+        saveToFirebase()
     }
     
     // MARK: - Helper Methods
@@ -1684,6 +1869,78 @@ struct LocalizationManager {
             "ru": "Выйти",
             "tr": "Çıkış yap",
             "uk": "Вийти"
+        ],
+        "profile_your_stats": [
+            "de": "Deine Statistiken",
+            "en": "Your Statistics",
+            "es": "Tus estadísticas",
+            "fr": "Tes statistiques",
+            "it": "Le tue statistiche",
+            "pl": "Twoje statystyki",
+            "pt": "Suas estatísticas",
+            "ru": "Твоя статистика",
+            "tr": "Senin istatistiklerin",
+            "uk": "Твоя статистика"
+        ],
+        "profile_total_meditation_time": [
+            "de": "Gesamte Meditationszeit",
+            "en": "Total Meditation Time",
+            "es": "Tiempo total de meditación",
+            "fr": "Temps total de méditation",
+            "it": "Tempo totale di meditazione",
+            "pl": "Całkowity czas medytacji",
+            "pt": "Tempo total de meditação",
+            "ru": "Общее время медитации",
+            "tr": "Toplam meditasyon süresi",
+            "uk": "Загальний час медитації"
+        ],
+        "profile_personal_challenges": [
+            "de": "Persönliche Herausforderungen",
+            "en": "Personal Challenges",
+            "es": "Desafíos personales",
+            "fr": "Défis personnels",
+            "it": "Sfide personali",
+            "pl": "Osobiste wyzwania",
+            "pt": "Desafios pessoais",
+            "ru": "Личные челленджи",
+            "tr": "Kişisel meydan okumalar",
+            "uk": "Особисті челенджі"
+        ],
+        "profile_completed_challenges": [
+            "de": "Abgeschlossene Herausforderungen",
+            "en": "Completed Challenges",
+            "es": "Desafíos completados",
+            "fr": "Défis complétés",
+            "it": "Sfide completate",
+            "pl": "Ukończone wyzwania",
+            "pt": "Desafios concluídos",
+            "ru": "Завершённые челленджи",
+            "tr": "Tamamlanan meydan okumalar",
+            "uk": "Завершені челенджі"
+        ],
+        "profile_journal_entries": [
+            "de": "Tagebucheinträge",
+            "en": "Journal Entries",
+            "es": "Entradas del diario",
+            "fr": "Entrées de journal",
+            "it": "Voci del diario",
+            "pl": "Wpisy dziennika",
+            "pt": "Entradas do diário",
+            "ru": "Записи в журнале",
+            "tr": "Günlük girişleri",
+            "uk": "Записи в журналі"
+        ],
+        "profile_total_points": [
+            "de": "Gesamtpunkte",
+            "en": "Total Points",
+            "es": "Puntos totales",
+            "fr": "Points totaux",
+            "it": "Punti totali",
+            "pl": "Łączne punkty",
+            "pt": "Pontos totais",
+            "ru": "Всего баллов",
+            "tr": "Toplam puan",
+            "uk": "Всього балів"
         ],
         "home_total": [
             "de": "Gesamt",

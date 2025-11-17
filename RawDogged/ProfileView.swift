@@ -4,6 +4,7 @@
 //
 
 import SwiftUI
+import FirebaseAuth
 
 struct ProfileView: View {
     @EnvironmentObject var appState: AppStateManager
@@ -36,10 +37,17 @@ struct ProfileView: View {
                     // User Profile Card
                     VStack(spacing: 20) {
                         // User Info
-                        VStack(spacing: 6) {
+                        VStack(spacing: 8) {
                             Text(appState.userName)
                                 .font(.system(size: 24, weight: .bold))
                                 .foregroundColor(.black)
+                            
+                            // Show email if available
+                            if let email = appState.userEmail, !email.isEmpty {
+                                Text(email)
+                                    .font(.system(size: 14, weight: .regular))
+                                    .foregroundColor(.gray)
+                            }
                         }
                         .padding(.top, 4)
                         
@@ -149,6 +157,132 @@ struct ProfileView: View {
                     )
                     .padding(.horizontal, 20)
                     
+                    // Personal Stats Section
+                    VStack(spacing: 16) {
+                        HStack {
+                            Text(appState.localized("profile_your_stats"))
+                                .font(.system(size: 20, weight: .bold))
+                                .foregroundColor(.black)
+                            Spacer()
+                        }
+                        
+                        VStack(spacing: 12) {
+                            // Total Time
+                            HStack {
+                                HStack(spacing: 12) {
+                                    Image(systemName: "clock.fill")
+                                        .font(.system(size: 18))
+                                        .foregroundColor(accentBlack)
+                                        .frame(width: 30)
+                                    
+                                    Text(appState.localized("profile_total_meditation_time"))
+                                        .font(.system(size: 15, weight: .medium))
+                                        .foregroundColor(.black)
+                                }
+                                
+                                Spacer()
+                                
+                                Text(appState.formatTotalTime(appState.userStats.totalRawTime))
+                                    .font(.system(size: 15, weight: .bold))
+                                    .foregroundColor(accentBlack)
+                            }
+                            
+                            Divider()
+                            
+                            // Personal Challenges
+                            HStack {
+                                HStack(spacing: 12) {
+                                    Image(systemName: "target")
+                                        .font(.system(size: 18))
+                                        .foregroundColor(accentBlack)
+                                        .frame(width: 30)
+                                    
+                                    Text(appState.localized("profile_personal_challenges"))
+                                        .font(.system(size: 15, weight: .medium))
+                                        .foregroundColor(.black)
+                                }
+                                
+                                Spacer()
+                                
+                                Text("\(appState.challenges.count)")
+                                    .font(.system(size: 15, weight: .bold))
+                                    .foregroundColor(accentBlack)
+                            }
+                            
+                            Divider()
+                            
+                            // Completed Challenges
+                            HStack {
+                                HStack(spacing: 12) {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .font(.system(size: 18))
+                                        .foregroundColor(.green)
+                                        .frame(width: 30)
+                                    
+                                    Text(appState.localized("profile_completed_challenges"))
+                                        .font(.system(size: 15, weight: .medium))
+                                        .foregroundColor(.black)
+                                }
+                                
+                                Spacer()
+                                
+                                Text("\(appState.challenges.filter { $0.isCompleted }.count)")
+                                    .font(.system(size: 15, weight: .bold))
+                                    .foregroundColor(.green)
+                            }
+                            
+                            Divider()
+                            
+                            // Journal Entries
+                            HStack {
+                                HStack(spacing: 12) {
+                                    Image(systemName: "book.fill")
+                                        .font(.system(size: 18))
+                                        .foregroundColor(accentBlack)
+                                        .frame(width: 30)
+                                    
+                                    Text(appState.localized("profile_journal_entries"))
+                                        .font(.system(size: 15, weight: .medium))
+                                        .foregroundColor(.black)
+                                }
+                                
+                                Spacer()
+                                
+                                Text("\(appState.journalEntries.count)")
+                                    .font(.system(size: 15, weight: .bold))
+                                    .foregroundColor(accentBlack)
+                            }
+                            
+                            Divider()
+                            
+                            // Total Points
+                            HStack {
+                                HStack(spacing: 12) {
+                                    Image(systemName: "star.fill")
+                                        .font(.system(size: 18))
+                                        .foregroundColor(.orange)
+                                        .frame(width: 30)
+                                    
+                                    Text(appState.localized("profile_total_points"))
+                                        .font(.system(size: 15, weight: .medium))
+                                        .foregroundColor(.black)
+                                }
+                                
+                                Spacer()
+                                
+                                Text("\(appState.userStats.totalPoints)")
+                                    .font(.system(size: 15, weight: .bold))
+                                    .foregroundColor(.orange)
+                            }
+                        }
+                        .padding(20)
+                        .background(
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(Color.white)
+                        )
+                    }
+                    .padding(.horizontal, 20)
+                    
                     // Settings Section
                     VStack(spacing: 12) {
                         SettingsCard(icon: "questionmark.circle.fill", title: appState.localized("profile_support"), showChevron: true) {
@@ -164,7 +298,7 @@ struct ProfileView: View {
                         }
                         
                         SettingsCard(icon: "rectangle.portrait.and.arrow.right", title: appState.localized("profile_logout"), isDestructive: true, showChevron: false) {
-                            // Action
+                            logoutUser()
                         }
                     }
                     .padding(.horizontal, 20)
@@ -186,6 +320,29 @@ struct ProfileView: View {
             }
         }
         .accentColor(accentBlack)
+    }
+    
+    private func logoutUser() {
+        // Clear UserDefaults
+        UserDefaults.standard.set(false, forKey: "hasCompletedAuth")
+        
+        // Sign out from Firebase
+        do {
+            try Auth.auth().signOut()
+            
+            // Reset app state
+            appState.currentUserId = nil
+            appState.userName = "Raw Dog"
+            appState.userEmail = nil
+            appState.challenges = []
+            appState.journalEntries = []
+            appState.userStats = UserStats(dailyStreak: 0, totalRawTime: 0, dailyGoalMinutes: 60, dailyHistory: [])
+            
+            // Force app restart by exiting
+            exit(0)
+        } catch {
+            print("Error signing out: \(error.localizedDescription)")
+        }
     }
 }
 
@@ -430,7 +587,7 @@ struct EditProfileView: View {
                     // Save Button
                     Button(action: {
                         if !userName.isEmpty {
-                            appState.userName = userName
+                            appState.updateUserName(userName)
                             dismiss()
                         }
                     }) {

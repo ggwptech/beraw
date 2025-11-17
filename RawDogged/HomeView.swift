@@ -90,10 +90,10 @@ struct HomeView: View {
                                         .foregroundColor(.gray)
                                     
                                     Circle()
-                                        .fill(getStreakColor(for: day))
+                                        .fill(getStreakColor(for: index))
                                         .frame(width: 32, height: 32)
                                         .overlay(
-                                            Image(systemName: isStreakActive(for: day) ? "checkmark" : "")
+                                            Image(systemName: isStreakActive(for: index) ? "checkmark" : "")
                                                 .font(.system(size: 12, weight: .bold))
                                                 .foregroundColor(.white)
                                         )
@@ -396,15 +396,27 @@ struct HomeView: View {
         return last7.map { $0.totalMinutes }
     }
     
-    private func getStreakColor(for day: String) -> Color {
-        // For demo: first 2 days are active
-        let activeDays = ["S", "M"]
-        return activeDays.contains(day) ? .orange : Color.gray.opacity(0.2)
+    private func getStreakColor(for dayIndex: Int) -> Color {
+        return isStreakActive(for: dayIndex) ? .orange : Color.gray.opacity(0.2)
     }
     
-    private func isStreakActive(for day: String) -> Bool {
-        let activeDays = ["S", "M"]
-        return activeDays.contains(day)
+    private func isStreakActive(for dayIndex: Int) -> Bool {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        
+        // Calculate the date for this day (0 = Sunday, 6 = Saturday in the week)
+        // dayIndex: 0=S, 1=M, 2=T, 3=W, 4=T, 5=F, 6=S
+        let todayWeekday = calendar.component(.weekday, from: today) - 1 // 0 = Sunday
+        let daysBack = (todayWeekday - dayIndex + 7) % 7
+        
+        guard let checkDate = calendar.date(byAdding: .day, value: -daysBack, to: today) else {
+            return false
+        }
+        
+        // Check if this date exists in dailyHistory
+        return appState.userStats.dailyHistory.contains { record in
+            calendar.isDate(record.date, inSameDayAs: checkDate)
+        }
     }
 }
 

@@ -5,9 +5,11 @@
 
 import SwiftUI
 import FirebaseCore
+import FirebaseAuth
 import AuthenticationServices
 
 struct RootView: View {
+    @StateObject private var appState = AppStateManager()
     @State private var showSplash = true
     @State private var showLanguageSelection = !UserDefaults.standard.bool(forKey: "hasSelectedLanguage")
     @State private var showOnboarding = !UserDefaults.standard.bool(forKey: "hasCompletedOnboarding")
@@ -20,14 +22,19 @@ struct RootView: View {
                 SplashScreenView()
             } else if showLanguageSelection {
                 LanguageSelectionView(isPresented: $showLanguageSelection, showOnboardingNext: $showOnboarding)
+                    .environmentObject(appState)
             } else if showOnboarding {
                 OnboardingView(isPresented: $showOnboarding, showAuthNext: $showAuth)
+                    .environmentObject(appState)
             } else if showAuth {
                 AuthView(isPresented: $showAuth, showPaywallNext: $showPaywall)
+                    .environmentObject(appState)
             } else if showPaywall {
                 InitialPaywallView(isPresented: $showPaywall)
+                    .environmentObject(appState)
             } else {
                 ContentView()
+                    .environmentObject(appState)
             }
         }
         .onAppear {
@@ -472,6 +479,14 @@ struct AuthView: View {
     
     private func completeAuth() {
         UserDefaults.standard.set(true, forKey: "hasCompletedAuth")
+        
+        // Set user in AppState for Firebase sync
+        if let user = authManager.currentUser {
+            // Try to get name from displayName, email, or use default
+            let displayName = user.displayName ?? user.email?.components(separatedBy: "@").first ?? "User"
+            appState.setUser(userId: user.uid, userName: displayName, email: user.email)
+        }
+        
         withAnimation {
             isPresented = false
         }

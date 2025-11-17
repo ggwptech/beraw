@@ -9,14 +9,15 @@ import SwiftUI
 import StoreKit
 
 struct ContentView: View {
-    @StateObject private var appState = AppStateManager()
+    @EnvironmentObject var appState: AppStateManager
     @State private var hasRequestedReview = false
     @State private var showPaywall = false
     
     private let accentBlack = Color.black // #2f00ff
     
     var body: some View {
-        TabView {
+        ZStack {
+            TabView {
             HomeView()
                 .tabItem {
                     Image(systemName: "timer")
@@ -74,6 +75,28 @@ struct ContentView: View {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
                     requestReview()
                 }
+            }
+        }
+            
+            // Loading overlay
+            if appState.isLoading {
+                Color.black.opacity(0.4)
+                    .ignoresSafeArea()
+                
+                VStack(spacing: 16) {
+                    ProgressView()
+                        .scaleEffect(1.5)
+                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                    
+                    Text("Syncing with server...")
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(.white)
+                }
+                .padding(30)
+                .background(
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(Color.black.opacity(0.8))
+                )
             }
         }
     }
@@ -155,5 +178,6 @@ struct PremiumLockedView: View {
 
 #Preview {
     ContentView()
+        .environmentObject(AppStateManager())
 }
 

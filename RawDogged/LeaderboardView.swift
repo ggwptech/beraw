@@ -35,7 +35,8 @@ struct LeaderboardView: View {
                     .padding(.top, 10)
                     
                     // Your Rank Card
-                    if let yourEntry = appState.leaderboard.first(where: { $0.nickname == appState.currentUser }) {
+                    if let userId = appState.currentUserId,
+                       let yourEntry = appState.leaderboard.first(where: { $0.userId == userId }) {
                         VStack(spacing: 12) {
                             HStack {
                                 HStack(spacing: 6) {
@@ -75,7 +76,7 @@ struct LeaderboardView: View {
                                     HStack(spacing: 4) {
                                         Image(systemName: "bolt.fill")
                                             .font(.system(size: 12, weight: .medium))
-                                        Text("\(yourEntry.totalPoints) \(appState.localized("leaderboard_points"))")
+                                        Text("\(yourEntry.totalPoints) pts")
                                             .font(.system(size: 14, weight: .bold))
                                     }
                                     .foregroundColor(.orange)
@@ -94,7 +95,7 @@ struct LeaderboardView: View {
                     // Leaderboard List
                     VStack(spacing: 8) {
                         ForEach(appState.leaderboard) { entry in
-                            LeaderboardRow(entry: entry, isCurrentUser: entry.nickname == appState.currentUser)
+                            LeaderboardRow(entry: entry, isCurrentUser: appState.currentUserId == entry.userId)
                                 .environmentObject(appState)
                         }
                     }
