@@ -7,9 +7,11 @@ import SwiftUI
 import FirebaseCore
 import FirebaseAuth
 import AuthenticationServices
+import StoreKit
 
 struct RootView: View {
     @StateObject private var appState = AppStateManager()
+    @StateObject private var storeManager = StoreManager()
     @State private var showSplash = true
     @State private var showLanguageSelection = !UserDefaults.standard.bool(forKey: "hasSelectedLanguage")
     @State private var showOnboarding = !UserDefaults.standard.bool(forKey: "hasCompletedOnboarding")
@@ -29,12 +31,15 @@ struct RootView: View {
             } else if showAuth {
                 AuthView(isPresented: $showAuth, showPaywallNext: $showPaywall)
                     .environmentObject(appState)
+                    .environmentObject(storeManager)
             } else if showPaywall {
                 InitialPaywallView(isPresented: $showPaywall)
                     .environmentObject(appState)
+                    .environmentObject(storeManager)
             } else {
                 ContentView()
                     .environmentObject(appState)
+                    .environmentObject(storeManager)
             }
         }
         .onAppear {
@@ -505,8 +510,12 @@ struct AuthView: View {
 struct InitialPaywallView: View {
     @Binding var isPresented: Bool
     @EnvironmentObject var appState: AppStateManager
-    @State private var selectedPlan: SubscriptionPlan = .yearly
+    @EnvironmentObject var storeManager: StoreManager
+    @State private var selectedPlan: SubscriptionPlan = .weekly
     @State private var showCloseButton = false
+    @State private var isPurchasing = false
+    @State private var showError = false
+    @State private var errorMessage = ""
     
     private let accentBlack = Color.black
     
@@ -645,9 +654,15 @@ struct InitialPaywallView: View {
                                             .font(.system(size: 18, weight: .bold))
                                             .foregroundColor(.black)
                                         
-                                        Text(appState.localized("paywall_price_weekly"))
-                                            .font(.system(size: 14, weight: .regular))
-                                            .foregroundColor(.gray)
+                                        if let product = storeManager.product(for: "com.getcode.BeRaw.weekly") {
+                                            Text("\(product.price.formatted(product.priceFormatStyle)) / week")
+                                                .font(.system(size: 14, weight: .regular))
+                                                .foregroundColor(.gray)
+                                        } else {
+                                            Text(appState.localized("paywall_price_weekly"))
+                                                .font(.system(size: 14, weight: .regular))
+                                                .foregroundColor(.gray)
+                                        }
                                     }
                                     
                                     Spacer()
@@ -681,21 +696,46 @@ struct InitialPaywallView: View {
                         
                         // Subscribe Button
                         Button(action: {
-                            // Action: Process subscription
-                            appState.unlockPremium()
-                            completePaywall()
+                            Task {
+                                await handlePurchase()
+                            }
                         }) {
-                            Text(appState.localized("continue"))
-                                .font(.system(size: 16, weight: .semibold))
-                                .foregroundColor(.white)
-                                .frame(maxWidth: .infinity)
-                                .padding(16)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .fill(accentBlack)
-                                )
+                            HStack {
+                                if isPurchasing || storeManager.isLoading {
+                                    ProgressView()
+                                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                } else {
+                                    Text(appState.localized("continue"))
+                                        .font(.system(size: 16, weight: .semibold))
+                                }
+                            }
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(16)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(accentBlack.opacity((isPurchasing || storeManager.isLoading) ? 0.7 : 1.0))
+                            )
                         }
+                        .disabled(isPurchasing || storeManager.isLoading)
                         .padding(.horizontal, 20)
+                        
+                        // Restore Purchases Button
+                        Button(action: {
+                            Task {
+                                await storeManager.restorePurchases()
+                                if storeManager.isPremium {
+                                    appState.unlockPremium()
+                                    completePaywall()
+                                }
+                            }
+                        }) {
+                            Text(appState.localized("profile_restore_purchases"))
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(accentBlack)
+                        }
+                        .disabled(isPurchasing || storeManager.isLoading)
+                        .padding(.top, 8)
                         
                         // Terms
                         VStack(spacing: 8) {
@@ -743,6 +783,35 @@ struct InitialPaywallView: View {
                     showCloseButton = true
                 }
             }
+        }
+        .alert("Error", isPresented: $showError) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(errorMessage)
+        }
+    }
+    
+    private func handlePurchase() async {
+        isPurchasing = true
+        
+        let productID = "com.getcode.BeRaw.weekly"
+        
+        guard let product = storeManager.product(for: productID) else {
+            errorMessage = "Product not found. Please try again."
+            showError = true
+            isPurchasing = false
+            return
+        }
+        
+        do {
+            try await storeManager.purchase(product)
+            appState.unlockPremium()
+            isPurchasing = false
+            completePaywall()
+        } catch {
+            errorMessage = error.localizedDescription
+            showError = true
+            isPurchasing = false
         }
     }
     

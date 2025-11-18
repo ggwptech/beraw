@@ -110,36 +110,19 @@ struct ChallengeCelebrationView: View {
                 
                 Spacer()
                 
-                // Buttons
-                HStack(spacing: 16) {
-                    // Share Button
-                    Button(action: {
-                        shareResult()
-                    }) {
-                        Image(systemName: "square.and.arrow.up")
-                            .font(.system(size: 20, weight: .semibold))
-                            .foregroundColor(.white)
-                            .frame(width: 56, height: 56)
-                            .background(
-                                RoundedRectangle(cornerRadius: 14)
-                                    .fill(Color.white.opacity(0.2))
-                            )
-                    }
-                    
-                    // Continue Button
-                    Button(action: {
-                        dismiss()
-                    }) {
-                        Text(appState.localized("common_continue"))
-                            .font(.system(size: 18, weight: .semibold))
-                            .foregroundColor(.black)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 16)
-                            .background(
-                                RoundedRectangle(cornerRadius: 14)
-                                    .fill(Color.white)
-                            )
-                    }
+                // Continue Button
+                Button(action: {
+                    dismiss()
+                }) {
+                    Text(appState.localized("common_continue"))
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundColor(.black)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(
+                            RoundedRectangle(cornerRadius: 14)
+                                .fill(Color.white)
+                        )
                 }
                 .padding(.horizontal, 40)
                 .opacity(showConfetti ? 1.0 : 0.0)
