@@ -286,15 +286,26 @@ struct ProfileView: View {
                     // Settings Section
                     VStack(spacing: 12) {
                         SettingsCard(icon: "questionmark.circle.fill", title: appState.localized("profile_support"), showChevron: true) {
-                            // Action: Contact support
+                            let subject = "Be Raw Support Request"
+                            let body = "Hi Be Raw team,\n\n"
+                            
+                            let mailtoString = "mailto:alikapps@icloud.com?subject=\(subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")&body=\(body.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")"
+                            
+                            if let url = URL(string: mailtoString) {
+                                UIApplication.shared.open(url)
+                            }
                         }
                         
                         SettingsCard(icon: "doc.text.fill", title: appState.localized("profile_terms"), showChevron: true) {
-                            // Action: Show terms
+                            if let url = URL(string: "https://beraw.notion.site/Terms-of-Use-2aff696c0ca680db98d4c7981b097132") {
+                                UIApplication.shared.open(url)
+                            }
                         }
                         
                         SettingsCard(icon: "info.circle.fill", title: appState.localized("profile_about_privacy"), showChevron: true) {
-                            // Action
+                            if let url = URL(string: "https://beraw.notion.site/Privacy-Policy-2aff696c0ca680a4a4f7e668b5b835c1") {
+                                UIApplication.shared.open(url)
+                            }
                         }
                         
                         SettingsCard(icon: "rectangle.portrait.and.arrow.right", title: appState.localized("profile_logout"), isDestructive: true, showChevron: false) {
@@ -819,7 +830,9 @@ struct PaywallView: View {
                             
                             HStack(spacing: 4) {
                                 Button(action: {
-                                    // Action: Show terms
+                                    if let url = URL(string: "https://beraw.notion.site/Terms-of-Use-2aff696c0ca680db98d4c7981b097132") {
+                                        UIApplication.shared.open(url)
+                                    }
                                 }) {
                                     Text(appState.localized("auth_terms"))
                                         .font(.system(size: 12, weight: .medium))
@@ -832,7 +845,9 @@ struct PaywallView: View {
                                     .foregroundColor(.gray)
                                 
                                 Button(action: {
-                                    // Action: Show privacy
+                                    if let url = URL(string: "https://beraw.notion.site/Privacy-Policy-2aff696c0ca680a4a4f7e668b5b835c1") {
+                                        UIApplication.shared.open(url)
+                                    }
                                 }) {
                                     Text(appState.localized("auth_privacy"))
                                         .font(.system(size: 12, weight: .medium))

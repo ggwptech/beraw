@@ -432,7 +432,9 @@ struct AuthView: View {
                     
                     HStack(spacing: 4) {
                         Button(action: {
-                            // Action: Show terms
+                            if let url = URL(string: "https://beraw.notion.site/Terms-of-Use-2aff696c0ca680db98d4c7981b097132") {
+                                UIApplication.shared.open(url)
+                            }
                         }) {
                             Text(appState.localized("auth_terms"))
                                 .font(.system(size: 12, weight: .medium))
@@ -445,7 +447,9 @@ struct AuthView: View {
                             .foregroundColor(.gray)
                         
                         Button(action: {
-                            // Action: Show privacy
+                            if let url = URL(string: "https://beraw.notion.site/Privacy-Policy-2aff696c0ca680a4a4f7e668b5b835c1") {
+                                UIApplication.shared.open(url)
+                            }
                         }) {
                             Text(appState.localized("auth_privacy"))
                                 .font(.system(size: 12, weight: .medium))
@@ -701,7 +705,9 @@ struct InitialPaywallView: View {
                             
                             HStack(spacing: 4) {
                                 Button(action: {
-                                    // Action: Show terms
+                                    if let url = URL(string: "https://beraw.notion.site/Terms-of-Use-2aff696c0ca680db98d4c7981b097132") {
+                                        UIApplication.shared.open(url)
+                                    }
                                 }) {
                                     Text(appState.localized("auth_terms"))
                                         .font(.system(size: 12, weight: .medium))
@@ -714,7 +720,9 @@ struct InitialPaywallView: View {
                                     .foregroundColor(.gray)
                                 
                                 Button(action: {
-                                    // Action: Show privacy
+                                    if let url = URL(string: "https://beraw.notion.site/Privacy-Policy-2aff696c0ca680a4a4f7e668b5b835c1") {
+                                        UIApplication.shared.open(url)
+                                    }
                                 }) {
                                     Text(appState.localized("auth_privacy"))
                                         .font(.system(size: 12, weight: .medium))
