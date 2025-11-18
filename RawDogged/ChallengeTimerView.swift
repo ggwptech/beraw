@@ -16,6 +16,8 @@ struct ChallengeTimerView: View {
     @State private var motivationTimer: Timer?
     @State private var hasCompleted = false
     @State private var showCelebration = false
+    @State private var showFailedAlert = false
+    @State private var challengeFailed = false
     
     private let accentBlack = Color.black
     
@@ -110,15 +112,24 @@ struct ChallengeTimerView: View {
         .onAppear {
             startMotivationTimer()
             checkCompletion()
+            setupBackgroundObservers()
         }
         .onDisappear {
             motivationTimer?.invalidate()
+            removeBackgroundObservers()
         }
         .fullScreenCover(isPresented: $showCelebration) {
             ChallengeCelebrationView(challenge: challenge, duration: challenge.durationMinutes)
                 .onDisappear {
                     dismiss()
                 }
+        }
+        .alert(appState.localized("challenge_failed_title"), isPresented: $showFailedAlert) {
+            Button(appState.localized("common_ok"), role: .cancel) {
+                dismiss()
+            }
+        } message: {
+            Text(appState.localized("challenge_failed_message"))
         }
     }
     
@@ -191,6 +202,36 @@ struct ChallengeTimerView: View {
                 currentMotivationIndex = count > 0 ? (currentMotivationIndex + 1) % count : 0
             }
         }
+    }
+    
+    private func setupBackgroundObservers() {
+        NotificationCenter.default.addObserver(
+            forName: UIApplication.willResignActiveNotification,
+            object: nil,
+            queue: .main
+        ) { _ in
+            // User is leaving the app (switching to another app or home screen)
+            if !hasCompleted && !challengeFailed {
+                challengeFailed = true
+            }
+        }
+        
+        NotificationCenter.default.addObserver(
+            forName: UIApplication.didBecomeActiveNotification,
+            object: nil,
+            queue: .main
+        ) { _ in
+            // User returned to the app
+            if challengeFailed && !hasCompleted {
+                appState.stopSession(shouldShowJournal: false)
+                showFailedAlert = true
+            }
+        }
+    }
+    
+    private func removeBackgroundObservers() {
+        NotificationCenter.default.removeObserver(self, name: UIApplication.willResignActiveNotification, object: nil)
+        NotificationCenter.default.removeObserver(self, name: UIApplication.didBecomeActiveNotification, object: nil)
     }
 }
 

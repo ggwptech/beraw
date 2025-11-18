@@ -349,7 +349,7 @@ class AppStateManager: ObservableObject {
         startTimer()
     }
     
-    func stopSession() {
+    func stopSession(shouldShowJournal: Bool = true) {
         guard let session = currentSession else { return }
         let completedSession = RawSession(
             id: session.id,
@@ -357,8 +357,10 @@ class AppStateManager: ObservableObject {
             endTime: Date()
         )
         
-        // Store duration for journal entry
-        completedSessionDuration = completedSession.duration
+        // Store duration for journal entry only if session was completed successfully
+        if shouldShowJournal {
+            completedSessionDuration = completedSession.duration
+        }
         
         // Update stats
         userStats.totalRawTime += completedSession.duration
@@ -1390,6 +1392,42 @@ struct LocalizationManager {
             "tr": "kullanıcı tamamladı",
             "uk": "користувачів завершили"
         ],
+        "challenge_done": [
+            "de": "Fertig",
+            "en": "Done",
+            "es": "Listo",
+            "fr": "Terminé",
+            "it": "Fatto",
+            "pl": "Gotowe",
+            "pt": "Concluído",
+            "ru": "Готово",
+            "tr": "Bitti",
+            "uk": "Готово"
+        ],
+        "challenge_failed_title": [
+            "de": "Du hast verloren!",
+            "en": "You Lost!",
+            "es": "¡Perdiste!",
+            "fr": "Tu as perdu !",
+            "it": "Hai perso!",
+            "pl": "Przegrałeś!",
+            "pt": "Você perdeu!",
+            "ru": "Ты проиграл!",
+            "tr": "Kaybettin!",
+            "uk": "Ти програв!"
+        ],
+        "challenge_failed_message": [
+            "de": "Du hast die App während der Challenge verlassen. Der Timer wurde gestoppt.",
+            "en": "You left the app during the challenge. The timer has been stopped.",
+            "es": "Saliste de la app durante el desafío. El temporizador se ha detenido.",
+            "fr": "Tu as quitté l'app pendant le défi. Le chronomètre a été arrêté.",
+            "it": "Hai lasciato l'app durante la sfida. Il timer è stato fermato.",
+            "pl": "Opuściłeś aplikację podczas wyzwania. Timer został zatrzymany.",
+            "pt": "Você saiu do app durante o desafio. O cronômetro foi parado.",
+            "ru": "Ты вышел из приложения во время челленджа. Таймер остановлен.",
+            "tr": "Meydan okuma sırasında uygulamadan çıktın. Zamanlayıcı durduruldu.",
+            "uk": "Ти вийшов з додатку під час виклику. Таймер зупинено."
+        ],
         
         // MARK: - Journal Screen
         "journal_title": [
@@ -1415,6 +1453,18 @@ struct LocalizationManager {
             "ru": "Добавить запись",
             "tr": "Giriş Ekle",
             "uk": "Додати запис"
+        ],
+        "journal_entry_title": [
+            "de": "Tagebucheintrag",
+            "en": "Journal Entry",
+            "es": "Entrada de diario",
+            "fr": "Entrée de journal",
+            "it": "Voce del diario",
+            "pl": "Wpis dziennika",
+            "pt": "Entrada de diário",
+            "ru": "Запись в дневнике",
+            "tr": "Günlük Girişi",
+            "uk": "Запис щоденника"
         ],
         "journal_write_thoughts": [
             "de": "Schreiben Sie Ihre Gedanken...",
@@ -2111,6 +2161,18 @@ struct LocalizationManager {
             "ru": "Сохранить",
             "tr": "Kaydet",
             "uk": "Зберегти"
+        ],
+        "common_ok": [
+            "de": "OK",
+            "en": "OK",
+            "es": "OK",
+            "fr": "OK",
+            "it": "OK",
+            "pl": "OK",
+            "pt": "OK",
+            "ru": "ОК",
+            "tr": "Tamam",
+            "uk": "OK"
         ],
         "common_skip": [
             "de": "Überspringen",

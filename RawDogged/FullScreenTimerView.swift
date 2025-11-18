@@ -11,6 +11,8 @@ struct FullScreenTimerView: View {
     
     @State private var currentMotivationIndex = 0
     @State private var motivationTimer: Timer?
+    @State private var showFailedAlert = false
+    @State private var sessionFailed = false
     
     private let accentBlack = Color.black
     
@@ -105,9 +107,18 @@ struct FullScreenTimerView: View {
         }
         .onAppear {
             startMotivationTimer()
+            setupBackgroundObservers()
         }
         .onDisappear {
             motivationTimer?.invalidate()
+            removeBackgroundObservers()
+        }
+        .alert(appState.localized("challenge_failed_title"), isPresented: $showFailedAlert) {
+            Button(appState.localized("common_ok"), role: .cancel) {
+                dismiss()
+            }
+        } message: {
+            Text(appState.localized("challenge_failed_message"))
         }
     }
     
@@ -126,6 +137,36 @@ struct FullScreenTimerView: View {
                 currentMotivationIndex = count > 0 ? (currentMotivationIndex + 1) % count : 0
             }
         }
+    }
+    
+    private func setupBackgroundObservers() {
+        NotificationCenter.default.addObserver(
+            forName: UIApplication.willResignActiveNotification,
+            object: nil,
+            queue: .main
+        ) { _ in
+            // User is leaving the app
+            if appState.currentSession != nil && !sessionFailed {
+                sessionFailed = true
+            }
+        }
+        
+        NotificationCenter.default.addObserver(
+            forName: UIApplication.didBecomeActiveNotification,
+            object: nil,
+            queue: .main
+        ) { _ in
+            // User returned to the app
+            if sessionFailed && appState.currentSession != nil {
+                appState.stopSession(shouldShowJournal: false)
+                showFailedAlert = true
+            }
+        }
+    }
+    
+    private func removeBackgroundObservers() {
+        NotificationCenter.default.removeObserver(self, name: UIApplication.willResignActiveNotification, object: nil)
+        NotificationCenter.default.removeObserver(self, name: UIApplication.didBecomeActiveNotification, object: nil)
     }
 }
 
