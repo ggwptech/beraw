@@ -75,7 +75,7 @@ struct ChallengeTimerView: View {
                 
                 // Timer Display
                 Text(remainingTimeString)
-                    .font(.system(size: 80, weight: .ultraLight))
+                    .font(.system(size: UIDevice.current.userInterfaceIdiom == .pad ? 150 : 80, weight: .ultraLight))
                     .foregroundColor(.green)
                     .monospacedDigit()
                 

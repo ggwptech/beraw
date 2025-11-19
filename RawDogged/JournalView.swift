@@ -21,7 +21,7 @@ struct JournalView: View {
                             Image(systemName: "book.fill")
                                 .font(.system(size: 24, weight: .bold))
                                 .foregroundColor(accentBlack)
-                            Text(appState.localized("journal_title"))
+                            Text("Journal")
                                 .font(.system(size: 28, weight: .bold))
                                 .foregroundColor(.black)
                         }
@@ -37,7 +37,7 @@ struct JournalView: View {
                             HStack(spacing: 6) {
                                 Image(systemName: "chart.bar.fill")
                                     .font(.system(size: 12, weight: .medium))
-                                Text(appState.localized("journal_summary"))
+                                Text("Summary")
                             }
                             .font(.system(size: 14, weight: .medium))
                             .foregroundColor(.gray)
@@ -49,7 +49,7 @@ struct JournalView: View {
                                 Text("\(appState.journalEntries.count)")
                                     .font(.system(size: 32, weight: .bold))
                                     .foregroundColor(.black)
-                                Text(appState.localized("home_journal_entries"))
+                                Text("Entries")
                                     .font(.system(size: 12, weight: .regular))
                                     .foregroundColor(.gray)
                             }
@@ -60,7 +60,7 @@ struct JournalView: View {
                                 Text(totalSessionsTime)
                                     .font(.system(size: 28, weight: .bold))
                                     .foregroundColor(.black)
-                                Text(appState.localized("home_total_time"))
+                                Text("Total Time")
                                     .font(.system(size: 12, weight: .regular))
                                     .foregroundColor(.gray)
                             }
@@ -81,11 +81,11 @@ struct JournalView: View {
                                 .font(.system(size: 60))
                                 .foregroundColor(.gray.opacity(0.3))
                             
-                            Text(appState.localized("journal_no_entries_title"))
+                            Text("No journal entries yet")
                                 .font(.system(size: 18, weight: .medium))
                                 .foregroundColor(.gray)
                             
-                            Text(appState.localized("journal_no_entries_subtitle"))
+                            Text("Complete a session and share your thoughts")
                                 .font(.system(size: 14, weight: .regular))
                                 .foregroundColor(.gray.opacity(0.7))
                                 .multilineTextAlignment(.center)
@@ -104,6 +104,8 @@ struct JournalView: View {
                         .padding(.bottom, 20)
                     }
                 }
+                .frame(maxWidth: 600)
+                .frame(maxWidth: .infinity)
             }
             .background(Color(red: 0.97, green: 0.97, blue: 0.97))
             .navigationBarHidden(true)
@@ -112,6 +114,7 @@ struct JournalView: View {
                     .environmentObject(appState)
             }
         }
+        .navigationViewStyle(.stack)
         .accentColor(accentBlack)
     }
     
@@ -227,7 +230,7 @@ struct JournalDetailView: View {
                         HStack(spacing: 6) {
                             Image(systemName: "text.quote")
                                 .font(.system(size: 12, weight: .medium))
-                            Text(appState.localized("journal_your_thoughts"))
+                            Text("Your Thoughts")
                         }
                         .font(.system(size: 14, weight: .medium))
                         .foregroundColor(.gray)
@@ -246,15 +249,17 @@ struct JournalDetailView: View {
                     .padding(.horizontal, 20)
                 }
                 .padding(.bottom, 20)
+                .frame(maxWidth: 600)
+                .frame(maxWidth: .infinity)
             }
             .background(Color(red: 0.97, green: 0.97, blue: 0.97))
-            .navigationTitle(appState.localized("journal_entry_title"))
+            .navigationTitle("Journal Entry")
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.visible, for: .navigationBar)
             .toolbarColorScheme(.light, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(appState.localized("challenge_done")) {
+                    Button("Done") {
                         dismiss()
                     }
                     .foregroundColor(accentBlack)

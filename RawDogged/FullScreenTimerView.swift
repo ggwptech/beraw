@@ -65,7 +65,7 @@ struct FullScreenTimerView: View {
                 // Timer Display
                 VStack(spacing: 20) {
                     Text(currentTimeString)
-                        .font(.system(size: 80, weight: .ultraLight))
+                        .font(.system(size: UIDevice.current.userInterfaceIdiom == .pad ? 150 : 80, weight: .ultraLight))
                         .foregroundColor(.white)
                         .monospacedDigit()
                     

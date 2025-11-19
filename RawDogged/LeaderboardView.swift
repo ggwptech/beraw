@@ -102,10 +102,13 @@ struct LeaderboardView: View {
                     .padding(.horizontal, 20)
                     .padding(.bottom, 20)
                 }
+                .frame(maxWidth: 600)
+                .frame(maxWidth: .infinity)
             }
             .background(Color(red: 0.97, green: 0.97, blue: 0.97))
             .navigationBarHidden(true)
         }
+        .navigationViewStyle(.stack)
         .accentColor(accentBlack)
     }
 }
