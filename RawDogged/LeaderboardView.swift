@@ -12,100 +12,100 @@ struct LeaderboardView: View {
     
     var body: some View {
         NavigationView {
-            ScrollView {
-                VStack(spacing: 20) {
-                    // Header
-                    HStack {
-                        HStack(spacing: 8) {
-                            Image(systemName: "trophy.fill")
-                                .font(.system(size: 24, weight: .bold))
-                                .foregroundColor(accentBlack)
-                            Text(appState.localized("leaderboard_top_raw"))
-                                .font(.system(size: 28, weight: .bold))
-                                .foregroundColor(.black)
-                        }
-                        
-                        Spacer()
-                        
-                        Text(appState.localized("leaderboard_all_time"))
-                            .font(.system(size: 14, weight: .medium))
-                            .foregroundColor(.gray)
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.top, 10)
-                    
-                    // Your Rank Card
-                    if let userId = appState.currentUserId,
-                       let yourEntry = appState.leaderboard.first(where: { $0.userId == userId }) {
-                        VStack(spacing: 12) {
-                            HStack {
-                                HStack(spacing: 6) {
-                                    Image(systemName: "chart.bar.fill")
-                                        .font(.system(size: 12, weight: .medium))
-                                    Text(appState.localized("leaderboard_your_rank"))
-                                }
-                                .font(.system(size: 14, weight: .medium))
-                                .foregroundColor(.gray)
-                                Spacer()
+            GeometryReader { geometry in
+                ScrollView {
+                    VStack(spacing: 20) {
+                        // Header
+                        HStack {
+                            HStack(spacing: 8) {
+                                Image(systemName: "trophy.fill")
+                                    .font(.system(size: 24, weight: .bold))
+                                    .foregroundColor(accentBlack)
+                                Text(appState.localized("leaderboard_top_raw"))
+                                    .font(.system(size: 28, weight: .bold))
+                                    .foregroundColor(.black)
                             }
                             
-                            HStack(spacing: 20) {
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text("#\(yourEntry.rank)")
-                                        .font(.system(size: 32, weight: .bold))
-                                        .foregroundColor(.black)
-                                    Text(appState.localized("leaderboard_position"))
-                                        .font(.system(size: 12, weight: .regular))
-                                        .foregroundColor(.gray)
+                            Spacer()
+                            
+                            Text(appState.localized("leaderboard_all_time"))
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(.gray)
+                        }
+                        .padding(.horizontal, AdaptivePadding.horizontal(for: geometry.size.width))
+                        .padding(.top, 10)
+                        
+                        // Your Rank Card
+                        if let userId = appState.currentUserId,
+                           let yourEntry = appState.leaderboard.first(where: { $0.userId == userId }) {
+                            VStack(spacing: 12) {
+                                HStack {
+                                    HStack(spacing: 6) {
+                                        Image(systemName: "chart.bar.fill")
+                                            .font(.system(size: 12, weight: .medium))
+                                        Text(appState.localized("leaderboard_your_rank"))
+                                    }
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(.gray)
+                                    Spacer()
                                 }
                                 
-                                Spacer()
-                                
-                                VStack(alignment: .trailing, spacing: 8) {
-                                    // Time
-                                    VStack(alignment: .trailing, spacing: 4) {
-                                        Text(appState.formatTotalTime(yourEntry.totalRawTime))
-                                            .font(.system(size: 24, weight: .bold))
+                                HStack(spacing: 20) {
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text("#\(yourEntry.rank)")
+                                            .font(.system(size: 32, weight: .bold))
                                             .foregroundColor(.black)
-                                        Text(appState.localized("leaderboard_total_time"))
-                                            .font(.system(size: 11, weight: .regular))
+                                        Text(appState.localized("leaderboard_position"))
+                                            .font(.system(size: 12, weight: .regular))
                                             .foregroundColor(.gray)
                                     }
                                     
-                                    // Points
-                                    HStack(spacing: 4) {
-                                        Image(systemName: "bolt.fill")
-                                            .font(.system(size: 12, weight: .medium))
-                                        Text("\(yourEntry.totalPoints) pts")
-                                            .font(.system(size: 14, weight: .bold))
+                                    Spacer()
+                                    
+                                    VStack(alignment: .trailing, spacing: 8) {
+                                        // Time
+                                        VStack(alignment: .trailing, spacing: 4) {
+                                            Text(appState.formatTotalTime(yourEntry.totalRawTime))
+                                                .font(.system(size: 24, weight: .bold))
+                                                .foregroundColor(.black)
+                                            Text(appState.localized("leaderboard_total_time"))
+                                                .font(.system(size: 11, weight: .regular))
+                                                .foregroundColor(.gray)
+                                        }
+                                        
+                                        // Points
+                                        HStack(spacing: 4) {
+                                            Image(systemName: "bolt.fill")
+                                                .font(.system(size: 12, weight: .medium))
+                                            Text("\(yourEntry.totalPoints) pts")
+                                                .font(.system(size: 14, weight: .bold))
+                                        }
+                                        .foregroundColor(.orange)
                                     }
-                                    .foregroundColor(.orange)
                                 }
                             }
+                            .padding(20)
+                            .background(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .fill(Color.white)
+                                    .shadow(color: accentBlack.opacity(0.08), radius: 12, x: 0, y: 4)
+                            )
+                            .padding(.horizontal, AdaptivePadding.horizontal(for: geometry.size.width))
                         }
-                        .padding(20)
-                        .background(
-                            RoundedRectangle(cornerRadius: 16)
-                                .fill(Color.white)
-                                .shadow(color: accentBlack.opacity(0.08), radius: 12, x: 0, y: 4)
-                        )
-                        .padding(.horizontal, 20)
-                    }
-                    
-                    // Leaderboard List
-                    VStack(spacing: 8) {
-                        ForEach(appState.leaderboard) { entry in
-                            LeaderboardRow(entry: entry, isCurrentUser: appState.currentUserId == entry.userId)
-                                .environmentObject(appState)
+                        
+                        // Leaderboard List
+                        VStack(spacing: 8) {
+                            ForEach(appState.leaderboard) { entry in
+                                LeaderboardRow(entry: entry, isCurrentUser: appState.currentUserId == entry.userId)
+                                    .environmentObject(appState)
+                            }
                         }
+                        .padding(.horizontal, AdaptivePadding.horizontal(for: geometry.size.width))
+                        .padding(.bottom, 20)
                     }
-                    .padding(.horizontal, 20)
-                    .padding(.bottom, 20)
                 }
-                .frame(maxWidth: 600)
-                .frame(maxWidth: .infinity)
+                .background(Color(red: 0.97, green: 0.97, blue: 0.97))
             }
-            .background(Color(red: 0.97, green: 0.97, blue: 0.97))
             .navigationBarHidden(true)
         }
         .navigationViewStyle(.stack)

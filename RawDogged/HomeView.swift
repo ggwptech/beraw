@@ -18,280 +18,88 @@ struct HomeView: View {
     
     var body: some View {
         NavigationView {
-            ScrollView {
-                VStack(spacing: 20) {
-                    // Header with Title
-                    HStack {
-                        HStack(spacing: 8) {
-                            Image(systemName: "bolt.fill")
-                                .font(.system(size: 24, weight: .bold))
-                                .foregroundColor(accentBlack)
-                            Text(appState.localized("app_brand"))
-                                .font(.system(size: 28, weight: .bold))
-                                .foregroundColor(.black)
-                        }
-                        
-                        Spacer()
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.top, 10)
-                    
-                    // Activity Card (First)
-                    VStack(alignment: .leading, spacing: 12) {
+            GeometryReader { geometry in
+                ScrollView {
+                    VStack(spacing: 20) {
+                        // Header with Title
                         HStack {
-                            HStack(spacing: 6) {
-                                Image(systemName: "chart.bar.fill")
-                                    .font(.system(size: 12, weight: .medium))
-                                Text(appState.localized("home_activity"))
-                            }
-                            .font(.system(size: 14, weight: .medium))
-                            .foregroundColor(.gray)
-                            Spacer()
-                            Text(appState.localized("home_last_7_days"))
-                                .font(.system(size: 12, weight: .regular))
-                                .foregroundColor(.gray)
-                        }
-                        
-                        MiniBarChart(data: getLast7Days())
-                            .frame(height: 80)
-                    }
-                    .padding(20)
-                    .background(
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(Color.white)
-                            .shadow(color: accentBlack.opacity(0.08), radius: 12, x: 0, y: 4)
-                    )
-                    .padding(.horizontal, 20)
-                    
-                    // Day Streak Card (Second)
-                    VStack(spacing: 16) {
-                        HStack(spacing: 12) {
-                            Text(appState.localized("home_day_streak"))
-                                .font(.system(size: 16, weight: .semibold))
-                                .foregroundColor(.black)
-                            
-                            Spacer()
-                            
-                            Image(systemName: "flame.fill")
-                                .font(.system(size: 28, weight: .bold))
-                                .foregroundColor(.orange)
-                            
-                            Text("\(appState.userStats.dailyStreak)")
-                                .font(.system(size: 36, weight: .bold))
-                                .foregroundColor(.orange)
-                        }
-                        
-                        // Week Days Calendar
-                        HStack(spacing: 8) {
-                            ForEach(Array(["S", "M", "T", "W", "T", "F", "S"].enumerated()), id: \.offset) { index, day in
-                                VStack(spacing: 6) {
-                                    Text(day)
-                                        .font(.system(size: 12, weight: .medium))
-                                        .foregroundColor(.gray)
-                                    
-                                    Circle()
-                                        .fill(getStreakColor(for: index))
-                                        .frame(width: 32, height: 32)
-                                        .overlay(
-                                            Image(systemName: isStreakActive(for: index) ? "checkmark" : "")
-                                                .font(.system(size: 12, weight: .bold))
-                                                .foregroundColor(.white)
-                                        )
-                                }
-                            }
-                        }
-                    }
-                    .padding(20)
-                    .background(
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(Color.white)
-                            .shadow(color: Color.black.opacity(0.08), radius: 12, x: 0, y: 4)
-                    )
-                    .padding(.horizontal, 20)
-                    
-                    // Stats Grid (Third - Two small blocks)
-                    HStack(spacing: 12) {
-                        
-                        // Raw Time Card
-                        VStack(alignment: .leading, spacing: 8) {
-                            HStack(spacing: 6) {
-                                Image(systemName: "clock.fill")
-                                    .font(.system(size: 11, weight: .medium))
-                                Text(appState.localized("home_total"))
-                            }
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundColor(.gray)
-                            
-                            Text(appState.formatTotalTime(appState.userStats.totalRawTime))
-                                .font(.system(size: 28, weight: .bold))
-                                .foregroundColor(.black)
-                            
-                            Text(appState.localized("home_raw_time"))
-                                .font(.system(size: 11, weight: .regular))
-                                .foregroundColor(.gray)
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(16)
-                        .background(
-                            RoundedRectangle(cornerRadius: 16)
-                                .fill(Color.white)
-                                .shadow(color: accentBlack.opacity(0.08), radius: 12, x: 0, y: 4)
-                        )
-                        
-                        // Total Points Card
-                        VStack(alignment: .leading, spacing: 8) {
-                            HStack(spacing: 6) {
+                            HStack(spacing: 8) {
                                 Image(systemName: "bolt.fill")
-                                    .font(.system(size: 11, weight: .medium))
-                                Text(appState.localized("home_total"))
-                                
-                                Spacer()
-                                
-                                Button(action: {
-                                    showPointsInfo = true
-                                }) {
-                                    Image(systemName: "info.circle")
-                                        .font(.system(size: 14, weight: .medium))
-                                        .foregroundColor(.gray)
-                                }
+                                    .font(.system(size: 24, weight: .bold))
+                                    .foregroundColor(accentBlack)
+                                Text(appState.localized("app_brand"))
+                                    .font(.system(size: 28, weight: .bold))
+                                    .foregroundColor(.black)
                             }
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundColor(.gray)
                             
-                            Text("\(appState.userStats.totalPoints)")
-                                .font(.system(size: 28, weight: .bold))
-                                .foregroundColor(.orange)
-                            
-                            Text(appState.localized("home_points"))
-                                .font(.system(size: 11, weight: .regular))
-                                .foregroundColor(.gray)
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(16)
-                        .background(
-                            RoundedRectangle(cornerRadius: 16)
-                                .fill(Color.white)
-                                .shadow(color: accentBlack.opacity(0.08), radius: 12, x: 0, y: 4)
-                        )
-                    }
-                    .padding(.horizontal, 20)
-                    
-                    // Latest Journal Entry Section
-                    VStack(alignment: .leading, spacing: 12) {
-                        HStack {
-                            HStack(spacing: 6) {
-                                Image(systemName: "book.fill")
-                                    .font(.system(size: 12, weight: .medium))
-                                Text(appState.localized("home_latest_session"))
-                            }
-                            .font(.system(size: 14, weight: .medium))
-                            .foregroundColor(.gray)
                             Spacer()
                         }
+                        .padding(.horizontal, AdaptivePadding.horizontal(for: geometry.size.width))
+                        .padding(.top, 10)
                         
-                        if appState.journalEntries.isEmpty {
-                            Text(appState.localized("home_no_entries"))
-                                .font(.system(size: 13, weight: .regular))
-                                .foregroundColor(.gray)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 20)
-                        } else if let latestEntry = appState.journalEntries.first {
-                            VStack(alignment: .leading, spacing: 10) {
-                                HStack {
-                                    Image(systemName: "clock.fill")
-                                        .font(.system(size: 11))
-                                        .foregroundColor(accentBlack)
-                                    
-                                    Text(formatDate(latestEntry.date))
-                                        .font(.system(size: 13, weight: .medium))
-                                        .foregroundColor(.black)
-                                    
-                                    Spacer()
-                                    
-                                    Text(formatDuration(latestEntry.sessionDuration))
-                                        .font(.system(size: 11, weight: .medium))
-                                        .foregroundColor(.white)
-                                        .padding(.horizontal, 8)
-                                        .padding(.vertical, 4)
-                                        .background(
-                                            RoundedRectangle(cornerRadius: 6)
-                                                .fill(accentBlack)
-                                        )
-                                }
-                                
-                                Text(latestEntry.thoughts.isEmpty ? appState.localized("home_no_thoughts") : latestEntry.thoughts)
-                                    .font(.system(size: 14, weight: .regular))
-                                    .foregroundColor(.black.opacity(0.8))
-                                    .lineLimit(3)
-                                    .padding(.top, 4)
+                        // Main Cards - Fixed vertical layout
+                        VStack(spacing: 20) {
+                            // 1. Activity Card - Full width
+                            activityCard
+                            
+                            // 2. Day Streak Card - Full width
+                            streakCard
+                            
+                            // 3. Stats Cards - Side by side
+                            statsGrid
+                            
+                            // 4. Latest Session Card - Full width
+                            journalCard
+                        }
+                        .padding(.horizontal, AdaptivePadding.horizontal(for: geometry.size.width))
+                        
+                        // Action Button - Full width
+                        Button(action: {
+                            if appState.currentSession == nil {
+                                appState.startSession()
+                                showFullScreenTimer = true
+                            } else {
+                                appState.stopSession()
+                                showJournalEntry = true
                             }
-                            .padding(14)
+                        }) {
+                            HStack(spacing: 8) {
+                                if appState.currentSession == nil {
+                                    if showMotivation {
+                                        Text(appState.localized("home_start_motivation"))
+                                            .font(.system(size: 16, weight: .semibold))
+                                            .transition(.opacity)
+                                    } else {
+                                        Image(systemName: "bolt.fill")
+                                            .font(.system(size: 16, weight: .semibold))
+                                        Text(appState.localized("home_do_it"))
+                                            .font(.system(size: 16, weight: .semibold))
+                                            .transition(.opacity)
+                                    }
+                                } else {
+                                    Image(systemName: "stop.fill")
+                                        .font(.system(size: 16, weight: .semibold))
+                                    Text(appState.localized("home_stop"))
+                                        .font(.system(size: 16, weight: .semibold))
+                                }
+                            }
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
                             .background(
                                 RoundedRectangle(cornerRadius: 12)
-                                    .fill(Color.white)
-                                    .shadow(color: accentBlack.opacity(0.06), radius: 8, x: 0, y: 2)
+                                    .fill(appState.currentSession == nil ? accentBlack : Color.red)
                             )
-                            .onTapGesture {
-                                showFullJournal = true
-                            }
                         }
-                    }
-                    .padding(16)
-                    .background(
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(Color.white)
-                            .shadow(color: accentBlack.opacity(0.08), radius: 12, x: 0, y: 4)
-                    )
-                    .padding(.horizontal, 20)
-                    
-                    // Action Button
-                    Button(action: {
-                        if appState.currentSession == nil {
-                            appState.startSession()
-                            showFullScreenTimer = true
-                        } else {
-                            appState.stopSession()
-                            showJournalEntry = true
+                        .onAppear {
+                            startButtonTextTimer()
                         }
-                    }) {
-                        HStack(spacing: 8) {
-                            if appState.currentSession == nil {
-                                if showMotivation {
-                                    Text(appState.localized("home_start_motivation"))
-                                        .font(.system(size: 16, weight: .semibold))
-                                        .transition(.opacity)
-                                } else {
-                                    Image(systemName: "bolt.fill")
-                                        .font(.system(size: 16, weight: .semibold))
-                                    Text(appState.localized("home_do_it"))
-                                        .font(.system(size: 16, weight: .semibold))
-                                        .transition(.opacity)
-                                }
-                            } else {
-                                Image(systemName: "stop.fill")
-                                    .font(.system(size: 16, weight: .semibold))
-                                Text(appState.localized("home_stop"))
-                                    .font(.system(size: 16, weight: .semibold))
-                            }
-                        }
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(appState.currentSession == nil ? accentBlack : Color.red)
-                        )
+                        .padding(.horizontal, AdaptivePadding.horizontal(for: geometry.size.width))
+                        .padding(.bottom, 20)
                     }
-                    .onAppear {
-                        startButtonTextTimer()
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.bottom, 20)
                 }
-                .frame(maxWidth: 600)
-                .frame(maxWidth: .infinity)
+                .background(Color(red: 0.97, green: 0.97, blue: 0.97))
             }
-            .background(Color(red: 0.97, green: 0.97, blue: 0.97))
             .navigationBarHidden(true)
         }
         .navigationViewStyle(.stack)
@@ -326,6 +134,238 @@ struct HomeView: View {
                 .presentationDetents([.height(500)])
                 .presentationDragIndicator(.visible)
         }
+    }
+    
+    // MARK: - Card Components
+    
+    private var activityCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                HStack(spacing: 6) {
+                    Image(systemName: "chart.bar.fill")
+                        .font(.system(size: 12, weight: .medium))
+                    Text(appState.localized("home_activity"))
+                }
+                .font(.system(size: 14, weight: .medium))
+                .foregroundColor(.gray)
+                Spacer()
+                Text(appState.localized("home_last_7_days"))
+                    .font(.system(size: 12, weight: .regular))
+                    .foregroundColor(.gray)
+            }
+            
+            Spacer()
+            
+            MiniBarChart(data: getLast7Days())
+                .frame(height: 100)
+            
+            Spacer()
+        }
+        .frame(minHeight: 200)
+        .padding(20)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.white)
+                .shadow(color: accentBlack.opacity(0.08), radius: 12, x: 0, y: 4)
+        )
+    }
+    
+    private var streakCard: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                HStack(spacing: 6) {
+                    Image(systemName: "flame.fill")
+                        .font(.system(size: 12, weight: .medium))
+                    Text(appState.localized("home_day_streak"))
+                }
+                .font(.system(size: 14, weight: .medium))
+                .foregroundColor(.gray)
+                Spacer()
+                HStack(spacing: 4) {
+                    Image(systemName: "flame.fill")
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundColor(.orange)
+                    Text("\(appState.userStats.dailyStreak)")
+                        .font(.system(size: 24, weight: .bold))
+                        .foregroundColor(.black)
+                }
+            }
+            
+            Spacer()
+            
+            // Week Days Calendar
+            HStack(spacing: 0) {
+                ForEach(Array([("S", 0), ("M", 1), ("T", 2), ("W", 3), ("T", 4), ("F", 5), ("S", 6)]), id: \.1) { day, index in
+                    VStack(spacing: 6) {
+                        Text(day)
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundColor(.gray)
+                        
+                        Circle()
+                            .fill(getStreakColor(for: index))
+                            .frame(width: 40, height: 40)
+                            .overlay(
+                                Image(systemName: isStreakActive(for: index) ? "checkmark" : "")
+                                    .font(.system(size: 14, weight: .bold))
+                                    .foregroundColor(.white)
+                            )
+                    }
+                    .frame(maxWidth: .infinity)
+                }
+            }
+            
+            Spacer()
+        }
+        .frame(minHeight: 200)
+        .padding(20)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.white)
+                .shadow(color: Color.black.opacity(0.08), radius: 12, x: 0, y: 4)
+        )
+    }
+    
+    private var statsGrid: some View {
+        HStack(spacing: 12) {
+            rawTimeCard
+            pointsCard
+        }
+    }
+    
+    private var rawTimeCard: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 6) {
+                Image(systemName: "clock.fill")
+                    .font(.system(size: 11, weight: .medium))
+                Text(appState.localized("home_total"))
+            }
+            .font(.system(size: 12, weight: .medium))
+            .foregroundColor(.gray)
+            
+            Text(appState.formatTotalTime(appState.userStats.totalRawTime))
+                .font(.system(size: 28, weight: .bold))
+                .foregroundColor(.black)
+            
+            Text(appState.localized("home_raw_time"))
+                .font(.system(size: 11, weight: .regular))
+                .foregroundColor(.gray)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.white)
+                .shadow(color: accentBlack.opacity(0.08), radius: 12, x: 0, y: 4)
+        )
+    }
+    
+    private var pointsCard: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 6) {
+                Image(systemName: "bolt.fill")
+                    .font(.system(size: 11, weight: .medium))
+                Text(appState.localized("home_total"))
+                
+                Spacer()
+                
+                Button(action: {
+                    showPointsInfo = true
+                }) {
+                    Image(systemName: "info.circle")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(.gray)
+                }
+            }
+            .font(.system(size: 12, weight: .medium))
+            .foregroundColor(.gray)
+            
+            Text("\(appState.userStats.totalPoints)")
+                .font(.system(size: 28, weight: .bold))
+                .foregroundColor(.orange)
+            
+            Text(appState.localized("home_points"))
+                .font(.system(size: 11, weight: .regular))
+                .foregroundColor(.gray)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.white)
+                .shadow(color: accentBlack.opacity(0.08), radius: 12, x: 0, y: 4)
+        )
+    }
+    
+    private var journalCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                HStack(spacing: 6) {
+                    Image(systemName: "book.fill")
+                        .font(.system(size: 12, weight: .medium))
+                    Text(appState.localized("home_latest_session"))
+                }
+                .font(.system(size: 14, weight: .medium))
+                .foregroundColor(.gray)
+                Spacer()
+            }
+            
+            if appState.journalEntries.isEmpty {
+                VStack {
+                    Spacer()
+                    Text(appState.localized("home_no_entries"))
+                        .font(.system(size: 13, weight: .regular))
+                        .foregroundColor(.gray)
+                        .frame(maxWidth: .infinity)
+                    Spacer()
+                }
+            } else if let latestEntry = appState.journalEntries.first {
+                VStack(alignment: .leading, spacing: 10) {
+                    HStack {
+                        Image(systemName: "clock.fill")
+                            .font(.system(size: 11))
+                            .foregroundColor(accentBlack)
+                        
+                        Text(formatDate(latestEntry.date))
+                            .font(.system(size: 13, weight: .medium))
+                            .foregroundColor(.black)
+                        
+                        Spacer()
+                        
+                        Text(formatDuration(latestEntry.sessionDuration))
+                            .font(.system(size: 11, weight: .medium))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(
+                                RoundedRectangle(cornerRadius: 6)
+                                    .fill(accentBlack)
+                            )
+                    }
+                    
+                    Text(latestEntry.thoughts.isEmpty ? appState.localized("home_no_thoughts") : latestEntry.thoughts)
+                        .font(.system(size: 14, weight: .regular))
+                        .foregroundColor(.black.opacity(0.8))
+                        .lineLimit(5)
+                        .padding(.top, 4)
+                }
+                .padding(14)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.white)
+                        .shadow(color: accentBlack.opacity(0.06), radius: 8, x: 0, y: 2)
+                )
+                .onTapGesture {
+                    showFullJournal = true
+                }
+            }
+        }
+        .frame(minHeight: 200)
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.white)
+                .shadow(color: accentBlack.opacity(0.08), radius: 12, x: 0, y: 4)
+        )
     }
     
     private func formatDate(_ date: Date) -> String {

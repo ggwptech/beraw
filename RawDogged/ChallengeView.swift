@@ -23,172 +23,212 @@ struct ChallengeView: View {
     
     var body: some View {
         NavigationView {
-            ScrollView {
-                VStack(spacing: 20) {
-                    // Header
-                    HStack {
-                        HStack(spacing: 8) {
-                            Image(systemName: "target")
-                                .font(.system(size: 24, weight: .bold))
-                                .foregroundColor(accentBlack)
-                            Text(appState.localized("challenge_title"))
-                                .font(.system(size: 28, weight: .bold))
-                                .foregroundColor(.black)
-                        }
-                        
-                        Spacer()
-                        
-                        Button(action: {
-                            showAddChallenge = true
-                        }) {
-                            ZStack {
-                                Circle()
-                                    .fill(accentBlack)
-                                    .frame(width: 36, height: 36)
-                                
-                                Image(systemName: "plus")
-                                    .foregroundColor(.white)
-                                    .font(.system(size: 16, weight: .semibold))
-                            }
-                        }
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.top, 10)
-                    
-                    // Tab Switcher
-                    HStack(spacing: 0) {
-                        Button(action: {
-                            withAnimation {
-                                selectedTab = .myChalllenges
-                            }
-                        }) {
-                            VStack(spacing: 8) {
-                                HStack(spacing: 6) {
-                                    Image(systemName: "person.fill")
-                                        .font(.system(size: 14, weight: .medium))
-                                    Text(appState.localized("challenge_my"))
-                                        .font(.system(size: 16, weight: .semibold))
-                                }
-                                .foregroundColor(selectedTab == .myChalllenges ? accentBlack : .gray)
-                                
-                                Rectangle()
-                                    .fill(selectedTab == .myChalllenges ? accentBlack : Color.clear)
-                                    .frame(height: 2)
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 12)
-                        }
-                        
-                        Button(action: {
-                            withAnimation {
-                                selectedTab = .publicChallenges
-                            }
-                        }) {
-                            VStack(spacing: 8) {
-                                HStack(spacing: 6) {
-                                    Image(systemName: "globe")
-                                        .font(.system(size: 14, weight: .medium))
-                                    Text(appState.localized("challenge_public"))
-                                        .font(.system(size: 16, weight: .semibold))
-                                }
-                                .foregroundColor(selectedTab == .publicChallenges ? accentBlack : .gray)
-                                
-                                Rectangle()
-                                    .fill(selectedTab == .publicChallenges ? accentBlack : Color.clear)
-                                    .frame(height: 2)
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 12)
-                        }
-                    }
-                    .background(Color.white)
-                    .cornerRadius(12)
-                    .shadow(color: accentBlack.opacity(0.08), radius: 12, x: 0, y: 4)
-                    .padding(.horizontal, 20)
-                    
-                    // Statistics Card
-                    VStack(spacing: 12) {
+            GeometryReader { geometry in
+                ScrollView {
+                    VStack(spacing: 20) {
+                        // Header
                         HStack {
-                            HStack(spacing: 6) {
-                                Image(systemName: "chart.bar.fill")
-                                    .font(.system(size: 12, weight: .medium))
-                                Text("Statistics")
-                            }
-                            .font(.system(size: 14, weight: .medium))
-                            .foregroundColor(.gray)
-                            Spacer()
-                        }
-                        
-                        HStack(spacing: 20) {
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text("\(completedChallengesCount)")
-                                    .font(.system(size: 32, weight: .bold))
-                                    .foregroundColor(.green)
-                                Text("Completed")
-                                    .font(.system(size: 12, weight: .regular))
-                                    .foregroundColor(.gray)
-                            }
-                            
-                            Spacer()
-                            
-                            VStack(alignment: .trailing, spacing: 4) {
-                                Text("\(activeChallengesCount)")
-                                    .font(.system(size: 32, weight: .bold))
+                            HStack(spacing: 8) {
+                                Image(systemName: "target")
+                                    .font(.system(size: 24, weight: .bold))
+                                    .foregroundColor(accentBlack)
+                                Text(appState.localized("challenge_title"))
+                                    .font(.system(size: 28, weight: .bold))
                                     .foregroundColor(.black)
-                                Text("Active")
-                                    .font(.system(size: 12, weight: .regular))
-                                    .foregroundColor(.gray)
+                            }
+                            
+                            Spacer()
+                            
+                            Button(action: {
+                                showAddChallenge = true
+                            }) {
+                                ZStack {
+                                    Circle()
+                                        .fill(accentBlack)
+                                        .frame(width: 36, height: 36)
+                                    
+                                    Image(systemName: "plus")
+                                        .foregroundColor(.white)
+                                        .font(.system(size: 16, weight: .semibold))
+                                }
                             }
                         }
-                    }
-                    .padding(20)
-                    .background(
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(Color.white)
-                            .shadow(color: accentBlack.opacity(0.08), radius: 12, x: 0, y: 4)
-                    )
-                    .padding(.horizontal, 20)
-                    
-                    // Challenges List based on selected tab
-                    if selectedTab == .publicChallenges {
-                        // Public Challenges Section
-                        VStack(spacing: 12) {
-                            ForEach(appState.publicChallenges) { challenge in
-                                PublicChallengeCard(challenge: challenge)
-                                    .environmentObject(appState)
-                                    .onTapGesture {
-                                        // Tap directly starts public challenge
-                                        let storedChallenge = appState.publicChallenges.first(where: { $0.id == challenge.id }) ?? challenge
-                                        appState.startChallenge(storedChallenge)
-                                        challengeForTimer = storedChallenge
+                        .padding(.horizontal, AdaptivePadding.horizontal(for: geometry.size.width))
+                        .padding(.top, 10)
+                        
+                        // Tab Switcher
+                        HStack(spacing: 0) {
+                            Button(action: {
+                                withAnimation {
+                                    selectedTab = .myChalllenges
+                                }
+                            }) {
+                                VStack(spacing: 8) {
+                                    HStack(spacing: 6) {
+                                        Image(systemName: "person.fill")
+                                            .font(.system(size: 14, weight: .medium))
+                                        Text(appState.localized("challenge_my"))
+                                            .font(.system(size: 16, weight: .semibold))
                                     }
+                                    .foregroundColor(selectedTab == .myChalllenges ? accentBlack : .gray)
+                                    
+                                    Rectangle()
+                                        .fill(selectedTab == .myChalllenges ? accentBlack : Color.clear)
+                                        .frame(height: 2)
+                                }
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 12)
+                            }
+                            
+                            Button(action: {
+                                withAnimation {
+                                    selectedTab = .publicChallenges
+                                }
+                            }) {
+                                VStack(spacing: 8) {
+                                    HStack(spacing: 6) {
+                                        Image(systemName: "globe")
+                                            .font(.system(size: 14, weight: .medium))
+                                        Text(appState.localized("challenge_public"))
+                                            .font(.system(size: 16, weight: .semibold))
+                                    }
+                                    .foregroundColor(selectedTab == .publicChallenges ? accentBlack : .gray)
+                                    
+                                    Rectangle()
+                                        .fill(selectedTab == .publicChallenges ? accentBlack : Color.clear)
+                                        .frame(height: 2)
+                                }
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 12)
                             }
                         }
-                        .padding(.horizontal, 20)
-                        .padding(.bottom, 20)
-                    } else {
-                        // My Challenges Section
+                        .background(Color.white)
+                        .cornerRadius(12)
+                        .shadow(color: accentBlack.opacity(0.08), radius: 12, x: 0, y: 4)
+                        .padding(.horizontal, AdaptivePadding.horizontal(for: geometry.size.width))
+                        
+                        // Statistics Card
                         VStack(spacing: 12) {
-                            ForEach(appState.challenges) { challenge in
-                                ChallengeCard(challenge: challenge, isPublic: challenge.isPublic)
-                                    .environmentObject(appState)
-                                    .onTapGesture {
-                                        guard !challenge.isCompleted else { return }
-                                        let storedChallenge = appState.challenges.first(where: { $0.id == challenge.id }) ?? challenge
-                                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                                            challengeForActions = storedChallenge
+                            HStack {
+                                HStack(spacing: 6) {
+                                    Image(systemName: "chart.bar.fill")
+                                        .font(.system(size: 12, weight: .medium))
+                                    Text("Statistics")
+                                }
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(.gray)
+                                Spacer()
+                            }
+                            
+                            HStack(spacing: 20) {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("\(completedChallengesCount)")
+                                        .font(.system(size: 32, weight: .bold))
+                                        .foregroundColor(.green)
+                                    Text("Completed")
+                                        .font(.system(size: 12, weight: .regular))
+                                        .foregroundColor(.gray)
+                                }
+                                
+                                Spacer()
+                                
+                                VStack(alignment: .trailing, spacing: 4) {
+                                    Text("\(activeChallengesCount)")
+                                        .font(.system(size: 32, weight: .bold))
+                                        .foregroundColor(.black)
+                                    Text("Active")
+                                        .font(.system(size: 12, weight: .regular))
+                                        .foregroundColor(.gray)
+                                }
+                            }
+                        }
+                        .padding(20)
+                        .background(
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(Color.white)
+                                .shadow(color: accentBlack.opacity(0.08), radius: 12, x: 0, y: 4)
+                        )
+                        .padding(.horizontal, AdaptivePadding.horizontal(for: geometry.size.width))
+                        
+                        // Challenges Grid - Adaptive layout
+                        let columns = GridColumns.challengeColumns(for: geometry.size.width)
+                        
+                        Group {
+                            if selectedTab == .publicChallenges {
+                                // Public Challenges Section
+                                if columns == 1 {
+                                    VStack(spacing: 12) {
+                                        ForEach(appState.publicChallenges) { challenge in
+                                            PublicChallengeCard(challenge: challenge)
+                                                .environmentObject(appState)
+                                                .onTapGesture {
+                                                    let storedChallenge = appState.publicChallenges.first(where: { $0.id == challenge.id }) ?? challenge
+                                                    appState.startChallenge(storedChallenge)
+                                                    challengeForTimer = storedChallenge
+                                                }
                                         }
                                     }
+                                    .padding(.horizontal, AdaptivePadding.horizontal(for: geometry.size.width))
+                                } else {
+                                    LazyVGrid(
+                                        columns: Array(repeating: GridItem(.flexible(), spacing: AdaptivePadding.cardSpacing(for: geometry.size.width)), count: columns),
+                                        spacing: AdaptivePadding.cardSpacing(for: geometry.size.width)
+                                    ) {
+                                        ForEach(appState.publicChallenges) { challenge in
+                                            PublicChallengeCard(challenge: challenge)
+                                                .environmentObject(appState)
+                                                .onTapGesture {
+                                                    let storedChallenge = appState.publicChallenges.first(where: { $0.id == challenge.id }) ?? challenge
+                                                    appState.startChallenge(storedChallenge)
+                                                    challengeForTimer = storedChallenge
+                                                }
+                                        }
+                                    }
+                                    .padding(.horizontal, AdaptivePadding.horizontal(for: geometry.size.width))
+                                }
+                            } else {
+                                // My Challenges Section
+                                if columns == 1 {
+                                    VStack(spacing: 12) {
+                                        ForEach(appState.challenges) { challenge in
+                                            ChallengeCard(challenge: challenge, isPublic: challenge.isPublic)
+                                                .environmentObject(appState)
+                                                .onTapGesture {
+                                                    guard !challenge.isCompleted else { return }
+                                                    let storedChallenge = appState.challenges.first(where: { $0.id == challenge.id }) ?? challenge
+                                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                                                        challengeForActions = storedChallenge
+                                                    }
+                                                }
+                                        }
+                                    }
+                                    .padding(.horizontal, AdaptivePadding.horizontal(for: geometry.size.width))
+                                } else {
+                                    LazyVGrid(
+                                        columns: Array(repeating: GridItem(.flexible(), spacing: AdaptivePadding.cardSpacing(for: geometry.size.width)), count: columns),
+                                        spacing: AdaptivePadding.cardSpacing(for: geometry.size.width)
+                                    ) {
+                                        ForEach(appState.challenges) { challenge in
+                                            ChallengeCard(challenge: challenge, isPublic: challenge.isPublic)
+                                                .environmentObject(appState)
+                                                .onTapGesture {
+                                                    guard !challenge.isCompleted else { return }
+                                                    let storedChallenge = appState.challenges.first(where: { $0.id == challenge.id }) ?? challenge
+                                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                                                        challengeForActions = storedChallenge
+                                                    }
+                                                }
+                                        }
+                                    }
+                                    .padding(.horizontal, AdaptivePadding.horizontal(for: geometry.size.width))
+                                }
                             }
                         }
-                        .padding(.horizontal, 20)
                         .padding(.bottom, 20)
                     }
                 }
-                .frame(maxWidth: 600)
-                .frame(maxWidth: .infinity)
+                .background(Color(red: 0.97, green: 0.97, blue: 0.97))
             }
-            .background(Color(red: 0.97, green: 0.97, blue: 0.97))
             .navigationBarHidden(true)
             .sheet(isPresented: $showAddChallenge) {
                 AddChallengeView()

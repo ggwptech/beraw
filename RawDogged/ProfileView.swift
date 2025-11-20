@@ -17,309 +17,309 @@ struct ProfileView: View {
     
     var body: some View {
         NavigationView {
-            ScrollView {
-                VStack(spacing: 20) {
-                    // Header
-                    HStack {
-                        HStack(spacing: 8) {
-                            Image(systemName: "person.fill")
-                                .font(.system(size: 24, weight: .bold))
-                                .foregroundColor(accentBlack)
-                            Text(appState.localized("profile_title"))
-                                .font(.system(size: 28, weight: .bold))
-                                .foregroundColor(.black)
-                        }
-                        
-                        Spacer()
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.top, 10)
-                    
-                    // User Profile Card
+            GeometryReader { geometry in
+                ScrollView {
                     VStack(spacing: 20) {
-                        // User Info
-                        VStack(spacing: 8) {
-                            Text(appState.userName)
-                                .font(.system(size: 24, weight: .bold))
-                                .foregroundColor(.black)
-                            
-                            // Show email if available
-                            if let email = appState.userEmail, !email.isEmpty {
-                                Text(email)
-                                    .font(.system(size: 14, weight: .regular))
-                                    .foregroundColor(.gray)
-                            }
-                        }
-                        .padding(.top, 4)
-                        
-                        // Stats Row
-                        HStack(spacing: 30) {
-                            VStack(spacing: 4) {
-                                Text("\(appState.userStats.dailyStreak)")
-                                    .font(.system(size: 22, weight: .bold))
-                                    .foregroundColor(.black)
-                                Text(appState.localized("home_streak"))
-                                    .font(.system(size: 12, weight: .regular))
-                                    .foregroundColor(.gray)
-                            }
-                            
-                            Rectangle()
-                                .fill(Color.gray.opacity(0.3))
-                                .frame(width: 1, height: 35)
-                            
-                            VStack(spacing: 4) {
-                                Text(appState.formatTotalTime(appState.userStats.totalRawTime))
-                                    .font(.system(size: 22, weight: .bold))
-                                    .foregroundColor(.black)
-                                Text(appState.localized("home_total_time"))
-                                    .font(.system(size: 12, weight: .regular))
-                                    .foregroundColor(.gray)
-                            }
-                            
-                            Rectangle()
-                                .fill(Color.gray.opacity(0.3))
-                                .frame(width: 1, height: 35)
-                            
-                            VStack(spacing: 4) {
-                                Text("\(appState.journalEntries.count)")
-                                    .font(.system(size: 22, weight: .bold))
-                                    .foregroundColor(.black)
-                                Text(appState.localized("home_journal_entries"))
-                                    .font(.system(size: 12, weight: .regular))
-                                    .foregroundColor(.gray)
-                            }
-                        }
-                        
-                        // Edit Profile Button
-                        Button(action: {
-                            showEditProfile = true
-                        }) {
-                            Text(appState.localized("profile_edit_profile"))
-                                .font(.system(size: 14, weight: .semibold))
-                                .foregroundColor(.black)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 10)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .stroke(Color.black, lineWidth: 1.5)
-                                )
-                        }
-                        .padding(.horizontal, 40)
-                    }
-                    .padding(24)
-                    .background(
-                        RoundedRectangle(cornerRadius: 20)
-                            .fill(Color.white)
-                            .shadow(color: Color.black.opacity(0.08), radius: 12, x: 0, y: 4)
-                    )
-                    .padding(.horizontal, 20)
-                    
-                    // Premium Card
-                    VStack(spacing: 16) {
+                        // Header
                         HStack {
-                            VStack(alignment: .leading, spacing: 8) {
-                                HStack(spacing: 6) {
-                                    Image(systemName: "crown.fill")
-                                        .font(.system(size: 18, weight: .bold))
-                                        .foregroundColor(.orange)
-                                    
-                                    Text(appState.localized("profile_premium"))
-                                        .font(.system(size: 20, weight: .bold))
-                                        .foregroundColor(.black)
-                                }
-                                
-                                Text(appState.localized("profile_unlock_features"))
-                                    .font(.system(size: 14, weight: .regular))
-                                    .foregroundColor(.gray)
+                            HStack(spacing: 8) {
+                                Image(systemName: "person.fill")
+                                    .font(.system(size: 24, weight: .bold))
+                                    .foregroundColor(accentBlack)
+                                Text(appState.localized("profile_title"))
+                                    .font(.system(size: 28, weight: .bold))
+                                    .foregroundColor(.black)
                             }
                             
                             Spacer()
+                        }
+                        .padding(.horizontal, AdaptivePadding.horizontal(for: geometry.size.width))
+                        .padding(.top, 10)
+                        
+                        // User Profile Card
+                        VStack(spacing: 20) {
+                            // User Info
+                            VStack(spacing: 8) {
+                                Text(appState.userName)
+                                    .font(.system(size: 24, weight: .bold))
+                                    .foregroundColor(.black)
+                                
+                                // Show email if available
+                                if let email = appState.userEmail, !email.isEmpty {
+                                    Text(email)
+                                        .font(.system(size: 14, weight: .regular))
+                                        .foregroundColor(.gray)
+                                }
+                            }
+                            .padding(.top, 4)
                             
+                            // Stats Row
+                            HStack(spacing: 30) {
+                                VStack(spacing: 4) {
+                                    Text("\(appState.userStats.dailyStreak)")
+                                        .font(.system(size: 22, weight: .bold))
+                                        .foregroundColor(.black)
+                                    Text(appState.localized("home_streak"))
+                                        .font(.system(size: 12, weight: .regular))
+                                        .foregroundColor(.gray)
+                                }
+                                
+                                Rectangle()
+                                    .fill(Color.gray.opacity(0.3))
+                                    .frame(width: 1, height: 35)
+                                
+                                VStack(spacing: 4) {
+                                    Text(appState.formatTotalTime(appState.userStats.totalRawTime))
+                                        .font(.system(size: 22, weight: .bold))
+                                        .foregroundColor(.black)
+                                    Text(appState.localized("home_total_time"))
+                                        .font(.system(size: 12, weight: .regular))
+                                        .foregroundColor(.gray)
+                                }
+                                
+                                Rectangle()
+                                    .fill(Color.gray.opacity(0.3))
+                                    .frame(width: 1, height: 35)
+                                
+                                VStack(spacing: 4) {
+                                    Text("\(appState.journalEntries.count)")
+                                        .font(.system(size: 22, weight: .bold))
+                                        .foregroundColor(.black)
+                                    Text(appState.localized("home_journal_entries"))
+                                        .font(.system(size: 12, weight: .regular))
+                                        .foregroundColor(.gray)
+                                }
+                            }
+                            
+                            // Edit Profile Button
                             Button(action: {
-                                showPaywall = true
+                                showEditProfile = true
                             }) {
-                                Text(appState.localized("profile_upgrade"))
+                                Text(appState.localized("profile_edit_profile"))
                                     .font(.system(size: 14, weight: .semibold))
-                                    .foregroundColor(.white)
-                                    .padding(.horizontal, 20)
+                                    .foregroundColor(.black)
+                                    .frame(maxWidth: .infinity)
                                     .padding(.vertical, 10)
                                     .background(
                                         RoundedRectangle(cornerRadius: 10)
-                                            .fill(accentBlack)
+                                            .stroke(Color.black, lineWidth: 1.5)
                                     )
                             }
+                            .padding(.horizontal, 40)
                         }
-                    }
-                    .padding(20)
-                    .background(
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(Color.white)
-                            .shadow(color: Color.black.opacity(0.08), radius: 12, x: 0, y: 4)
-                    )
-                    .padding(.horizontal, 20)
-                    
-                    // Personal Stats Section
-                    VStack(spacing: 16) {
-                        HStack {
-                            Text(appState.localized("profile_your_stats"))
-                                .font(.system(size: 20, weight: .bold))
-                                .foregroundColor(.black)
-                            Spacer()
-                        }
+                        .padding(24)
+                        .background(
+                            RoundedRectangle(cornerRadius: 20)
+                                .fill(Color.white)
+                                .shadow(color: Color.black.opacity(0.08), radius: 12, x: 0, y: 4)
+                        )
+                        .padding(.horizontal, AdaptivePadding.horizontal(for: geometry.size.width))
                         
-                        VStack(spacing: 12) {
-                            // Total Time
+                        // Premium Card
+                        VStack(spacing: 16) {
                             HStack {
-                                HStack(spacing: 12) {
-                                    Image(systemName: "clock.fill")
-                                        .font(.system(size: 18))
-                                        .foregroundColor(accentBlack)
-                                        .frame(width: 30)
+                                VStack(alignment: .leading, spacing: 8) {
+                                    HStack(spacing: 6) {
+                                        Image(systemName: "crown.fill")
+                                            .font(.system(size: 18, weight: .bold))
+                                            .foregroundColor(.orange)
+                                        
+                                        Text(appState.localized("profile_premium"))
+                                            .font(.system(size: 20, weight: .bold))
+                                            .foregroundColor(.black)
+                                    }
                                     
-                                    Text(appState.localized("profile_total_meditation_time"))
-                                        .font(.system(size: 15, weight: .medium))
-                                        .foregroundColor(.black)
+                                    Text(appState.localized("profile_unlock_features"))
+                                        .font(.system(size: 14, weight: .regular))
+                                        .foregroundColor(.gray)
                                 }
                                 
                                 Spacer()
                                 
-                                Text(appState.formatTotalTime(appState.userStats.totalRawTime))
-                                    .font(.system(size: 15, weight: .bold))
-                                    .foregroundColor(accentBlack)
-                            }
-                            
-                            Divider()
-                            
-                            // Personal Challenges
-                            HStack {
-                                HStack(spacing: 12) {
-                                    Image(systemName: "target")
-                                        .font(.system(size: 18))
-                                        .foregroundColor(accentBlack)
-                                        .frame(width: 30)
-                                    
-                                    Text(appState.localized("profile_personal_challenges"))
-                                        .font(.system(size: 15, weight: .medium))
-                                        .foregroundColor(.black)
+                                Button(action: {
+                                    showPaywall = true
+                                }) {
+                                    Text(appState.localized("profile_upgrade"))
+                                        .font(.system(size: 14, weight: .semibold))
+                                        .foregroundColor(.white)
+                                        .padding(.horizontal, 20)
+                                        .padding(.vertical, 10)
+                                        .background(
+                                            RoundedRectangle(cornerRadius: 10)
+                                                .fill(accentBlack)
+                                        )
                                 }
-                                
-                                Spacer()
-                                
-                                Text("\(appState.challenges.count)")
-                                    .font(.system(size: 15, weight: .bold))
-                                    .foregroundColor(accentBlack)
-                            }
-                            
-                            Divider()
-                            
-                            // Completed Challenges
-                            HStack {
-                                HStack(spacing: 12) {
-                                    Image(systemName: "checkmark.circle.fill")
-                                        .font(.system(size: 18))
-                                        .foregroundColor(.green)
-                                        .frame(width: 30)
-                                    
-                                    Text(appState.localized("profile_completed_challenges"))
-                                        .font(.system(size: 15, weight: .medium))
-                                        .foregroundColor(.black)
-                                }
-                                
-                                Spacer()
-                                
-                                Text("\(appState.challenges.filter { $0.isCompleted }.count)")
-                                    .font(.system(size: 15, weight: .bold))
-                                    .foregroundColor(.green)
-                            }
-                            
-                            Divider()
-                            
-                            // Journal Entries
-                            HStack {
-                                HStack(spacing: 12) {
-                                    Image(systemName: "book.fill")
-                                        .font(.system(size: 18))
-                                        .foregroundColor(accentBlack)
-                                        .frame(width: 30)
-                                    
-                                    Text(appState.localized("profile_journal_entries"))
-                                        .font(.system(size: 15, weight: .medium))
-                                        .foregroundColor(.black)
-                                }
-                                
-                                Spacer()
-                                
-                                Text("\(appState.journalEntries.count)")
-                                    .font(.system(size: 15, weight: .bold))
-                                    .foregroundColor(accentBlack)
-                            }
-                            
-                            Divider()
-                            
-                            // Total Points
-                            HStack {
-                                HStack(spacing: 12) {
-                                    Image(systemName: "star.fill")
-                                        .font(.system(size: 18))
-                                        .foregroundColor(.orange)
-                                        .frame(width: 30)
-                                    
-                                    Text(appState.localized("profile_total_points"))
-                                        .font(.system(size: 15, weight: .medium))
-                                        .foregroundColor(.black)
-                                }
-                                
-                                Spacer()
-                                
-                                Text("\(appState.userStats.totalPoints)")
-                                    .font(.system(size: 15, weight: .bold))
-                                    .foregroundColor(.orange)
                             }
                         }
                         .padding(20)
                         .background(
                             RoundedRectangle(cornerRadius: 16)
                                 .fill(Color.white)
+                                .shadow(color: Color.black.opacity(0.08), radius: 12, x: 0, y: 4)
                         )
-                    }
-                    .padding(.horizontal, 20)
-                    
-                    // Settings Section
-                    VStack(spacing: 12) {
-                        SettingsCard(icon: "questionmark.circle.fill", title: appState.localized("profile_support"), showChevron: true) {
-                            let subject = "Be Raw Support Request"
-                            let body = "Hi Be Raw team,\n\n"
+                        .padding(.horizontal, AdaptivePadding.horizontal(for: geometry.size.width))
+                        
+                        // Personal Stats Section
+                        VStack(spacing: 16) {
+                            HStack {
+                                Text(appState.localized("profile_your_stats"))
+                                    .font(.system(size: 20, weight: .bold))
+                                    .foregroundColor(.black)
+                                Spacer()
+                            }
                             
-                            let mailtoString = "mailto:alikapps@icloud.com?subject=\(subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")&body=\(body.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")"
+                            VStack(spacing: 12) {
+                                // Total Time
+                                HStack {
+                                    HStack(spacing: 12) {
+                                        Image(systemName: "clock.fill")
+                                            .font(.system(size: 18))
+                                            .foregroundColor(accentBlack)
+                                            .frame(width: 30)
+                                        
+                                        Text(appState.localized("profile_total_meditation_time"))
+                                            .font(.system(size: 15, weight: .medium))
+                                            .foregroundColor(.black)
+                                    }
+                                    
+                                    Spacer()
+                                    
+                                    Text(appState.formatTotalTime(appState.userStats.totalRawTime))
+                                        .font(.system(size: 15, weight: .bold))
+                                        .foregroundColor(accentBlack)
+                                }
+                                
+                                Divider()
+                                
+                                // Personal Challenges
+                                HStack {
+                                    HStack(spacing: 12) {
+                                        Image(systemName: "target")
+                                            .font(.system(size: 18))
+                                            .foregroundColor(accentBlack)
+                                            .frame(width: 30)
+                                        
+                                        Text(appState.localized("profile_personal_challenges"))
+                                            .font(.system(size: 15, weight: .medium))
+                                            .foregroundColor(.black)
+                                    }
+                                    
+                                    Spacer()
+                                    
+                                    Text("\(appState.challenges.count)")
+                                        .font(.system(size: 15, weight: .bold))
+                                        .foregroundColor(accentBlack)
+                                }
+                                
+                                Divider()
+                                
+                                // Completed Challenges
+                                HStack {
+                                    HStack(spacing: 12) {
+                                        Image(systemName: "checkmark.circle.fill")
+                                            .font(.system(size: 18))
+                                            .foregroundColor(.green)
+                                            .frame(width: 30)
+                                        
+                                        Text(appState.localized("profile_completed_challenges"))
+                                            .font(.system(size: 15, weight: .medium))
+                                            .foregroundColor(.black)
+                                    }
+                                    
+                                    Spacer()
+                                    
+                                    Text("\(appState.challenges.filter { $0.isCompleted }.count)")
+                                        .font(.system(size: 15, weight: .bold))
+                                        .foregroundColor(.green)
+                                }
+                                
+                                Divider()
+                                
+                                // Journal Entries
+                                HStack {
+                                    HStack(spacing: 12) {
+                                        Image(systemName: "book.fill")
+                                            .font(.system(size: 18))
+                                            .foregroundColor(accentBlack)
+                                            .frame(width: 30)
+                                        
+                                        Text(appState.localized("profile_journal_entries"))
+                                            .font(.system(size: 15, weight: .medium))
+                                            .foregroundColor(.black)
+                                    }
+                                    
+                                    Spacer()
+                                    
+                                    Text("\(appState.journalEntries.count)")
+                                        .font(.system(size: 15, weight: .bold))
+                                        .foregroundColor(accentBlack)
+                                }
+                                
+                                Divider()
+                                
+                                // Total Points
+                                HStack {
+                                    HStack(spacing: 12) {
+                                        Image(systemName: "star.fill")
+                                            .font(.system(size: 18))
+                                            .foregroundColor(.orange)
+                                            .frame(width: 30)
+                                        
+                                        Text(appState.localized("profile_total_points"))
+                                            .font(.system(size: 15, weight: .medium))
+                                            .foregroundColor(.black)
+                                    }
+                                    
+                                    Spacer()
+                                    
+                                    Text("\(appState.userStats.totalPoints)")
+                                        .font(.system(size: 15, weight: .bold))
+                                        .foregroundColor(.orange)
+                                }
+                            }
+                            .padding(20)
+                            .background(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .fill(Color.white)
+                            )
+                        }
+                        .padding(.horizontal, AdaptivePadding.horizontal(for: geometry.size.width))
+                        
+                        // Settings Section
+                        VStack(spacing: 12) {
+                            SettingsCard(icon: "questionmark.circle.fill", title: appState.localized("profile_support"), showChevron: true) {
+                                let subject = "Be Raw Support Request"
+                                let body = "Hi Be Raw team,\n\n"
+                                
+                                let mailtoString = "mailto:alikapps@icloud.com?subject=\(subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")&body=\(body.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")"
+                                
+                                if let url = URL(string: mailtoString) {
+                                    UIApplication.shared.open(url)
+                                }
+                            }
                             
-                            if let url = URL(string: mailtoString) {
-                                UIApplication.shared.open(url)
+                            SettingsCard(icon: "doc.text.fill", title: appState.localized("profile_terms"), showChevron: true) {
+                                if let url = URL(string: "https://beraw.notion.site/Terms-of-Use-2aff696c0ca680db98d4c7981b097132") {
+                                    UIApplication.shared.open(url)
+                                }
+                            }
+                            
+                            SettingsCard(icon: "info.circle.fill", title: appState.localized("profile_about_privacy"), showChevron: true) {
+                                if let url = URL(string: "https://beraw.notion.site/Privacy-Policy-2aff696c0ca680a4a4f7e668b5b835c1") {
+                                    UIApplication.shared.open(url)
+                                }
+                            }
+                            
+                            SettingsCard(icon: "rectangle.portrait.and.arrow.right", title: appState.localized("profile_logout"), isDestructive: true, showChevron: false) {
+                                logoutUser()
                             }
                         }
-                        
-                        SettingsCard(icon: "doc.text.fill", title: appState.localized("profile_terms"), showChevron: true) {
-                            if let url = URL(string: "https://beraw.notion.site/Terms-of-Use-2aff696c0ca680db98d4c7981b097132") {
-                                UIApplication.shared.open(url)
-                            }
-                        }
-                        
-                        SettingsCard(icon: "info.circle.fill", title: appState.localized("profile_about_privacy"), showChevron: true) {
-                            if let url = URL(string: "https://beraw.notion.site/Privacy-Policy-2aff696c0ca680a4a4f7e668b5b835c1") {
-                                UIApplication.shared.open(url)
-                            }
-                        }
-                        
-                        SettingsCard(icon: "rectangle.portrait.and.arrow.right", title: appState.localized("profile_logout"), isDestructive: true, showChevron: false) {
-                            logoutUser()
-                        }
+                        .padding(.horizontal, AdaptivePadding.horizontal(for: geometry.size.width))
+                        .padding(.bottom, 20)
                     }
-                    .padding(.horizontal, 20)
-                    .padding(.bottom, 20)
                 }
-                .frame(maxWidth: 600)
-                .frame(maxWidth: .infinity)
+                .background(Color(red: 0.97, green: 0.97, blue: 0.97))
             }
-            .background(Color(red: 0.97, green: 0.97, blue: 0.97))
             .navigationBarHidden(true)
             .sheet(isPresented: $showGoalSetting) {
                 GoalSettingView()

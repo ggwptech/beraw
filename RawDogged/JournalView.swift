@@ -13,101 +13,101 @@ struct JournalView: View {
     
     var body: some View {
         NavigationView {
-            ScrollView {
-                VStack(spacing: 20) {
-                    // Header
-                    HStack {
-                        HStack(spacing: 8) {
-                            Image(systemName: "book.fill")
-                                .font(.system(size: 24, weight: .bold))
-                                .foregroundColor(accentBlack)
-                            Text("Journal")
-                                .font(.system(size: 28, weight: .bold))
-                                .foregroundColor(.black)
-                        }
-                        
-                        Spacer()
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.top, 10)
-                    
-                    // Summary Card
-                    VStack(spacing: 12) {
+            GeometryReader { geometry in
+                ScrollView {
+                    VStack(spacing: 20) {
+                        // Header
                         HStack {
-                            HStack(spacing: 6) {
-                                Image(systemName: "chart.bar.fill")
-                                    .font(.system(size: 12, weight: .medium))
-                                Text("Summary")
-                            }
-                            .font(.system(size: 14, weight: .medium))
-                            .foregroundColor(.gray)
-                            Spacer()
-                        }
-                        
-                        HStack(spacing: 20) {
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text("\(appState.journalEntries.count)")
-                                    .font(.system(size: 32, weight: .bold))
-                                    .foregroundColor(.black)
-                                Text("Entries")
-                                    .font(.system(size: 12, weight: .regular))
-                                    .foregroundColor(.gray)
-                            }
-                            
-                            Spacer()
-                            
-                            VStack(alignment: .trailing, spacing: 4) {
-                                Text(totalSessionsTime)
+                            HStack(spacing: 8) {
+                                Image(systemName: "book.fill")
+                                    .font(.system(size: 24, weight: .bold))
+                                    .foregroundColor(accentBlack)
+                                Text("Journal")
                                     .font(.system(size: 28, weight: .bold))
                                     .foregroundColor(.black)
-                                Text("Total Time")
-                                    .font(.system(size: 12, weight: .regular))
-                                    .foregroundColor(.gray)
                             }
-                        }
-                    }
-                    .padding(20)
-                    .background(
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(Color.white)
-                            .shadow(color: accentBlack.opacity(0.08), radius: 12, x: 0, y: 4)
-                    )
-                    .padding(.horizontal, 20)
-                    
-                    // Entries List
-                    if appState.journalEntries.isEmpty {
-                        VStack(spacing: 16) {
-                            Image(systemName: "book.closed")
-                                .font(.system(size: 60))
-                                .foregroundColor(.gray.opacity(0.3))
                             
-                            Text("No journal entries yet")
-                                .font(.system(size: 18, weight: .medium))
-                                .foregroundColor(.gray)
-                            
-                            Text("Complete a session and share your thoughts")
-                                .font(.system(size: 14, weight: .regular))
-                                .foregroundColor(.gray.opacity(0.7))
-                                .multilineTextAlignment(.center)
+                            Spacer()
                         }
-                        .padding(40)
-                    } else {
+                        .padding(.horizontal, AdaptivePadding.horizontal(for: geometry.size.width))
+                        .padding(.top, 10)
+                        
+                        // Summary Card
                         VStack(spacing: 12) {
-                            ForEach(appState.journalEntries) { entry in
-                                JournalEntryCard(entry: entry)
-                                    .onTapGesture {
-                                        selectedEntry = entry
-                                    }
+                            HStack {
+                                HStack(spacing: 6) {
+                                    Image(systemName: "chart.bar.fill")
+                                        .font(.system(size: 12, weight: .medium))
+                                    Text("Summary")
+                                }
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(.gray)
+                                Spacer()
+                            }
+                            
+                            HStack(spacing: 20) {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("\(appState.journalEntries.count)")
+                                        .font(.system(size: 32, weight: .bold))
+                                        .foregroundColor(.black)
+                                    Text("Entries")
+                                        .font(.system(size: 12, weight: .regular))
+                                        .foregroundColor(.gray)
+                                }
+                                
+                                Spacer()
+                                
+                                VStack(alignment: .trailing, spacing: 4) {
+                                    Text(totalSessionsTime)
+                                        .font(.system(size: 28, weight: .bold))
+                                        .foregroundColor(.black)
+                                    Text("Total Time")
+                                        .font(.system(size: 12, weight: .regular))
+                                        .foregroundColor(.gray)
+                                }
                             }
                         }
-                        .padding(.horizontal, 20)
-                        .padding(.bottom, 20)
+                        .padding(20)
+                        .background(
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(Color.white)
+                                .shadow(color: accentBlack.opacity(0.08), radius: 12, x: 0, y: 4)
+                        )
+                        .padding(.horizontal, AdaptivePadding.horizontal(for: geometry.size.width))
+                        
+                        // Entries List
+                        if appState.journalEntries.isEmpty {
+                            VStack(spacing: 16) {
+                                Image(systemName: "book.closed")
+                                    .font(.system(size: 60))
+                                    .foregroundColor(.gray.opacity(0.3))
+                                
+                                Text("No journal entries yet")
+                                    .font(.system(size: 18, weight: .medium))
+                                    .foregroundColor(.gray)
+                                
+                                Text("Complete a session and share your thoughts")
+                                    .font(.system(size: 14, weight: .regular))
+                                    .foregroundColor(.gray.opacity(0.7))
+                                    .multilineTextAlignment(.center)
+                            }
+                            .padding(40)
+                        } else {
+                            VStack(spacing: 12) {
+                                ForEach(appState.journalEntries) { entry in
+                                    JournalEntryCard(entry: entry)
+                                        .onTapGesture {
+                                            selectedEntry = entry
+                                        }
+                                }
+                            }
+                            .padding(.horizontal, AdaptivePadding.horizontal(for: geometry.size.width))
+                            .padding(.bottom, 20)
+                        }
                     }
                 }
-                .frame(maxWidth: 600)
-                .frame(maxWidth: .infinity)
+                .background(Color(red: 0.97, green: 0.97, blue: 0.97))
             }
-            .background(Color(red: 0.97, green: 0.97, blue: 0.97))
             .navigationBarHidden(true)
             .sheet(item: $selectedEntry) { entry in
                 JournalDetailView(entry: entry)
@@ -249,8 +249,6 @@ struct JournalDetailView: View {
                     .padding(.horizontal, 20)
                 }
                 .padding(.bottom, 20)
-                .frame(maxWidth: 600)
-                .frame(maxWidth: .infinity)
             }
             .background(Color(red: 0.97, green: 0.97, blue: 0.97))
             .navigationTitle("Journal Entry")
