@@ -14,6 +14,7 @@ struct ContentView: View {
     @State private var hasRequestedReview = false
     @State private var showPaywall = false
     @State private var selectedChallenge: RawChallenge?
+    @State private var challengeToStart: RawChallenge?
     
     private let accentBlack = Color.black // #2f00ff
     
@@ -72,8 +73,20 @@ struct ContentView: View {
                 .environmentObject(appState)
         }
         .sheet(item: $selectedChallenge) { challenge in
-            ChallengeDetailSheet(challenge: challenge)
-                .environmentObject(appState)
+            ChallengeDetailSheet(challenge: challenge, onStartChallenge: { challengeToStart in
+                selectedChallenge = nil
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    self.challengeToStart = challengeToStart
+                }
+            })
+            .environmentObject(appState)
+        }
+        .fullScreenCover(item: $challengeToStart) { challenge in
+            ChallengeTimerView(
+                challenge: challenge,
+                targetDuration: TimeInterval(challenge.durationMinutes * 60)
+            )
+            .environmentObject(appState)
         }
         .onAppear {
             // Request review after 5 seconds, only once per session
@@ -246,7 +259,7 @@ struct ChallengeDetailSheet: View {
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var appState: AppStateManager
     let challenge: RawChallenge
-    @State private var showTimer = false
+    let onStartChallenge: (RawChallenge) -> Void
     
     private let accentBlack = Color.black
     
@@ -296,11 +309,9 @@ struct ChallengeDetailSheet: View {
                 
                 // Start Button
                 Button(action: {
+                    appState.startChallenge(challenge)
+                    onStartChallenge(challenge)
                     dismiss()
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                        appState.startChallenge(challenge)
-                        showTimer = true
-                    }
                 }) {
                     HStack(spacing: 8) {
                         Image(systemName: "play.fill")
@@ -330,13 +341,6 @@ struct ChallengeDetailSheet: View {
                     }
                 }
             }
-        }
-        .fullScreenCover(isPresented: $showTimer) {
-            ChallengeTimerView(
-                challenge: challenge,
-                targetDuration: TimeInterval(challenge.durationMinutes * 60)
-            )
-            .environmentObject(appState)
         }
     }
 }
