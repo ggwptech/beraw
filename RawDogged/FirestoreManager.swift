@@ -141,6 +141,29 @@ class FirestoreManager: ObservableObject {
         }
     }
     
+    func fetchChallengeById(_ challengeId: String) async throws -> RawChallenge? {
+        let doc = try await db.collection("publicChallenges").document(challengeId).getDocument()
+        
+        guard doc.exists, let data = doc.data(),
+              let title = data["title"] as? String,
+              let durationMinutes = data["durationMinutes"] as? Int else {
+            return nil
+        }
+        
+        let usersCompletedCount = data["usersCompletedCount"] as? Int ?? 0
+        let createdAt = (data["createdAt"] as? Timestamp)?.dateValue() ?? Date()
+        
+        return RawChallenge(
+            id: UUID(uuidString: doc.documentID) ?? UUID(),
+            title: title,
+            durationMinutes: durationMinutes,
+            isCompleted: false,
+            isPublic: true,
+            createdAt: createdAt,
+            usersCompletedCount: usersCompletedCount
+        )
+    }
+    
     // MARK: - Journal Entries
     func saveJournalEntries(userId: String, entries: [JournalEntry]) async throws {
         let batch = db.batch()

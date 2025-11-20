@@ -14,6 +14,8 @@ class StoreManager: ObservableObject {
     @Published var isLoading = false
     @Published var purchaseError: String?
     
+    weak var appStateManager: AppStateManager?
+    
     private let productIDs = [
         "com.getcode.BeRaw.weekly"
         // Add yearly here later: "com.getcode.BeRaw.yearly"
@@ -100,7 +102,16 @@ class StoreManager: ObservableObject {
             do {
                 let transaction = try checkVerified(result)
                 
-                if transaction.revocationDate == nil {
+                // Check if subscription is active (not revoked and not expired)
+                let isActive: Bool
+                if let expirationDate = transaction.expirationDate {
+                    isActive = transaction.revocationDate == nil && expirationDate > Date()
+                } else {
+                    // Non-subscription purchases (shouldn't happen for subscriptions)
+                    isActive = transaction.revocationDate == nil
+                }
+                
+                if isActive {
                     purchasedIDs.insert(transaction.productID)
                 }
             } catch {
@@ -108,7 +119,14 @@ class StoreManager: ObservableObject {
             }
         }
         
+        let hadPremium = !purchasedProductIDs.isEmpty
         purchasedProductIDs = purchasedIDs
+        let hasPremium = !purchasedProductIDs.isEmpty
+        
+        // Notify AppState if premium status changed
+        if hadPremium != hasPremium {
+            appStateManager?.updatePremiumStatus()
+        }
     }
     
     // MARK: - Listen for Transactions

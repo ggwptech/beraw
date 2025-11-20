@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join Challenge - Be Raw</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 24px;
+            padding: 48px 32px;
+            text-align: center;
+            max-width: 400px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        
+        .icon {
+            font-size: 80px;
+            margin-bottom: 24px;
+        }
+        
+        h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 16px;
+        }
+        
+        p {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: #000;
+            color: white;
+            text-decoration: none;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #000;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .status {
+            margin-top: 24px;
+            font-size: 14px;
+            color: #999;
+        }
+    </style>
+    <script>
+        // Try to open app, then redirect to App Store after delay
+        window.onload = function() {
+            // Get challenge ID from URL
+            const pathParts = window.location.pathname.split('/');
+            const challengeId = pathParts[pathParts.length - 1];
+            
+            // Try custom URL scheme first (for installed apps)
+            if (challengeId && challengeId.match(/^[0-9a-fA-F-]{36}$/)) {
+                window.location.href = 'beraw://challenge/' + challengeId;
+            }
+            
+            // Redirect to App Store after 3 seconds
+            setTimeout(function() {
+                // TODO: Replace with your actual App Store ID when app is published
+                window.location.href = 'https://apps.apple.com/app/be-raw/id6738595494';
+            }, 3000);
+        };
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">🎯</div>
+        <h1>Join the Challenge</h1>
+        <p>
+            <span class="spinner"></span>
+            Opening Be Raw app...
+        </p>
+        <p class="status">Don't have the app yet?</p>
+        <a href="https://apps.apple.com/app/be-raw/id6738595494" class="btn">
+            Download Be Raw
+        </a>
+    </div>
+</body>
+</html>

@@ -300,13 +300,13 @@ struct ProfileView: View {
                             }
                             
                             SettingsCard(icon: "doc.text.fill", title: appState.localized("profile_terms"), showChevron: true) {
-                                if let url = URL(string: "https://beraw.notion.site/Terms-of-Use-2aff696c0ca680db98d4c7981b097132") {
+                                if let url = URL(string: "https://beraw.info/terms.html") {
                                     UIApplication.shared.open(url)
                                 }
                             }
                             
                             SettingsCard(icon: "info.circle.fill", title: appState.localized("profile_about_privacy"), showChevron: true) {
-                                if let url = URL(string: "https://beraw.notion.site/Privacy-Policy-2aff696c0ca680a4a4f7e668b5b835c1") {
+                                if let url = URL(string: "https://beraw.info/privacy.html") {
                                     UIApplication.shared.open(url)
                                 }
                             }
@@ -858,7 +858,6 @@ struct PaywallView: View {
                             Task {
                                 await storeManager.restorePurchases()
                                 if storeManager.isPremium {
-                                    appState.unlockPremium()
                                     dismiss()
                                 }
                             }
@@ -878,7 +877,7 @@ struct PaywallView: View {
                             
                             HStack(spacing: 4) {
                                 Button(action: {
-                                    if let url = URL(string: "https://beraw.notion.site/Terms-of-Use-2aff696c0ca680db98d4c7981b097132") {
+                                    if let url = URL(string: "https://beraw.info/terms.html") {
                                         UIApplication.shared.open(url)
                                     }
                                 }) {
@@ -893,7 +892,7 @@ struct PaywallView: View {
                                     .foregroundColor(.gray)
                                 
                                 Button(action: {
-                                    if let url = URL(string: "https://beraw.notion.site/Privacy-Policy-2aff696c0ca680a4a4f7e668b5b835c1") {
+                                    if let url = URL(string: "https://beraw.info/privacy.html") {
                                         UIApplication.shared.open(url)
                                     }
                                 }) {
@@ -930,7 +929,6 @@ struct PaywallView: View {
         
         do {
             try await storeManager.purchase(product)
-            appState.unlockPremium()
             isPurchasing = false
             dismiss()
         } catch {

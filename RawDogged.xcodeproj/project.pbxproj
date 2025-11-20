@@ -21,6 +21,7 @@
 		D34A76D32ECB2A2600F64A85 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = D34A76D22ECB2A2600F64A85 /* FirebaseFirestore */; };
 		D34A76D52ECB2A2600F64A85 /* FirebaseFirestoreCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = D34A76D42ECB2A2600F64A85 /* FirebaseFirestoreCombine-Community */; };
 		D34A76D82ECB407700F64A85 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D34A76D72ECB407600F64A85 /* StoreKit.framework */; };
+		D3CCF7C92ECF76FF008CEF40 /* ApphudSDK in Frameworks */ = {isa = PBXBuildFile; productRef = D3CCF7C82ECF76FF008CEF40 /* ApphudSDK */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -95,6 +96,7 @@
 				D34A76BD2EC7527D00F64A85 /* FirebaseStorage in Frameworks */,
 				D34A76BB2EC7527D00F64A85 /* FirebaseDatabase in Frameworks */,
 				D34A76BF2EC7527D00F64A85 /* FirebaseStorageCombine-Community in Frameworks */,
+				D3CCF7C92ECF76FF008CEF40 /* ApphudSDK in Frameworks */,
 				D34A76B72EC7527D00F64A85 /* FirebaseAuthCombine-Community in Frameworks */,
 				D34A76C72EC7581600F64A85 /* GoogleSignInSwift in Frameworks */,
 			);
@@ -179,6 +181,7 @@
 				D34A76C62EC7581600F64A85 /* GoogleSignInSwift */,
 				D34A76D22ECB2A2600F64A85 /* FirebaseFirestore */,
 				D34A76D42ECB2A2600F64A85 /* FirebaseFirestoreCombine-Community */,
+				D3CCF7C82ECF76FF008CEF40 /* ApphudSDK */,
 			);
 			productName = RawDogged;
 			productReference = D3D1297A2EC242B400A7B601 /* RawDogged.app */;
@@ -265,6 +268,7 @@
 			packageReferences = (
 				D34A76AD2EC7527D00F64A85 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				D34A76C32EC7581600F64A85 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
+				D3CCF7C72ECF76FF008CEF40 /* XCRemoteSwiftPackageReference "ApphudSDK" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D3D1297B2EC242B400A7B601 /* Products */;
@@ -683,6 +687,14 @@
 				minimumVersion = 9.0.0;
 			};
 		};
+		D3CCF7C72ECF76FF008CEF40 /* XCRemoteSwiftPackageReference "ApphudSDK" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apphud/ApphudSDK";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -750,6 +762,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = D34A76AD2EC7527D00F64A85 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = "FirebaseFirestoreCombine-Community";
+		};
+		D3CCF7C82ECF76FF008CEF40 /* ApphudSDK */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D3CCF7C72ECF76FF008CEF40 /* XCRemoteSwiftPackageReference "ApphudSDK" */;
+			productName = ApphudSDK;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

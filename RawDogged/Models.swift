@@ -170,13 +170,15 @@ class AppStateManager: ObservableObject {
     @Published var userEmail: String?
     @Published var journalEntries: [JournalEntry]
     @Published var completedSessionDuration: TimeInterval?
-    @Published var isPremiumUser: Bool
     @Published var selectedLanguage: AppLanguage
     @Published var isLoading: Bool = false
     
     private var timer: Timer?
-    private let firestoreManager = FirestoreManager()
+    let firestoreManager = FirestoreManager()
     var currentUserId: String?
+    
+    // Store reference - will be set from RootView
+    weak var storeManager: StoreManager?
     
     init() {
         // Load selected language from UserDefaults
@@ -202,9 +204,6 @@ class AppStateManager: ObservableObject {
         self.userEmail = nil
         self.leaderboard = []
         self.journalEntries = []
-        
-        // Load premium status from UserDefaults
-        self.isPremiumUser = UserDefaults.standard.bool(forKey: "isPremiumUser")
     }
     
     // MARK: - Firebase Sync
@@ -329,9 +328,17 @@ class AppStateManager: ObservableObject {
     }
     
     // MARK: - Premium Management
-    func unlockPremium() {
-        isPremiumUser = true
-        UserDefaults.standard.set(true, forKey: "isPremiumUser")
+    var isPremium: Bool {
+        #if DEBUG
+        return true  // Always premium in debug mode for testing
+        #else
+        return storeManager?.isPremium ?? false
+        #endif
+    }
+    
+    func updatePremiumStatus() {
+        // Trigger UI update by refreshing published properties
+        objectWillChange.send()
     }
     
     // MARK: - Language Management
@@ -628,7 +635,6 @@ class AppStateManager: ObservableObject {
                 // Clear UserDefaults
                 UserDefaults.standard.set(false, forKey: "hasCompletedAuth")
                 UserDefaults.standard.removeObject(forKey: "userId")
-                UserDefaults.standard.set(false, forKey: "isPremiumUser")
                 
                 // Force app restart to ensure clean state
                 exit(0)

@@ -12,11 +12,28 @@ import StoreKit
 struct RootView: View {
     @StateObject private var appState = AppStateManager()
     @StateObject private var storeManager = StoreManager()
+    @StateObject private var dynamicLinksManager = DynamicLinksManager()
     @State private var showSplash = true
     @State private var showLanguageSelection = !UserDefaults.standard.bool(forKey: "hasSelectedLanguage")
     @State private var showOnboarding = !UserDefaults.standard.bool(forKey: "hasCompletedOnboarding")
     @State private var showAuth = !UserDefaults.standard.bool(forKey: "hasCompletedAuth")
     @State private var showPaywall = !UserDefaults.standard.bool(forKey: "hasSeenInitialPaywall")
+    @State private var pendingChallengeNavigation: String?
+    
+    init() {
+        // Set up bidirectional relationship between AppState and StoreManager
+        let appState = AppStateManager()
+        let storeManager = StoreManager()
+        let dynamicLinksManager = DynamicLinksManager()
+        appState.storeManager = storeManager
+        storeManager.appStateManager = appState
+        _appState = StateObject(wrappedValue: appState)
+        _storeManager = StateObject(wrappedValue: storeManager)
+        _dynamicLinksManager = StateObject(wrappedValue: dynamicLinksManager)
+        
+        // Set static reference for AppDelegate
+        AppDelegate.dynamicLinksManager = dynamicLinksManager
+    }
     
     var body: some View {
         ZStack {
@@ -40,6 +57,7 @@ struct RootView: View {
                 ContentView()
                     .environmentObject(appState)
                     .environmentObject(storeManager)
+                    .environmentObject(dynamicLinksManager)
             }
         }
         .onAppear {
@@ -50,6 +68,22 @@ struct RootView: View {
                 }
             }
         }
+        .onChange(of: dynamicLinksManager.pendingChallengeId) { _, newValue in
+            if let challengeId = newValue {
+                handlePendingChallenge(challengeId)
+            }
+        }
+    }
+    
+    private func handlePendingChallenge(_ challengeId: String) {
+        // Skip to main app if still in onboarding/auth
+        if showAuth || showPaywall || showOnboarding || showLanguageSelection {
+            showLanguageSelection = false
+            showOnboarding = false
+            showAuth = false
+            showPaywall = false
+        }
+        // ContentView will handle showing the challenge sheet
     }
 }
 
@@ -437,7 +471,7 @@ struct AuthView: View {
                     
                     HStack(spacing: 4) {
                         Button(action: {
-                            if let url = URL(string: "https://beraw.notion.site/Terms-of-Use-2aff696c0ca680db98d4c7981b097132") {
+                            if let url = URL(string: "https://beraw.info/terms.html") {
                                 UIApplication.shared.open(url)
                             }
                         }) {
@@ -452,7 +486,7 @@ struct AuthView: View {
                             .foregroundColor(.gray)
                         
                         Button(action: {
-                            if let url = URL(string: "https://beraw.notion.site/Privacy-Policy-2aff696c0ca680a4a4f7e668b5b835c1") {
+                            if let url = URL(string: "https://beraw.info/privacy.html") {
                                 UIApplication.shared.open(url)
                             }
                         }) {
@@ -725,7 +759,6 @@ struct InitialPaywallView: View {
                             Task {
                                 await storeManager.restorePurchases()
                                 if storeManager.isPremium {
-                                    appState.unlockPremium()
                                     completePaywall()
                                 }
                             }
@@ -745,7 +778,7 @@ struct InitialPaywallView: View {
                             
                             HStack(spacing: 4) {
                                 Button(action: {
-                                    if let url = URL(string: "https://beraw.notion.site/Terms-of-Use-2aff696c0ca680db98d4c7981b097132") {
+                                    if let url = URL(string: "https://beraw.info/terms.html") {
                                         UIApplication.shared.open(url)
                                     }
                                 }) {
@@ -760,7 +793,7 @@ struct InitialPaywallView: View {
                                     .foregroundColor(.gray)
                                 
                                 Button(action: {
-                                    if let url = URL(string: "https://beraw.notion.site/Privacy-Policy-2aff696c0ca680a4a4f7e668b5b835c1") {
+                                    if let url = URL(string: "https://beraw.info/privacy.html") {
                                         UIApplication.shared.open(url)
                                     }
                                 }) {
@@ -805,7 +838,6 @@ struct InitialPaywallView: View {
         
         do {
             try await storeManager.purchase(product)
-            appState.unlockPremium()
             isPurchasing = false
             completePaywall()
         } catch {

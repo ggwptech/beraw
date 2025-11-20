@@ -681,11 +681,13 @@ struct ShareChallengeSheet: View {
     let challenge: RawChallenge
     
     @State private var linkCopied = false
+    @State private var dynamicLink: String?
+    @State private var isLoadingLink = true
     
     private let accentBlack = Color.black
     
     private var challengeLink: String {
-        "beraw://challenge/\(challenge.id.uuidString)"
+        dynamicLink ?? "beraw://challenge/\(challenge.id.uuidString)"
     }
     
     var body: some View {
@@ -818,6 +820,12 @@ struct ShareChallengeSheet: View {
             }
             .padding(20)
             .background(Color.white)
+        }
+        .onAppear {
+            // Generate challenge link when sheet appears
+            let linksManager = DynamicLinksManager()
+            dynamicLink = linksManager.createChallengeLink(for: challenge)
+            isLoadingLink = false
         }
     }
 }
