@@ -270,4 +270,76 @@ class FirestoreManager: ObservableObject {
         
         try await db.collection("users").document(userId).collection("sessions").document(session.id.uuidString).setData(sessionData)
     }
+    
+    // MARK: - Account Deletion
+    func deleteUserAccount(userId: String) async throws {
+        let batch = db.batch()
+        
+        // 1. Delete user's public challenges from global collection
+        let publicChallengesSnapshot = try await db.collection("publicChallenges")
+            .whereField("creatorId", isEqualTo: userId)
+            .getDocuments()
+        
+        for doc in publicChallengesSnapshot.documents {
+            batch.deleteDocument(doc.reference)
+        }
+        
+        // 2. Delete user's challenges
+        let challengesSnapshot = try await db.collection("users")
+            .document(userId)
+            .collection("challenges")
+            .getDocuments()
+        
+        for doc in challengesSnapshot.documents {
+            batch.deleteDocument(doc.reference)
+        }
+        
+        // 3. Delete user's journal entries
+        let journalSnapshot = try await db.collection("users")
+            .document(userId)
+            .collection("journal")
+            .getDocuments()
+        
+        for doc in journalSnapshot.documents {
+            batch.deleteDocument(doc.reference)
+        }
+        
+        // 4. Delete user's sessions
+        let sessionsSnapshot = try await db.collection("users")
+            .document(userId)
+            .collection("sessions")
+            .getDocuments()
+        
+        for doc in sessionsSnapshot.documents {
+            batch.deleteDocument(doc.reference)
+        }
+        
+        // 5. Delete user's daily history
+        let historySnapshot = try await db.collection("users")
+            .document(userId)
+            .collection("dailyHistory")
+            .getDocuments()
+        
+        for doc in historySnapshot.documents {
+            batch.deleteDocument(doc.reference)
+        }
+        
+        // 6. Delete user's stats
+        let statsRef = db.collection("users")
+            .document(userId)
+            .collection("stats")
+            .document("current")
+        batch.deleteDocument(statsRef)
+        
+        // 7. Delete from leaderboard
+        let leaderboardRef = db.collection("leaderboard").document(userId)
+        batch.deleteDocument(leaderboardRef)
+        
+        // 8. Delete user profile (main document)
+        let userRef = db.collection("users").document(userId)
+        batch.deleteDocument(userRef)
+        
+        // Commit all deletions
+        try await batch.commit()
+    }
 }

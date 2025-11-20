@@ -6,6 +6,7 @@
 import Foundation
 import SwiftUI
 import Combine
+import FirebaseAuth
 
 // MARK: - Session Model
 struct RawSession: Identifiable, Codable {
@@ -565,6 +566,76 @@ class AppStateManager: ObservableObject {
         } else {
             let minutes = Int(seconds) / 60
             return "\(minutes) min"
+        }
+    }
+    
+    // MARK: - Account Deletion
+    func deleteAccount() async throws {
+        guard let userId = currentUserId else {
+            throw NSError(domain: "AppStateManager", code: -1,
+                         userInfo: [NSLocalizedDescriptionKey: "No user logged in"])
+        }
+        
+        isLoading = true
+        defer { 
+            Task { @MainActor in
+                self.isLoading = false
+            }
+        }
+        
+        do {
+            // 1. Reauthenticate user (required by Firebase for account deletion)
+            guard let currentUser = Auth.auth().currentUser else {
+                throw NSError(domain: "AppStateManager", code: -2,
+                             userInfo: [NSLocalizedDescriptionKey: "No authenticated user"])
+            }
+            
+            // Check if user needs reauthentication
+            // Firebase requires recent authentication for sensitive operations
+            let metadata = currentUser.metadata
+            if let lastSignIn = metadata.lastSignInDate,
+               Date().timeIntervalSince(lastSignIn) > 300 { // 5 minutes
+                // User needs to reauthenticate - throw specific error
+                throw NSError(domain: "AppStateManager", code: -3,
+                             userInfo: [NSLocalizedDescriptionKey: "Please sign in again to delete your account"])
+            }
+            
+            // 2. Delete all Firestore data
+            try await firestoreManager.deleteUserAccount(userId: userId)
+            
+            // 3. Delete Firebase Auth account
+            try await currentUser.delete()
+            
+            // 4. Clear local data
+            await MainActor.run {
+                // Reset all app state
+                self.currentUserId = nil
+                self.userName = "Raw Dog"
+                self.userEmail = nil
+                self.userStats = UserStats(
+                    dailyStreak: 0,
+                    totalRawTime: 0,
+                    totalPoints: 0,
+                    dailyGoalMinutes: 60,
+                    dailyHistory: []
+                )
+                self.challenges = []
+                self.publicChallenges = []
+                self.journalEntries = []
+                self.leaderboard = []
+                self.currentSession = nil
+                
+                // Clear UserDefaults
+                UserDefaults.standard.set(false, forKey: "hasCompletedAuth")
+                UserDefaults.standard.removeObject(forKey: "userId")
+                UserDefaults.standard.set(false, forKey: "isPremiumUser")
+                
+                // Force app restart to ensure clean state
+                exit(0)
+            }
+            
+        } catch {
+            throw error
         }
     }
 }

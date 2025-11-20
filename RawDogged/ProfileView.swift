@@ -12,6 +12,7 @@ struct ProfileView: View {
     @State private var showGoalSetting = false
     @State private var showEditProfile = false
     @State private var showPaywall = false
+    @State private var showDeleteAccount = false
     
     private let accentBlack = Color.black
     
@@ -310,6 +311,10 @@ struct ProfileView: View {
                                 }
                             }
                             
+                            SettingsCard(icon: "trash.fill", title: "Delete Account", isDestructive: true, showChevron: true) {
+                                showDeleteAccount = true
+                            }
+                            
                             SettingsCard(icon: "rectangle.portrait.and.arrow.right", title: appState.localized("profile_logout"), isDestructive: true, showChevron: false) {
                                 logoutUser()
                             }
@@ -331,6 +336,10 @@ struct ProfileView: View {
             }
             .sheet(isPresented: $showPaywall) {
                 PaywallView()
+            }
+            .sheet(isPresented: $showDeleteAccount) {
+                DeleteAccountView()
+                    .environmentObject(appState)
             }
         }
         .navigationViewStyle(.stack)

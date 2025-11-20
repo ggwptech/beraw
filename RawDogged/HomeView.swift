@@ -138,8 +138,12 @@ struct HomeView: View {
     
     // MARK: - Card Components
     
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    
     private var activityCard: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        let isIPad = horizontalSizeClass == .regular
+        
+        return VStack(alignment: .leading, spacing: 12) {
             HStack {
                 HStack(spacing: 6) {
                     Image(systemName: "chart.bar.fill")
@@ -154,14 +158,18 @@ struct HomeView: View {
                     .foregroundColor(.gray)
             }
             
-            Spacer()
+            if isIPad {
+                Spacer()
+            }
             
             MiniBarChart(data: getLast7Days())
-                .frame(height: 100)
+                .frame(height: isIPad ? 100 : 80)
             
-            Spacer()
+            if isIPad {
+                Spacer()
+            }
         }
-        .frame(minHeight: 200)
+        .frame(minHeight: isIPad ? 200 : nil)
         .padding(20)
         .background(
             RoundedRectangle(cornerRadius: 16)
@@ -171,7 +179,9 @@ struct HomeView: View {
     }
     
     private var streakCard: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        let isIPad = horizontalSizeClass == .regular
+        
+        return VStack(alignment: .leading, spacing: isIPad ? 16 : 12) {
             HStack {
                 HStack(spacing: 6) {
                     Image(systemName: "flame.fill")
@@ -191,7 +201,9 @@ struct HomeView: View {
                 }
             }
             
-            Spacer()
+            if isIPad {
+                Spacer()
+            }
             
             // Week Days Calendar
             HStack(spacing: 0) {
@@ -214,9 +226,11 @@ struct HomeView: View {
                 }
             }
             
-            Spacer()
+            if isIPad {
+                Spacer()
+            }
         }
-        .frame(minHeight: 200)
+        .frame(minHeight: isIPad ? 200 : nil)
         .padding(20)
         .background(
             RoundedRectangle(cornerRadius: 16)
@@ -297,7 +311,9 @@ struct HomeView: View {
     }
     
     private var journalCard: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        let isIPad = horizontalSizeClass == .regular
+        
+        return VStack(alignment: .leading, spacing: 12) {
             HStack {
                 HStack(spacing: 6) {
                     Image(systemName: "book.fill")
@@ -311,12 +327,17 @@ struct HomeView: View {
             
             if appState.journalEntries.isEmpty {
                 VStack {
-                    Spacer()
+                    if isIPad {
+                        Spacer()
+                    }
                     Text(appState.localized("home_no_entries"))
                         .font(.system(size: 13, weight: .regular))
                         .foregroundColor(.gray)
                         .frame(maxWidth: .infinity)
-                    Spacer()
+                        .padding(.vertical, isIPad ? 0 : 20)
+                    if isIPad {
+                        Spacer()
+                    }
                 }
             } else if let latestEntry = appState.journalEntries.first {
                 VStack(alignment: .leading, spacing: 10) {
@@ -345,7 +366,7 @@ struct HomeView: View {
                     Text(latestEntry.thoughts.isEmpty ? appState.localized("home_no_thoughts") : latestEntry.thoughts)
                         .font(.system(size: 14, weight: .regular))
                         .foregroundColor(.black.opacity(0.8))
-                        .lineLimit(5)
+                        .lineLimit(isIPad ? 5 : 3)
                         .padding(.top, 4)
                 }
                 .padding(14)
@@ -359,7 +380,7 @@ struct HomeView: View {
                 }
             }
         }
-        .frame(minHeight: 200)
+        .frame(minHeight: isIPad ? 200 : nil)
         .padding(16)
         .background(
             RoundedRectangle(cornerRadius: 16)
