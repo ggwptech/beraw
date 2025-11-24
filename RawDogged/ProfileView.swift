@@ -745,9 +745,15 @@ struct PaywallView: View {
                                                 )
                                         }
                                         
-                                        Text(appState.localized("paywall_price_yearly"))
-                                            .font(.system(size: 14, weight: .regular))
-                                            .foregroundColor(.gray)
+                                        if let product = storeManager.product(for: "com.getcode.BeRaw.yearly") {
+                                            Text("\(product.price.formatted(product.priceFormatStyle)) / year")
+                                                .font(.system(size: 14, weight: .regular))
+                                                .foregroundColor(.gray)
+                                        } else {
+                                            Text(appState.localized("paywall_price_yearly"))
+                                                .font(.system(size: 14, weight: .regular))
+                                                .foregroundColor(.gray)
+                                        }
                                     }
                                     
                                     Spacer()
@@ -918,7 +924,7 @@ struct PaywallView: View {
     private func handlePurchase() async {
         isPurchasing = true
         
-        let productID = "com.getcode.BeRaw.weekly"
+        let productID = selectedPlan == .yearly ? "com.getcode.BeRaw.yearly" : "com.getcode.BeRaw.weekly"
         
         guard let product = storeManager.product(for: productID) else {
             errorMessage = "Product not found. Please try again."

@@ -17,8 +17,8 @@ class StoreManager: ObservableObject {
     weak var appStateManager: AppStateManager?
     
     private let productIDs = [
-        "com.getcode.BeRaw.weekly"
-        // Add yearly here later: "com.getcode.BeRaw.yearly"
+        "com.getcode.BeRaw.weekly",
+        "com.getcode.BeRaw.yearly"
     ]
     
     private var updateListenerTask: Task<Void, Error>?
