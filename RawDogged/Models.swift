@@ -444,37 +444,34 @@ class AppStateManager: ObservableObject {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
         
-        // Find the start of current week (Monday)
-        guard let weekStart = calendar.dateInterval(of: .weekOfYear, for: today)?.start else {
-            userStats.dailyStreak = 0
-            return
-        }
-        
-        // Adjust to Monday if needed (in case week starts on Sunday in some locales)
-        var mondayComponents = calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: weekStart)
+        // Get current week (Monday to Sunday)
+        var mondayComponents = calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: today)
         mondayComponents.weekday = 2 // Monday
         guard let monday = calendar.date(from: mondayComponents) else {
             userStats.dailyStreak = 0
             return
         }
         
-        // Count days since Monday in current week with activity
-        var daysThisWeek = 0
-        let todayComponents = calendar.dateComponents([.year, .month, .day], from: today)
+        // Get end of week (Sunday)
+        guard let sunday = calendar.date(byAdding: .day, value: 6, to: monday) else {
+            userStats.dailyStreak = 0
+            return
+        }
+        
+        // Count unique days with activity in current week
+        var activeDaysThisWeek = Set<Date>()
         
         for record in userStats.dailyHistory {
             let recordDate = calendar.startOfDay(for: record.date)
             
-            // Check if record is in current week (from Monday to today)
-            if recordDate >= monday && recordDate <= today {
-                daysThisWeek += 1
+            // Check if record is in current week (Monday to Sunday)
+            if recordDate >= monday && recordDate <= sunday && recordDate <= today {
+                activeDaysThisWeek.insert(recordDate)
             }
         }
         
-        // Calculate days since Monday (0 = Monday, 1 = Tuesday, etc.)
-        let daysSinceMonday = calendar.dateComponents([.day], from: monday, to: today).day ?? 0
-        
-        userStats.dailyStreak = daysSinceMonday
+        // Set streak to number of active days this week
+        userStats.dailyStreak = activeDaysThisWeek.count
     }
     
     // MARK: - Challenge Management
