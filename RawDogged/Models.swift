@@ -262,19 +262,27 @@ class AppStateManager: ObservableObject {
                 let calendar = Calendar.current
                 let today = calendar.startOfDay(for: Date())
                 
-                // Filter out old records (keep only last 30 days)
-                let thirtyDaysAgo = calendar.date(byAdding: .day, value: -30, to: today) ?? today
+                // Get current week start (Monday)
+                var components = calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: today)
+                components.weekday = 2 // Monday
+                guard let monday = calendar.date(from: components) else {
+                    self.userStats.dailyHistory = []
+                    self.userStats.dailyStreak = 0
+                    return
+                }
+                
+                // Keep only records from current week (Monday onwards)
+                // This ensures old week data is completely removed
                 let cleanedHistory = history.filter { record in
-                    calendar.startOfDay(for: record.date) >= thirtyDaysAgo
+                    let recordDate = calendar.startOfDay(for: record.date)
+                    return recordDate >= monday && recordDate <= today
                 }
                 
                 self.userStats.dailyHistory = cleanedHistory
                 
-                // If we cleaned any records, save back to Firebase
-                if cleanedHistory.count != history.count {
-                    Task {
-                        try? await self.firestoreManager.saveDailyHistory(userId: userId, history: cleanedHistory)
-                    }
+                // Always save cleaned data back to Firebase to remove old records
+                Task {
+                    try? await self.firestoreManager.saveDailyHistory(userId: userId, history: cleanedHistory)
                 }
                 
                 // Always recalculate streak based on cleaned history
