@@ -259,8 +259,25 @@ class AppStateManager: ObservableObject {
             
             let history = try await firestoreManager.fetchDailyHistory(userId: userId, days: 30)
             DispatchQueue.main.async {
-                self.userStats.dailyHistory = history
-                // Always recalculate streak based on current history
+                let calendar = Calendar.current
+                let today = calendar.startOfDay(for: Date())
+                
+                // Filter out old records (keep only last 30 days)
+                let thirtyDaysAgo = calendar.date(byAdding: .day, value: -30, to: today) ?? today
+                let cleanedHistory = history.filter { record in
+                    calendar.startOfDay(for: record.date) >= thirtyDaysAgo
+                }
+                
+                self.userStats.dailyHistory = cleanedHistory
+                
+                // If we cleaned any records, save back to Firebase
+                if cleanedHistory.count != history.count {
+                    Task {
+                        try? await self.firestoreManager.saveDailyHistory(userId: userId, history: cleanedHistory)
+                    }
+                }
+                
+                // Always recalculate streak based on cleaned history
                 self.updateStreak()
             }
             
