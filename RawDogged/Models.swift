@@ -240,7 +240,10 @@ class AppStateManager: ObservableObject {
             // Load user data
             if let stats = try await firestoreManager.fetchUserStats(userId: userId) {
                 DispatchQueue.main.async {
-                    self.userStats = stats
+                    // Load stats but ignore dailyStreak from Firebase
+                    self.userStats.totalRawTime = stats.totalRawTime
+                    self.userStats.totalPoints = stats.totalPoints
+                    self.userStats.dailyGoalMinutes = stats.dailyGoalMinutes
                 }
             }
             
@@ -257,7 +260,7 @@ class AppStateManager: ObservableObject {
             let history = try await firestoreManager.fetchDailyHistory(userId: userId, days: 30)
             DispatchQueue.main.async {
                 self.userStats.dailyHistory = history
-                // Update streak based on loaded history
+                // Always recalculate streak based on current history
                 self.updateStreak()
             }
             
@@ -441,6 +444,8 @@ class AppStateManager: ObservableObject {
     }
     
     private func updateStreak() {
+        // Always recalculate streak based on dailyHistory
+        // This ensures old/incorrect streak data from Firebase is ignored
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
         
