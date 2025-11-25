@@ -441,32 +441,40 @@ class AppStateManager: ObservableObject {
     }
     
     private func updateStreak() {
-        guard !userStats.dailyHistory.isEmpty else {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        
+        // Find the start of current week (Monday)
+        guard let weekStart = calendar.dateInterval(of: .weekOfYear, for: today)?.start else {
             userStats.dailyStreak = 0
             return
         }
         
-        // Sort history by date descending
-        let sortedHistory = userStats.dailyHistory.sorted { $0.date > $1.date }
+        // Adjust to Monday if needed (in case week starts on Sunday in some locales)
+        var mondayComponents = calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: weekStart)
+        mondayComponents.weekday = 2 // Monday
+        guard let monday = calendar.date(from: mondayComponents) else {
+            userStats.dailyStreak = 0
+            return
+        }
         
-        var streak = 0
-        let calendar = Calendar.current
-        var checkDate = calendar.startOfDay(for: Date())
+        // Count days since Monday in current week with activity
+        var daysThisWeek = 0
+        let todayComponents = calendar.dateComponents([.year, .month, .day], from: today)
         
-        for record in sortedHistory {
+        for record in userStats.dailyHistory {
             let recordDate = calendar.startOfDay(for: record.date)
             
-            if calendar.isDate(recordDate, inSameDayAs: checkDate) {
-                streak += 1
-                // Move to previous day
-                checkDate = calendar.date(byAdding: .day, value: -1, to: checkDate) ?? checkDate
-            } else if recordDate < checkDate {
-                // Gap found, break the streak
-                break
+            // Check if record is in current week (from Monday to today)
+            if recordDate >= monday && recordDate <= today {
+                daysThisWeek += 1
             }
         }
         
-        userStats.dailyStreak = streak
+        // Calculate days since Monday (0 = Monday, 1 = Tuesday, etc.)
+        let daysSinceMonday = calendar.dateComponents([.day], from: monday, to: today).day ?? 0
+        
+        userStats.dailyStreak = daysSinceMonday
     }
     
     // MARK: - Challenge Management
