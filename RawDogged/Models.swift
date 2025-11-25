@@ -449,28 +449,28 @@ class AppStateManager: ObservableObject {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
         
-        // Get current week (Monday to Sunday)
-        var mondayComponents = calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: today)
-        mondayComponents.weekday = 2 // Monday
-        guard let monday = calendar.date(from: mondayComponents) else {
+        // Get current week start (Monday)
+        var components = calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: today)
+        components.weekday = 2 // Monday
+        guard let monday = calendar.date(from: components) else {
             userStats.dailyStreak = 0
             return
         }
         
-        // Get end of week (Sunday)
-        guard let sunday = calendar.date(byAdding: .day, value: 6, to: monday) else {
-            userStats.dailyStreak = 0
-            return
+        // Clean up old records - keep only last 30 days to avoid clutter
+        let thirtyDaysAgo = calendar.date(byAdding: .day, value: -30, to: today) ?? today
+        userStats.dailyHistory.removeAll { record in
+            calendar.startOfDay(for: record.date) < thirtyDaysAgo
         }
         
-        // Count unique days with activity in current week
+        // Count unique days with activity in current week (Monday to today)
         var activeDaysThisWeek = Set<Date>()
         
         for record in userStats.dailyHistory {
             let recordDate = calendar.startOfDay(for: record.date)
             
-            // Check if record is in current week (Monday to Sunday)
-            if recordDate >= monday && recordDate <= sunday && recordDate <= today {
+            // Only count if: in current week, from Monday onwards, and not in future
+            if recordDate >= monday && recordDate <= today {
                 activeDaysThisWeek.insert(recordDate)
             }
         }
@@ -546,6 +546,17 @@ class AppStateManager: ObservableObject {
             }
         }
         
+        saveToFirebase()
+    }
+    
+    // MARK: - Data Management
+    func resetStreakData() {
+        // Clear all daily history
+        userStats.dailyHistory.removeAll()
+        // Reset streak to 0
+        userStats.dailyStreak = 0
+        
+        // Save to Firebase
         saveToFirebase()
     }
     
