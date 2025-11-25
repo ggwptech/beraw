@@ -1,4 +1,5 @@
-# RawDogged - iOS App Design Concept
+
+
 
 A highly minimalist iOS application designed to track and encourage periods of "raw dogging boredom"—intentionally spending time without digital distractions to foster creativity and mental resilience.
 

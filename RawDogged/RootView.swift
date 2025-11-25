@@ -14,10 +14,11 @@ struct RootView: View {
     @StateObject private var storeManager = StoreManager()
     @StateObject private var dynamicLinksManager = DynamicLinksManager()
     @State private var showSplash = true
-    @State private var showLanguageSelection = !UserDefaults.standard.bool(forKey: "hasSelectedLanguage")
-    @State private var showOnboarding = !UserDefaults.standard.bool(forKey: "hasCompletedOnboarding")
-    @State private var showAuth = !UserDefaults.standard.bool(forKey: "hasCompletedAuth")
-    @State private var showPaywall = !UserDefaults.standard.bool(forKey: "hasSeenInitialPaywall")
+    @State private var showLanguageSelection = false
+    @State private var showOnboarding = false
+    @State private var showAuth = false
+    @State private var showPaywall = false
+    @State private var isCheckingAuth = true
     @State private var pendingChallengeNavigation: String?
     
     init() {
@@ -37,7 +38,7 @@ struct RootView: View {
     
     var body: some View {
         ZStack {
-            if showSplash {
+            if showSplash || isCheckingAuth {
                 SplashScreenView()
             } else if showLanguageSelection {
                 LanguageSelectionView(isPresented: $showLanguageSelection, showOnboardingNext: $showOnboarding)
@@ -61,6 +62,8 @@ struct RootView: View {
             }
         }
         .onAppear {
+            checkAuthenticationState()
+            
             // Hide splash after 2 seconds
             DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                 withAnimation(.easeInOut(duration: 0.5)) {
@@ -72,6 +75,44 @@ struct RootView: View {
             if let challengeId = newValue {
                 handlePendingChallenge(challengeId)
             }
+        }
+    }
+    
+    private func checkAuthenticationState() {
+        // Check if user is already authenticated with Firebase
+        if let user = Auth.auth().currentUser {
+            print("✅ User already authenticated: \(user.uid)")
+            
+            // User is authenticated, load their data
+            let userName = user.displayName ?? "Raw Dog"
+            let email = user.email
+            
+            // Set user in AppState and sync with Firebase
+            appState.setUser(userId: user.uid, userName: userName, email: email)
+            
+            // Skip onboarding/auth screens
+            showLanguageSelection = false
+            showOnboarding = false
+            showAuth = false
+            
+            // Check if should show paywall (only if never seen before)
+            if !UserDefaults.standard.bool(forKey: "hasSeenInitialPaywall") {
+                showPaywall = true
+            } else {
+                showPaywall = false
+            }
+            
+            isCheckingAuth = false
+        } else {
+            print("❌ No authenticated user, showing onboarding flow")
+            
+            // No authenticated user, show onboarding flow
+            showLanguageSelection = !UserDefaults.standard.bool(forKey: "hasSelectedLanguage")
+            showOnboarding = !UserDefaults.standard.bool(forKey: "hasCompletedOnboarding")
+            showAuth = true
+            showPaywall = false
+            
+            isCheckingAuth = false
         }
     }
     
