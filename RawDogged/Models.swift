@@ -517,6 +517,24 @@ class AppStateManager: ObservableObject {
         let bonusPoints = challenge.durationMinutes * 2
         userStats.totalPoints += bonusPoints
         
+        // If this is a public challenge, increment the completion count
+        if challenge.isPublic {
+            Task {
+                do {
+                    try await firestoreManager.incrementChallengeCompletionCount(challengeId: challenge.id.uuidString)
+                    
+                    // Update local publicChallenges array
+                    if let index = publicChallenges.firstIndex(where: { $0.id == challenge.id }) {
+                        await MainActor.run {
+                            publicChallenges[index].usersCompletedCount += 1
+                        }
+                    }
+                } catch {
+                    print("Error incrementing challenge completion count: \(error)")
+                }
+            }
+        }
+        
         // Save to Firebase
         saveToFirebase()
     }

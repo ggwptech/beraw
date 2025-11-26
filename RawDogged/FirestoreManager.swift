@@ -172,6 +172,13 @@ class FirestoreManager: ObservableObject {
         try await db.collection("publicChallenges").document(challengeId).delete()
     }
     
+    func incrementChallengeCompletionCount(challengeId: String) async throws {
+        let challengeRef = db.collection("publicChallenges").document(challengeId)
+        try await challengeRef.updateData([
+            "usersCompletedCount": FieldValue.increment(Int64(1))
+        ])
+    }
+    
     // MARK: - Journal Entries
     func saveJournalEntries(userId: String, entries: [JournalEntry]) async throws {
         let batch = db.batch()
