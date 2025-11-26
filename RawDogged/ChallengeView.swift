@@ -194,7 +194,6 @@ struct ChallengeView: View {
                                             ChallengeCard(challenge: challenge, isPublic: challenge.isPublic)
                                                 .environmentObject(appState)
                                                 .onTapGesture {
-                                                    guard !challenge.isCompleted else { return }
                                                     let storedChallenge = appState.challenges.first(where: { $0.id == challenge.id }) ?? challenge
                                                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
                                                         challengeForActions = storedChallenge
@@ -212,7 +211,6 @@ struct ChallengeView: View {
                                             ChallengeCard(challenge: challenge, isPublic: challenge.isPublic)
                                                 .environmentObject(appState)
                                                 .onTapGesture {
-                                                    guard !challenge.isCompleted else { return }
                                                     let storedChallenge = appState.challenges.first(where: { $0.id == challenge.id }) ?? challenge
                                                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
                                                         challengeForActions = storedChallenge
