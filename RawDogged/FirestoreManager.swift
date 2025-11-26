@@ -184,6 +184,19 @@ class FirestoreManager: ObservableObject {
         ])
     }
     
+    // MARK: - User Challenge Completions Tracking
+    func markChallengeAsCompleted(userId: String, challengeId: String) async throws {
+        let completionData: [String: Any] = [
+            "completedAt": Timestamp(date: Date())
+        ]
+        try await db.collection("users").document(userId).collection("completedPublicChallenges").document(challengeId).setData(completionData)
+    }
+    
+    func hasUserCompletedChallenge(userId: String, challengeId: String) async throws -> Bool {
+        let doc = try await db.collection("users").document(userId).collection("completedPublicChallenges").document(challengeId).getDocument()
+        return doc.exists
+    }
+    
     // MARK: - Real-time Listeners
     func listenToPublicChallenges(onUpdate: @escaping ([RawChallenge]) -> Void) {
         publicChallengesListener = db.collection("publicChallenges")

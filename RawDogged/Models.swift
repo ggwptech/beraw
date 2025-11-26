@@ -518,20 +518,35 @@ class AppStateManager: ObservableObject {
         let bonusPoints = challenge.durationMinutes * 2
         userStats.totalPoints += bonusPoints
         
-        // If this is a public challenge, increment the completion count
-        if challenge.isPublic {
+        // If this is a public challenge, check if user completed it before
+        if challenge.isPublic, let userId = currentUserId {
             Task {
                 do {
-                    try await firestoreManager.incrementChallengeCompletionCount(challengeId: challenge.id.uuidString)
+                    // Check if user has already completed this challenge
+                    let hasCompleted = try await firestoreManager.hasUserCompletedChallenge(userId: userId, challengeId: challenge.id.uuidString)
+                    
+                    if !hasCompleted {
+                        // First time completing - increment counter
+                        try await firestoreManager.incrementChallengeCompletionCount(challengeId: challenge.id.uuidString)
+                        
+                        // Mark as completed for this user
+                        try await firestoreManager.markChallengeAsCompleted(userId: userId, challengeId: challenge.id.uuidString)
+                        
+                        print("✅ First completion - counter incremented")
+                    } else {
+                        print("ℹ️ Already completed this challenge before - counter not incremented")
+                    }
                     
                     // Update local publicChallenges array
                     if let index = publicChallenges.firstIndex(where: { $0.id == challenge.id }) {
                         await MainActor.run {
-                            publicChallenges[index].usersCompletedCount += 1
+                            if !hasCompleted {
+                                publicChallenges[index].usersCompletedCount += 1
+                            }
                         }
                     }
                 } catch {
-                    print("Error incrementing challenge completion count: \(error)")
+                    print("Error handling challenge completion: \(error)")
                 }
             }
         }
