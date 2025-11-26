@@ -542,8 +542,30 @@ class AppStateManager: ObservableObject {
     }
     
     func deleteChallenge(_ challenge: RawChallenge) {
+        // Remove from local challenges
         challenges.removeAll { $0.id == challenge.id }
-        saveToFirebase()
+        
+        // If challenge was public, also remove from public challenges
+        if challenge.isPublic {
+            publicChallenges.removeAll { $0.id == challenge.id }
+        }
+        
+        // Delete from Firebase
+        guard let userId = currentUserId else { return }
+        
+        Task {
+            do {
+                // Delete from user's challenges
+                try await firestoreManager.deleteChallenge(userId: userId, challengeId: challenge.id.uuidString)
+                
+                // If it was public, delete from public challenges too
+                if challenge.isPublic {
+                    try await firestoreManager.deletePublicChallenge(challengeId: challenge.id.uuidString)
+                }
+            } catch {
+                print("Error deleting challenge: \(error)")
+            }
+        }
     }
     
     func shareChallengeToPublic(_ challenge: RawChallenge) {

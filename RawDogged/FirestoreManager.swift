@@ -164,6 +164,14 @@ class FirestoreManager: ObservableObject {
         )
     }
     
+    func deleteChallenge(userId: String, challengeId: String) async throws {
+        try await db.collection("users").document(userId).collection("challenges").document(challengeId).delete()
+    }
+    
+    func deletePublicChallenge(challengeId: String) async throws {
+        try await db.collection("publicChallenges").document(challengeId).delete()
+    }
+    
     // MARK: - Journal Entries
     func saveJournalEntries(userId: String, entries: [JournalEntry]) async throws {
         let batch = db.batch()
