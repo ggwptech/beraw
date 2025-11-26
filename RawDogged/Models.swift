@@ -560,7 +560,9 @@ class AppStateManager: ObservableObject {
     }
     
     func deleteChallenge(_ challenge: RawChallenge) {
-        // Remove from local challenges
+        print("🗑️ Deleting challenge: \(challenge.title), isCompleted: \(challenge.isCompleted), isPublic: \(challenge.isPublic)")
+        
+        // Remove from local challenges (works for completed and uncompleted)
         challenges.removeAll { $0.id == challenge.id }
         
         // If challenge was public, also remove from public challenges
@@ -569,19 +571,24 @@ class AppStateManager: ObservableObject {
         }
         
         // Delete from Firebase
-        guard let userId = currentUserId else { return }
+        guard let userId = currentUserId else {
+            print("❌ No userId for deletion")
+            return
+        }
         
         Task {
             do {
                 // Delete from user's challenges
                 try await firestoreManager.deleteChallenge(userId: userId, challengeId: challenge.id.uuidString)
+                print("✅ Deleted from user challenges")
                 
                 // If it was public, delete from public challenges too
                 if challenge.isPublic {
                     try await firestoreManager.deletePublicChallenge(challengeId: challenge.id.uuidString)
+                    print("✅ Deleted from public challenges")
                 }
             } catch {
-                print("Error deleting challenge: \(error)")
+                print("❌ Error deleting challenge: \(error)")
             }
         }
     }
@@ -599,12 +606,20 @@ class AppStateManager: ObservableObject {
             var publicChallenge = challenge
             publicChallenge.isPublic = true
             publicChallenge.usersCompletedCount = 1
+            
+            // Add to local list immediately for instant UI update
             publicChallenges.append(publicChallenge)
             
             // Save to Firebase
             Task {
                 do {
                     try await firestoreManager.savePublicChallenge(challenge: publicChallenge, creatorId: userId)
+                    
+                    // Reload public challenges to ensure sync
+                    let updatedChallenges = try await firestoreManager.fetchPublicChallenges()
+                    await MainActor.run {
+                        self.publicChallenges = updatedChallenges
+                    }
                 } catch {
                     print("Error saving public challenge: \(error)")
                 }
