@@ -6,6 +6,11 @@ import Combine
 class FirestoreManager: ObservableObject {
     private let db = Firestore.firestore()
     private var cancellables = Set<AnyCancellable>()
+    private var publicChallengesListener: ListenerRegistration?
+    
+    deinit {
+        publicChallengesListener?.remove()
+    }
     
     // MARK: - User Data
     func saveUserProfile(userId: String, userName: String, email: String?) async throws {
@@ -177,6 +182,47 @@ class FirestoreManager: ObservableObject {
         try await challengeRef.updateData([
             "usersCompletedCount": FieldValue.increment(Int64(1))
         ])
+    }
+    
+    // MARK: - Real-time Listeners
+    func listenToPublicChallenges(onUpdate: @escaping ([RawChallenge]) -> Void) {
+        publicChallengesListener = db.collection("publicChallenges")
+            .order(by: "usersCompletedCount", descending: true)
+            .limit(to: 50)
+            .addSnapshotListener { snapshot, error in
+                guard let snapshot = snapshot else {
+                    print("Error listening to public challenges: \(error?.localizedDescription ?? "Unknown")")
+                    return
+                }
+                
+                let challenges = snapshot.documents.compactMap { doc -> RawChallenge? in
+                    let data = doc.data()
+                    guard let title = data["title"] as? String,
+                          let durationMinutes = data["durationMinutes"] as? Int else {
+                        return nil
+                    }
+                    
+                    let usersCompletedCount = data["usersCompletedCount"] as? Int ?? 0
+                    let createdAt = (data["createdAt"] as? Timestamp)?.dateValue() ?? Date()
+                    
+                    return RawChallenge(
+                        id: UUID(uuidString: doc.documentID) ?? UUID(),
+                        title: title,
+                        durationMinutes: durationMinutes,
+                        isCompleted: false,
+                        isPublic: true,
+                        createdAt: createdAt,
+                        usersCompletedCount: usersCompletedCount
+                    )
+                }
+                
+                onUpdate(challenges)
+            }
+    }
+    
+    func stopListeningToPublicChallenges() {
+        publicChallengesListener?.remove()
+        publicChallengesListener = nil
     }
     
     // MARK: - Journal Entries

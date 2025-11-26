@@ -289,10 +289,11 @@ class AppStateManager: ObservableObject {
                 self.updateStreak()
             }
             
-            // Load public challenges
-            let publicChallenges = try await firestoreManager.fetchPublicChallenges()
-            DispatchQueue.main.async {
-                self.publicChallenges = publicChallenges
+            // Start listening to public challenges in real-time
+            firestoreManager.listenToPublicChallenges { [weak self] challenges in
+                DispatchQueue.main.async {
+                    self?.publicChallenges = challenges
+                }
             }
             
             // Load leaderboard
@@ -607,19 +608,11 @@ class AppStateManager: ObservableObject {
             publicChallenge.isPublic = true
             publicChallenge.usersCompletedCount = 1
             
-            // Add to local list immediately for instant UI update
-            publicChallenges.append(publicChallenge)
-            
-            // Save to Firebase
+            // Save to Firebase - real-time listener will update all users automatically
             Task {
                 do {
                     try await firestoreManager.savePublicChallenge(challenge: publicChallenge, creatorId: userId)
-                    
-                    // Reload public challenges to ensure sync
-                    let updatedChallenges = try await firestoreManager.fetchPublicChallenges()
-                    await MainActor.run {
-                        self.publicChallenges = updatedChallenges
-                    }
+                    print("✅ Public challenge saved - will appear for all users via listener")
                 } catch {
                     print("Error saving public challenge: \(error)")
                 }
