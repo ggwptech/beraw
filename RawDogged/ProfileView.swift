@@ -311,10 +311,6 @@ struct ProfileView: View {
                                 }
                             }
                             
-                            SettingsCard(icon: "arrow.counterclockwise", title: "Reset Weekly Streak", isDestructive: false, showChevron: false) {
-                                appState.resetStreakData()
-                            }
-                            
                             SettingsCard(icon: "trash.fill", title: "Delete Account", isDestructive: true, showChevron: true) {
                                 showDeleteAccount = true
                             }
